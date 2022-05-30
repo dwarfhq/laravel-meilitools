@@ -1,0 +1,55 @@
+{
+    "name": "dwarfdk/laravel-meilitools",
+    "description": "Additional tools for Laravel Scout integration with MeiliSearch",
+    "license": "MIT",
+    "keywords": [
+        "laravel",
+        "scout",
+        "meili",
+        "meilisearch",
+        "meilitools"
+    ],
+    "type": "library",
+    "authors": [
+        {
+            "name": "Frederik Sauer",
+            "email": "fsa@dwarf.dk"
+        }
+    ],
+    "require": {
+        "php": "^7.3|^8.0",
+        "illuminate/validation": "^8.0|^9.0",
+        "laravel/scout": "^9.0",
+        "meilisearch/meilisearch-php": ">=0.19.2"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.4",
+        "guzzlehttp/guzzle": "^7.4",
+        "http-interop/http-factory-guzzle": "^1.2",
+        "orchestra/testbench": "^6.0|^7.0",
+        "phpunit/phpunit": "^9.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Dwarf\\MeiliTools\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Dwarf\\MeiliTools\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "test:coverage": "phpdbg -qrr vendor/bin/phpunit --color --coverage-html tests/_reports",
+        "lint": "php-cs-fixer fix --verbose --using-cache=no --dry-run --diff",
+        "lint:fix": "php-cs-fixer fix --verbose --using-cache=no --diff"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Dwarf\\MeiliTools\\MeiliToolsServiceProvider"
+            ]
+        }
+    }
+}
