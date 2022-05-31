@@ -4,37 +4,37 @@ declare(strict_types=1);
 
 namespace Dwarf\MeiliTools\Console\Commands;
 
-use Dwarf\MeiliTools\Contracts\Actions\DetailsIndex;
+use Dwarf\MeiliTools\Contracts\Actions\DetailsModelIndex;
 use Dwarf\MeiliTools\Helpers;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
 
-class IndexDetails extends Command
+class ModelDetails extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'meili:index:details {index? : Index name}';
+    protected $signature = 'meili:model:details {model? : Model class}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Get details for a MeiliSearch index';
+    protected $description = 'Get details for a MeiliSearch model index';
 
     /**
      * Execute the console command.
      *
-     * @param \Dwarf\MeiliTools\Contracts\Actions\DetailsIndex $detailIndex
+     * @param \Dwarf\MeiliTools\Contracts\Actions\DetailsModelIndex $detailModelIndex
      *
      * @return int
      */
-    public function handle(DetailsIndex $detailIndex)
+    public function handle(DetailsModelIndex $detailModelIndex)
     {
-        $details = $detailIndex($this->getIndex());
+        $details = $detailModelIndex($this->getModel());
         $values = collect($details)
             ->map(function ($value, $setting) {
                 return [
@@ -52,12 +52,12 @@ class IndexDetails extends Command
     }
 
     /**
-     * Get index name.
+     * Get model class.
      *
      * @return string
      */
-    protected function getIndex(): string
+    protected function getModel(): string
     {
-        return $this->argument('index') ?? $this->ask('What is the index name?');
+        return $this->argument('model') ?? $this->ask('What is the model class?');
     }
 }
