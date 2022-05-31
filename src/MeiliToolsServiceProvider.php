@@ -5,18 +5,18 @@ declare(strict_types=1);
 namespace Dwarf\MeiliTools;
 
 use Dwarf\MeiliTools\Actions\DetailIndex;
-use Dwarf\MeiliTools\Actions\DetailModelIndex;
+use Dwarf\MeiliTools\Actions\DetailModel;
 use Dwarf\MeiliTools\Actions\EnsureIndexExists;
 use Dwarf\MeiliTools\Actions\SynchronizeIndex;
-use Dwarf\MeiliTools\Actions\SynchronizeModelIndex;
+use Dwarf\MeiliTools\Actions\SynchronizeModel;
 use Dwarf\MeiliTools\Actions\ValidateIndexSettings;
 use Dwarf\MeiliTools\Console\Commands\IndexDetails;
 use Dwarf\MeiliTools\Console\Commands\ModelDetails;
 use Dwarf\MeiliTools\Contracts\Actions\DetailsIndex;
-use Dwarf\MeiliTools\Contracts\Actions\DetailsModelIndex;
+use Dwarf\MeiliTools\Contracts\Actions\DetailsModel;
 use Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists;
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesIndex;
-use Dwarf\MeiliTools\Contracts\Actions\SynchronizesModelIndex;
+use Dwarf\MeiliTools\Contracts\Actions\SynchronizesModel;
 use Dwarf\MeiliTools\Contracts\Actions\ValidatesIndexSettings;
 use Dwarf\MeiliTools\Contracts\Rules\ArrayAssocRule;
 use Dwarf\MeiliTools\Rules\ArrayAssoc;
@@ -32,10 +32,10 @@ class MeiliToolsServiceProvider extends ServiceProvider
     public array $bindings = [
         ArrayAssocRule::class         => ArrayAssoc::class,
         DetailsIndex::class           => DetailIndex::class,
-        DetailsModelIndex::class      => DetailModelIndex::class,
+        DetailsModel::class           => DetailModel::class,
         EnsuresIndexExists::class     => EnsureIndexExists::class,
         SynchronizesIndex::class      => SynchronizeIndex::class,
-        SynchronizesModelIndex::class => SynchronizeModelIndex::class,
+        SynchronizesModel::class      => SynchronizeModel::class,
         ValidatesIndexSettings::class => ValidateIndexSettings::class,
     ];
 

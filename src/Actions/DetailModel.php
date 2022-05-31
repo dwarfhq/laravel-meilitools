@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Dwarf\MeiliTools\Actions;
 
 use Dwarf\MeiliTools\Contracts\Actions\DetailsIndex;
-use Dwarf\MeiliTools\Contracts\Actions\DetailsModelIndex;
+use Dwarf\MeiliTools\Contracts\Actions\DetailsModel;
 use Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists;
 
 /**
  * Detail model index.
  */
-class DetailModelIndex implements DetailsModelIndex
+class DetailModel implements DetailsModel
 {
     /**
      * Details index action.

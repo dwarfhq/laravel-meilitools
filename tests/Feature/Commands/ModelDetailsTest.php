@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Dwarf\MeiliTools\Tests\Feature\Commands;
 
-use Dwarf\MeiliTools\Contracts\Actions\SynchronizesModelIndex;
+use Dwarf\MeiliTools\Contracts\Actions\SynchronizesModel;
 use Dwarf\MeiliTools\Helpers;
-use Dwarf\MeiliTools\Tests\Models\Movie;
 use Dwarf\MeiliTools\Tests\Models\MeiliMovie;
+use Dwarf\MeiliTools\Tests\Models\Movie;
 use Dwarf\MeiliTools\Tests\TestCase;
 use Illuminate\Support\Str;
 
@@ -60,7 +60,7 @@ class ModelDetailsTest extends TestCase
         try {
             $settings = $this->getMovieSettings();
 
-            $action = $this->app->make(SynchronizesModelIndex::class);
+            $action = $this->app->make(SynchronizesModel::class);
             $changes = ($action)(MeiliMovie::class);
             $this->assertNotEmpty($changes);
 

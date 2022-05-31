@@ -6,12 +6,12 @@ namespace Dwarf\MeiliTools\Actions;
 
 use Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists;
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesIndex;
-use Dwarf\MeiliTools\Contracts\Actions\SynchronizesModelIndex;
+use Dwarf\MeiliTools\Contracts\Actions\SynchronizesModel;
 
 /**
  * Synchronize model index.
  */
-class SynchronizeModelIndex implements SynchronizesModelIndex
+class SynchronizeModel implements SynchronizesModel
 {
     /**
      * Synchronizes index action.

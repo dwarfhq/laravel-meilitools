@@ -7,7 +7,7 @@ namespace Dwarf\MeiliTools\Contracts\Actions;
 /**
  * Synchronizes model index.
  */
-interface SynchronizesModelIndex
+interface SynchronizesModel
 {
     /**
      * Synchronizes model index details.

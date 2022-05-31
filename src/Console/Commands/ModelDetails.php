@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Dwarf\MeiliTools\Console\Commands;
 
-use Dwarf\MeiliTools\Contracts\Actions\DetailsModelIndex;
+use Dwarf\MeiliTools\Contracts\Actions\DetailsModel;
 use Dwarf\MeiliTools\Helpers;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
@@ -28,13 +28,13 @@ class ModelDetails extends Command
     /**
      * Execute the console command.
      *
-     * @param \Dwarf\MeiliTools\Contracts\Actions\DetailsModelIndex $detailModelIndex
+     * @param \Dwarf\MeiliTools\Contracts\Actions\DetailsModel $detailModel
      *
      * @return int
      */
-    public function handle(DetailsModelIndex $detailModelIndex)
+    public function handle(DetailsModel $detailModel)
     {
-        $details = $detailModelIndex($this->getModel());
+        $details = $detailModel($this->getModel());
         $values = collect($details)
             ->map(function ($value, $setting) {
                 return [

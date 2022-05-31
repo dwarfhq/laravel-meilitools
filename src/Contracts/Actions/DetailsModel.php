@@ -7,7 +7,7 @@ namespace Dwarf\MeiliTools\Contracts\Actions;
 /**
  * Details model index.
  */
-interface DetailsModelIndex
+interface DetailsModel
 {
     /**
      * Get extensive model index details.
