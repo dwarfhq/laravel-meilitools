@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Dwarf\MeiliTools\Actions;
 
-use Dwarf\MeiliTools\Constants;
 use Dwarf\MeiliTools\Contracts\Actions\DetailsIndex;
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesIndex;
 use Dwarf\MeiliTools\Contracts\Actions\ValidatesIndexSettings;
+use Dwarf\MeiliTools\Helpers;
 use Laravel\Scout\EngineManager;
 
 /**
@@ -46,7 +46,7 @@ class SynchronizeIndex implements SynchronizesIndex
     public function __construct(
         EngineManager $manager,
         DetailsIndex $detailIndex,
-        ValidatesIndexSettings $validateSettings,
+        ValidatesIndexSettings $validateSettings
     ) {
         $this->manager = $manager;
         $this->detailIndex = $detailIndex;
@@ -56,6 +56,8 @@ class SynchronizeIndex implements SynchronizesIndex
     /**
      * {@inheritDoc}
      *
+     * @param bool $dryRun Whether to simulate running the action.
+     *
      * @uses \Dwarf\MeiliTools\Contracts\Actions\DetailsIndex
      * @uses \Dwarf\MeiliTools\Contracts\Actions\ValidatesIndexSettings
      *
@@ -64,7 +66,7 @@ class SynchronizeIndex implements SynchronizesIndex
      * @throws \MeiliSearch\Exceptions\CommunicationException   When connection to MeiliSearch fails.
      * @throws \MeiliSearch\Exceptions\ApiException             When index is not found.
      */
-    public function __invoke(string $index, array $settings): array
+    public function __invoke(string $index, array $settings, bool $dryRun = false): array
     {
         $validated = $this->validateSettings->validate($settings);
         // Quick return if no valid settings.
@@ -83,7 +85,7 @@ class SynchronizeIndex implements SynchronizesIndex
             }
 
             // Check if settings are default.
-            if ($value === null && $details[$key] === Constants::DEFAULT_SETTINGS[$key]) {
+            if ($value === null && $details[$key] === Helpers::DEFAULT_SETTINGS[$key]) {
                 return false;
             }
 
@@ -96,8 +98,10 @@ class SynchronizeIndex implements SynchronizesIndex
         }
 
         // Update index settings and wait for completion.
-        $task = $this->manager->engine()->index($index)->updateSettings($changes);
-        $this->manager->engine()->waitForTask($task['uid']);
+        if (!$dryRun) {
+            $task = $this->manager->engine()->index($index)->updateSettings($changes);
+            $this->manager->engine()->waitForTask($task['uid']);
+        }
 
         return collect($changes)->map(fn ($value, $key) => ['old' => $details[$key], 'new' => $value])->all();
     }

@@ -41,6 +41,8 @@ class SynchronizeModelIndex implements SynchronizesModelIndex
     /**
      * {@inheritDoc}
      *
+     * @param bool $dryRun Whether to simulate running the action.
+     *
      * @uses \Dwarf\MeiliTools\Contracts\Actions\SynchronizesIndex
      * @uses \Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists
      *
@@ -48,7 +50,7 @@ class SynchronizeModelIndex implements SynchronizesModelIndex
      * @throws \Dwarf\MeiliTools\Exceptions\MeiliToolsException When not using the MeiliSearch Scout driver.
      * @throws \MeiliSearch\Exceptions\CommunicationException   When connection to MeiliSearch fails.
      */
-    public function __invoke(string $class): array
+    public function __invoke(string $class, bool $dryRun = false): array
     {
         $model = new $class();
         $index = $model->searchableAs();
@@ -58,6 +60,6 @@ class SynchronizeModelIndex implements SynchronizesModelIndex
 
         $settings = $class::meiliSettings();
 
-        return ($this->synchronizeIndex)($index, $settings);
+        return ($this->synchronizeIndex)($index, $settings, $dryRun);
     }
 }

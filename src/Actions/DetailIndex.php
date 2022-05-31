@@ -7,6 +7,7 @@ namespace Dwarf\MeiliTools\Actions;
 use Dwarf\MeiliTools\Contracts\Actions\DetailsIndex;
 use Dwarf\MeiliTools\Exceptions\MeiliToolsException;
 use Laravel\Scout\EngineManager;
+use MeiliSearch\Contracts\Data;
 
 /**
  * Detail index.
@@ -44,8 +45,10 @@ class DetailIndex implements DetailsIndex
         }
 
         $details = $this->manager->engine()->index($index)->getSettings();
-        // Convert synonyms from contract to array.
-        $details['synonyms'] = $details['synonyms']->getIterator()->getArrayCopy();
+        // Convert iterator objects from contract to array.
+        $details = array_map(function ($value) {
+            return $value instanceof Data ? $value->getIterator()->getArrayCopy() : $value;
+        }, $details);
         // Sort keys for consistency.
         ksort($details);
 

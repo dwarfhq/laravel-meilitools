@@ -10,6 +10,7 @@ use Dwarf\MeiliTools\Actions\EnsureIndexExists;
 use Dwarf\MeiliTools\Actions\SynchronizeIndex;
 use Dwarf\MeiliTools\Actions\SynchronizeModelIndex;
 use Dwarf\MeiliTools\Actions\ValidateIndexSettings;
+use Dwarf\MeiliTools\Console\Commands\IndexDetails;
 use Dwarf\MeiliTools\Contracts\Actions\DetailsIndex;
 use Dwarf\MeiliTools\Contracts\Actions\DetailsModelIndex;
 use Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists;
@@ -62,6 +63,10 @@ class MeiliToolsServiceProvider extends ServiceProvider
     public function boot(): void
     {
         if ($this->app->runningInConsole()) {
+            $this->commands([
+                IndexDetails::class,
+            ]);
+
             $this->publishes([__DIR__ . '/../config/meilitools.php' => $this->app['path.config'] . '/meilitools.php']);
         }
     }
