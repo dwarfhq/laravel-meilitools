@@ -17,10 +17,10 @@
         }
     ],
     "require": {
-        "php": "^7.3|^8.0",
+        "php": "^7.4|^8.0",
         "illuminate/validation": "^8.0|^9.0",
         "laravel/scout": "^9.0",
-        "meilisearch/meilisearch-php": ">=0.19.2"
+        "meilisearch/meilisearch-php": ">=0.23.0"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.4",

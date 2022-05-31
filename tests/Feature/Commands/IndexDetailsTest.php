@@ -29,7 +29,7 @@ class IndexDetailsTest extends TestCase
     public function testWithDefaultSettings(): void
     {
         $this->withIndex(self::INDEX, function () {
-            $values = collect(Helpers::DEFAULT_SETTINGS)
+            $values = collect(Helpers::defaultSettings())
                 ->map(function ($value, $setting) {
                     return [
                         (string) Str::of($setting)->snake()->replace('_', ' ')->title(),

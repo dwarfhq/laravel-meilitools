@@ -5,25 +5,35 @@ declare(strict_types=1);
 namespace Dwarf\MeiliTools;
 
 use Brick\VarExporter\VarExporter;
+use MeiliSearch\MeiliSearch;
 
 class Helpers
 {
     /**
      * Default MeiliSearch index settings.
      *
-     * @var array
+     * @return array
      */
-    public const DEFAULT_SETTINGS = [
-        'displayedAttributes'  => ['*'],
-        'distinctAttribute'    => null,
-        'filterableAttributes' => [],
-        'rankingRules'         => ['words', 'typo', 'proximity', 'attribute', 'sort', 'exactness'],
-        'searchableAttributes' => ['*'],
-        'sortableAttributes'   => [],
-        'stopWords'            => [],
-        'synonyms'             => [],
-        'typoTolerance'        => [],
-    ];
+    public static function defaultSettings(): array
+    {
+        $settings = [
+            'displayedAttributes'  => ['*'],
+            'distinctAttribute'    => null,
+            'filterableAttributes' => [],
+            'rankingRules'         => ['words', 'typo', 'proximity', 'attribute', 'sort', 'exactness'],
+            'searchableAttributes' => ['*'],
+            'sortableAttributes'   => [],
+            'stopWords'            => [],
+            'synonyms'             => [],
+        ];
+
+        // Add typo tolerance to default settings for version >=0.23.2.
+        if (version_compare(MeiliSearch::VERSION, '0.23.2', '>=')) {
+            $settings['typoTolerance'] = [];
+        }
+
+        return $settings;
+    }
 
     /**
      * Export value to a string.

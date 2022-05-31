@@ -33,13 +33,14 @@ class SynchronizesIndexTest extends TestCase
             $changes = ($action)(self::INDEX, []);
             $this->assertSame([], $changes);
 
+            $defaults = Helpers::defaultSettings();
             $settings = $this->getMovieSettings();
 
             $changes = ($action)(self::INDEX, $settings);
             $this->assertCount(8, $changes);
 
             foreach ($changes as $key => $value) {
-                $old = Helpers::DEFAULT_SETTINGS[$key];
+                $old = $defaults[$key];
                 $new = $settings[$key];
                 $this->assertSame(compact('old', 'new'), $value);
             }
@@ -82,7 +83,7 @@ class SynchronizesIndexTest extends TestCase
             $this->assertCount(3, $changes);
 
             foreach ($changes as $key => $value) {
-                $old = $key === 'stopWords' ? Helpers::DEFAULT_SETTINGS[$key] : $settings[$key];
+                $old = $key === 'stopWords' ? $defaults[$key] : $settings[$key];
                 $new = $update3[$key];
                 $this->assertSame(compact('old', 'new'), $value);
             }

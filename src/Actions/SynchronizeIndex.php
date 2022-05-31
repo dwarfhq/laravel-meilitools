@@ -76,16 +76,17 @@ class SynchronizeIndex implements SynchronizesIndex
 
         // Fetch index settings.
         $details = ($this->detailIndex)($index);
+        $defaults = Helpers::defaultSettings();
 
         // Compare and extract settings changes.
-        $changes = array_filter($validated, function ($value, string $key) use ($details) {
+        $changes = array_filter($validated, function ($value, string $key) use ($details, $defaults) {
             // Straight comparison.
             if ($value === $details[$key]) {
                 return false;
             }
 
             // Check if settings are default.
-            if ($value === null && $details[$key] === Helpers::DEFAULT_SETTINGS[$key]) {
+            if ($value === null && $details[$key] === $defaults[$key]) {
                 return false;
             }
 
