@@ -107,6 +107,9 @@ class SynchronizesIndexTest extends TestCase
                 $new = $update4[$key];
                 $this->assertSame(compact('old', 'new'), $value);
             }
+
+            $changes = ($action)(self::INDEX, $update4);
+            $this->assertEmpty($changes);
         });
     }
 }

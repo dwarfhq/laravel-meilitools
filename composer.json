@@ -42,7 +42,7 @@
     },
     "scripts": {
         "test": "phpunit",
-        "test:coverage": "phpdbg -qrr vendor/bin/phpunit --color --coverage-html tests/_reports",
+        "test:coverage": "phpdbg -qrr vendor/bin/phpunit --coverage-html tests/_reports",
         "lint": "php-cs-fixer fix --verbose --using-cache=no --dry-run --diff",
         "lint:fix": "php-cs-fixer fix --verbose --using-cache=no --diff"
     },

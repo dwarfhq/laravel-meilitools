@@ -3,5 +3,6 @@
 /.idea
 /composer.lock
 /.phpunit.result.cache
+/.phpunit.result.log
 /.php-cs-fixer.cache
 .DS_*
