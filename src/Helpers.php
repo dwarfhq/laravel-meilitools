@@ -62,10 +62,32 @@ class Helpers
     public static function convertIndexSettingsToTable(array $settings): array
     {
         return collect($settings)
-            ->map(function ($value, $setting) {
+            ->map(function ($value, $key) {
                 return [
-                    (string) Str::of($setting)->snake()->replace('_', ' ')->title(),
+                    (string) Str::of($key)->snake()->replace('_', ' ')->title(),
                     self::export($value),
+                ];
+            })
+            ->values()
+            ->all()
+        ;
+    }
+
+    /**
+     * Convert index changes to table array.
+     *
+     * @param array $changes Key / value array.
+     *
+     * @return array
+     */
+    public static function convertIndexChangesToTable(array $changes): array
+    {
+        return collect($changes)
+            ->map(function ($value, $key) {
+                return [
+                    (string) Str::of($key)->snake()->replace('_', ' ')->title(),
+                    self::export($value['old']),
+                    self::export($value['new']),
                 ];
             })
             ->values()

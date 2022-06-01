@@ -97,6 +97,8 @@ class SynchronizeIndex implements SynchronizesIndex
         if (empty($changes)) {
             return [];
         }
+        // Sort changes.
+        ksort($changes);
 
         // Update index settings and wait for completion.
         if (!$dryRun) {

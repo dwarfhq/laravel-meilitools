@@ -54,8 +54,7 @@ class IndexDetailsTest extends TestCase
         $this->withIndex(self::INDEX, function () {
             $settings = Tools::movieSettings();
 
-            $action = $this->app->make(SynchronizesIndex::class);
-            $changes = ($action)(self::INDEX, $settings);
+            $changes = $this->app->make(SynchronizesIndex::class)(self::INDEX, $settings);
             $this->assertNotEmpty($changes);
 
             $values = Helpers::convertIndexSettingsToTable($settings);

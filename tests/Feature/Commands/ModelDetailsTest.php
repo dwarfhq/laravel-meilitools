@@ -9,7 +9,6 @@ use Dwarf\MeiliTools\Helpers;
 use Dwarf\MeiliTools\Tests\Models\MeiliMovie;
 use Dwarf\MeiliTools\Tests\Models\Movie;
 use Dwarf\MeiliTools\Tests\TestCase;
-use Dwarf\MeiliTools\Tests\Tools;
 
 /**
  * @internal
@@ -49,10 +48,9 @@ class ModelDetailsTest extends TestCase
     public function testWithAdvancedSettings(): void
     {
         try {
-            $settings = Tools::movieSettings();
+            $settings = MeiliMovie::meiliSettings();
 
-            $action = $this->app->make(SynchronizesModel::class);
-            $changes = ($action)(MeiliMovie::class);
+            $changes = $this->app->make(SynchronizesModel::class)(MeiliMovie::class);
             $this->assertNotEmpty($changes);
 
             $values = Helpers::convertIndexSettingsToTable($settings);

@@ -8,6 +8,7 @@ use Dwarf\MeiliTools\Contracts\Actions\ValidatesIndexSettings;
 use Dwarf\MeiliTools\Contracts\Rules\ArrayAssocRule;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Validator;
+use MeiliSearch\MeiliSearch;
 
 /**
  * Validates index settings.
@@ -78,7 +79,7 @@ class ValidateIndexSettings implements ValidatesIndexSettings
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             'displayedAttributes'    => ['nullable', 'array', 'min:1'],
             'displayedAttributes.*'  => ['required', 'string'],
             'distinctAttribute'      => ['nullable', 'string'],
@@ -92,9 +93,16 @@ class ValidateIndexSettings implements ValidatesIndexSettings
             'sortableAttributes.*'   => ['required', 'string'],
             'stopWords'              => ['nullable', 'array', 'min:1'],
             'stopWords.*'            => ['required', 'string'],
-            'synonyms'               => ['nullable', 'array', 'min:1', App::make(ArrayAssocRule::class)],
+            'synonyms'               => ['nullable', App::make(ArrayAssocRule::class), 'min:1'],
             'synonyms.*'             => ['required', 'array', 'min:1'],
             'synonyms.*.*'           => ['required', 'string'],
         ];
+
+        // Add typo tolerance to validation rules for version >=0.23.2.
+        if (version_compare(MeiliSearch::VERSION, '0.23.2', '>=')) {
+            $rules['typoTolerance'] = ['nullable', App::make(ArrayAssocRule::class)];
+        }
+
+        return $rules;
     }
 }

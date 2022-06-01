@@ -1,6 +1,8 @@
 <?php
 
-return [
+use MeiliSearch\MeiliSearch;
+
+$settings = [
     'rankingRules' => [
         'words',
         'typo',
@@ -41,3 +43,10 @@ return [
         'logan'     => ['wolverine'],
     ],
 ];
+
+// Add typo tolerance to default settings for version >=0.23.2.
+if (version_compare(MeiliSearch::VERSION, '0.23.2', '>=')) {
+    $settings['typoTolerance'] = [];
+}
+
+return $settings;

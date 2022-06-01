@@ -19,7 +19,7 @@ class ArrayAssoc implements ArrayAssocRule
      */
     public function passes($attribute, $value)
     {
-        return Arr::isAssoc($value);
+        return \is_array($value) && (empty($value) || Arr::isAssoc($value));
     }
 
     /**

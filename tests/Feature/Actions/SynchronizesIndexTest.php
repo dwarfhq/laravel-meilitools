@@ -22,11 +22,11 @@ class SynchronizesIndexTest extends TestCase
     private const INDEX = 'testing-synchronizes-index';
 
     /**
-     * Test SynchronizesIndex::__invoke() method.
+     * Test SynchronizesIndex::__invoke() method with movie settings.
      *
      * @return void
      */
-    public function testInvoke(): void
+    public function testWithChangingMovieSettings(): void
     {
         $this->withIndex(self::INDEX, function () {
             $action = $this->app->make(SynchronizesIndex::class);
@@ -109,6 +109,46 @@ class SynchronizesIndexTest extends TestCase
             }
 
             $changes = ($action)(self::INDEX, $update4);
+            $this->assertEmpty($changes);
+        });
+    }
+
+    /**
+     * Test SynchronizesIndex::__invoke() method with dry run.
+     *
+     * @return void
+     */
+    public function testWithDryRun(): void
+    {
+        $this->withIndex(self::INDEX, function () {
+            $action = $this->app->make(SynchronizesIndex::class);
+
+            $changes = ($action)(self::INDEX, []);
+            $this->assertSame([], $changes);
+
+            $defaults = Helpers::defaultSettings();
+            $settings = Tools::movieSettings();
+
+            $changes = ($action)(self::INDEX, $settings, true);
+            $this->assertCount(8, $changes);
+
+            foreach ($changes as $key => $value) {
+                $old = $defaults[$key];
+                $new = $settings[$key];
+                $this->assertSame(compact('old', 'new'), $value);
+            }
+
+            $update = [
+                'displayedAttributes'  => null,
+                'distinctAttribute'    => null,
+                'filterableAttributes' => null,
+                'rankingRules'         => null,
+                'searchableAttributes' => null,
+                'sortableAttributes'   => null,
+                'stopWords'            => null,
+                'synonyms'             => null,
+            ];
+            $changes = ($action)(self::INDEX, $update);
             $this->assertEmpty($changes);
         });
     }
