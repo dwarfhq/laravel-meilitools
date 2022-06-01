@@ -7,7 +7,6 @@ namespace Dwarf\MeiliTools\Console\Commands;
 use Dwarf\MeiliTools\Contracts\Actions\DetailsModel;
 use Dwarf\MeiliTools\Helpers;
 use Illuminate\Console\Command;
-use Illuminate\Support\Str;
 
 class ModelDetails extends Command
 {
@@ -35,16 +34,7 @@ class ModelDetails extends Command
     public function handle(DetailsModel $detailModel)
     {
         $details = $detailModel($this->getModel());
-        $values = collect($details)
-            ->map(function ($value, $setting) {
-                return [
-                    (string) Str::of($setting)->snake()->replace('_', ' ')->title(),
-                    Helpers::export($value),
-                ];
-            })
-            ->values()
-            ->all()
-        ;
+        $values = Helpers::convertIndexSettingsToTable($details);
 
         $this->table(['Setting', 'Value'], $values);
 

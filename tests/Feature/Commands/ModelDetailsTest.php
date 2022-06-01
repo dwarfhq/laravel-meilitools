@@ -10,7 +10,6 @@ use Dwarf\MeiliTools\Tests\Models\MeiliMovie;
 use Dwarf\MeiliTools\Tests\Models\Movie;
 use Dwarf\MeiliTools\Tests\TestCase;
 use Dwarf\MeiliTools\Tests\Tools;
-use Illuminate\Support\Str;
 
 /**
  * @internal
@@ -25,16 +24,7 @@ class ModelDetailsTest extends TestCase
     public function testWithDefaultSettings(): void
     {
         try {
-            $values = collect(Helpers::defaultSettings())
-                ->map(function ($value, $setting) {
-                    return [
-                        (string) Str::of($setting)->snake()->replace('_', ' ')->title(),
-                        Helpers::export($value),
-                    ];
-                })
-                ->values()
-                ->all()
-            ;
+            $values = Helpers::convertIndexSettingsToTable(Helpers::defaultSettings());
 
             $this->artisan('meili:model:details')
                 ->expectsQuestion('What is the model class?', Movie::class)
@@ -65,16 +55,7 @@ class ModelDetailsTest extends TestCase
             $changes = ($action)(MeiliMovie::class);
             $this->assertNotEmpty($changes);
 
-            $values = collect($settings)
-                ->map(function ($value, $setting) {
-                    return [
-                        (string) Str::of($setting)->snake()->replace('_', ' ')->title(),
-                        Helpers::export($value),
-                    ];
-                })
-                ->values()
-                ->all()
-            ;
+            $values = Helpers::convertIndexSettingsToTable($settings);
 
             $this->artisan('meili:model:details', ['model' => MeiliMovie::class])
                 ->expectsTable(['Setting', 'Value'], $values)

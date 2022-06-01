@@ -7,7 +7,6 @@ namespace Dwarf\MeiliTools\Console\Commands;
 use Dwarf\MeiliTools\Contracts\Actions\DetailsIndex;
 use Dwarf\MeiliTools\Helpers;
 use Illuminate\Console\Command;
-use Illuminate\Support\Str;
 
 class IndexDetails extends Command
 {
@@ -35,16 +34,7 @@ class IndexDetails extends Command
     public function handle(DetailsIndex $detailIndex)
     {
         $details = $detailIndex($this->getIndex());
-        $values = collect($details)
-            ->map(function ($value, $setting) {
-                return [
-                    (string) Str::of($setting)->snake()->replace('_', ' ')->title(),
-                    Helpers::export($value),
-                ];
-            })
-            ->values()
-            ->all()
-        ;
+        $values = Helpers::convertIndexSettingsToTable($details);
 
         $this->table(['Setting', 'Value'], $values);
 

@@ -8,7 +8,6 @@ use Dwarf\MeiliTools\Contracts\Actions\SynchronizesIndex;
 use Dwarf\MeiliTools\Helpers;
 use Dwarf\MeiliTools\Tests\TestCase;
 use Dwarf\MeiliTools\Tests\Tools;
-use Illuminate\Support\Str;
 
 /**
  * @internal
@@ -30,16 +29,7 @@ class IndexDetailsTest extends TestCase
     public function testWithDefaultSettings(): void
     {
         $this->withIndex(self::INDEX, function () {
-            $values = collect(Helpers::defaultSettings())
-                ->map(function ($value, $setting) {
-                    return [
-                        (string) Str::of($setting)->snake()->replace('_', ' ')->title(),
-                        Helpers::export($value),
-                    ];
-                })
-                ->values()
-                ->all()
-            ;
+            $values = Helpers::convertIndexSettingsToTable(Helpers::defaultSettings());
 
             $this->artisan('meili:index:details')
                 ->expectsQuestion('What is the index name?', self::INDEX)
@@ -68,16 +58,7 @@ class IndexDetailsTest extends TestCase
             $changes = ($action)(self::INDEX, $settings);
             $this->assertNotEmpty($changes);
 
-            $values = collect($settings)
-                ->map(function ($value, $setting) {
-                    return [
-                        (string) Str::of($setting)->snake()->replace('_', ' ')->title(),
-                        Helpers::export($value),
-                    ];
-                })
-                ->values()
-                ->all()
-            ;
+            $values = Helpers::convertIndexSettingsToTable($settings);
 
             $this->artisan('meili:index:details', ['index' => self::INDEX])
                 ->expectsTable(['Setting', 'Value'], $values)

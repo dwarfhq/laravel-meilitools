@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Dwarf\MeiliTools;
 
 use Brick\VarExporter\VarExporter;
+use Illuminate\Support\Str;
 use MeiliSearch\MeiliSearch;
 
 class Helpers
@@ -49,5 +50,26 @@ class Helpers
         }
 
         return var_export($value, true);
+    }
+
+    /**
+     * Convert index settings to table array.
+     *
+     * @param array $settings Key / value array.
+     *
+     * @return array
+     */
+    public static function convertIndexSettingsToTable(array $settings): array
+    {
+        return collect($settings)
+            ->map(function ($value, $setting) {
+                return [
+                    (string) Str::of($setting)->snake()->replace('_', ' ')->title(),
+                    self::export($value),
+                ];
+            })
+            ->values()
+            ->all()
+        ;
     }
 }
