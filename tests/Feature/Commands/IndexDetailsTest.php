@@ -7,6 +7,7 @@ namespace Dwarf\MeiliTools\Tests\Feature\Commands;
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesIndex;
 use Dwarf\MeiliTools\Helpers;
 use Dwarf\MeiliTools\Tests\TestCase;
+use Dwarf\MeiliTools\Tests\Tools;
 use Illuminate\Support\Str;
 
 /**
@@ -61,7 +62,7 @@ class IndexDetailsTest extends TestCase
     public function testWithAdvancedSettings(): void
     {
         $this->withIndex(self::INDEX, function () {
-            $settings = $this->getMovieSettings();
+            $settings = Tools::movieSettings();
 
             $action = $this->app->make(SynchronizesIndex::class);
             $changes = ($action)(self::INDEX, $settings);

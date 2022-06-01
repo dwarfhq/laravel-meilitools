@@ -7,6 +7,7 @@ namespace Dwarf\MeiliTools\Tests\Feature\Actions;
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesIndex;
 use Dwarf\MeiliTools\Helpers;
 use Dwarf\MeiliTools\Tests\TestCase;
+use Dwarf\MeiliTools\Tests\Tools;
 
 /**
  * @internal
@@ -34,7 +35,7 @@ class SynchronizesIndexTest extends TestCase
             $this->assertSame([], $changes);
 
             $defaults = Helpers::defaultSettings();
-            $settings = $this->getMovieSettings();
+            $settings = Tools::movieSettings();
 
             $changes = ($action)(self::INDEX, $settings);
             $this->assertCount(8, $changes);

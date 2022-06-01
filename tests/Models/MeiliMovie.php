@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Dwarf\MeiliTools\Tests\Models;
 
 use Dwarf\MeiliTools\Contracts\Indexes\MeiliSettings;
+use Dwarf\MeiliTools\Tests\Tools;
 
 class MeiliMovie extends Movie implements MeiliSettings
 {
@@ -13,6 +14,6 @@ class MeiliMovie extends Movie implements MeiliSettings
      */
     public static function meiliSettings(): array
     {
-        return include __DIR__ . '/../datasets/movie_settings.php';
+        return Tools::movieSettings();
     }
 }
