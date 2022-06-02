@@ -30,7 +30,8 @@ class SynchronizeModel implements SynchronizesModel
     /**
      * Constructor.
      *
-     * @param \Dwarf\MeiliTools\Contracts\Actions\SynchronizesIndex $synchronizeIndex Synchronize action.
+     * @param \Dwarf\MeiliTools\Contracts\Actions\SynchronizesIndex  $synchronizeIndex  Synchronize action.
+     * @param \Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists $ensureIndexExists Action ensuring index exists.
      */
     public function __construct(SynchronizesIndex $synchronizeIndex, EnsuresIndexExists $ensureIndexExists)
     {
@@ -41,7 +42,7 @@ class SynchronizeModel implements SynchronizesModel
     /**
      * {@inheritDoc}
      *
-     * @param bool $dryRun Whether to simulate running the action.
+     * @param bool $pretending Whether to pretend running the action.
      *
      * @uses \Dwarf\MeiliTools\Contracts\Actions\SynchronizesIndex
      * @uses \Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists
@@ -50,16 +51,15 @@ class SynchronizeModel implements SynchronizesModel
      * @throws \Dwarf\MeiliTools\Exceptions\MeiliToolsException When not using the MeiliSearch Scout driver.
      * @throws \MeiliSearch\Exceptions\CommunicationException   When connection to MeiliSearch fails.
      */
-    public function __invoke(string $class, bool $dryRun = false): array
+    public function __invoke(string $class, bool $pretending = false): array
     {
         $model = new $class();
         $index = $model->searchableAs();
         $primaryKey = $model->getKeyName();
+        $settings = $class::meiliSettings();
 
         ($this->ensureIndexExists)($index, compact('primaryKey'));
 
-        $settings = $class::meiliSettings();
-
-        return ($this->synchronizeIndex)($index, $settings, $dryRun);
+        return ($this->synchronizeIndex)($index, $settings, $pretending);
     }
 }

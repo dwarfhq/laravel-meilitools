@@ -30,7 +30,8 @@ class DetailModel implements DetailsModel
     /**
      * Constructor.
      *
-     * @param \Dwarf\MeiliTools\Contracts\Actions\DetailsIndex $detailIndex Detail action.
+     * @param \Dwarf\MeiliTools\Contracts\Actions\DetailsIndex       $detailIndex       Detail action.
+     * @param \Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists $ensureIndexExists Action ensuring index exists.
      */
     public function __construct(DetailsIndex $detailIndex, EnsuresIndexExists $ensureIndexExists)
     {

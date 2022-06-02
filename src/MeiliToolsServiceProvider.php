@@ -9,6 +9,7 @@ use Dwarf\MeiliTools\Actions\DetailModel;
 use Dwarf\MeiliTools\Actions\EnsureIndexExists;
 use Dwarf\MeiliTools\Actions\SynchronizeIndex;
 use Dwarf\MeiliTools\Actions\SynchronizeModel;
+use Dwarf\MeiliTools\Actions\SynchronizeModels;
 use Dwarf\MeiliTools\Actions\ValidateIndexSettings;
 use Dwarf\MeiliTools\Console\Commands\IndexDetails;
 use Dwarf\MeiliTools\Console\Commands\ModelDetails;
@@ -18,6 +19,7 @@ use Dwarf\MeiliTools\Contracts\Actions\DetailsModel;
 use Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists;
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesIndex;
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesModel;
+use Dwarf\MeiliTools\Contracts\Actions\SynchronizesModels;
 use Dwarf\MeiliTools\Contracts\Actions\ValidatesIndexSettings;
 use Dwarf\MeiliTools\Contracts\Rules\ArrayAssocRule;
 use Dwarf\MeiliTools\Rules\ArrayAssoc;
@@ -37,6 +39,7 @@ class MeiliToolsServiceProvider extends ServiceProvider
         EnsuresIndexExists::class     => EnsureIndexExists::class,
         SynchronizesIndex::class      => SynchronizeIndex::class,
         SynchronizesModel::class      => SynchronizeModel::class,
+        SynchronizesModels::class     => SynchronizeModels::class,
         ValidatesIndexSettings::class => ValidateIndexSettings::class,
     ];
 

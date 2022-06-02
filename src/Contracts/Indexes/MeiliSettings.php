@@ -40,6 +40,10 @@ interface MeiliSettings
      *         'genres',
      *         'release_date',
      *     ],
+     *     'filterableAttributes' => [
+     *         'release_date',
+     *         'rank',
+     *     ],
      *     'stopWords' => [
      *         'the',
      *         'a',
