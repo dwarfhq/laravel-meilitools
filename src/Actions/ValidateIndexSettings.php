@@ -93,14 +93,14 @@ class ValidateIndexSettings implements ValidatesIndexSettings
             'sortableAttributes.*'   => ['required', 'string'],
             'stopWords'              => ['nullable', 'array', 'min:1'],
             'stopWords.*'            => ['required', 'string'],
-            'synonyms'               => ['nullable', App::make(ArrayAssocRule::class), 'min:1'],
-            'synonyms.*'             => ['required', 'array', 'min:1'],
+            'synonyms'               => ['nullable', 'array', App::make(ArrayAssocRule::class), 'min:1'],
+            'synonyms.*'             => ['required', 'array'],
             'synonyms.*.*'           => ['required', 'string'],
         ];
 
         // Add typo tolerance to validation rules for version >=0.23.2.
         if (version_compare(MeiliSearch::VERSION, '0.23.2', '>=')) {
-            $rules['typoTolerance'] = ['nullable', App::make(ArrayAssocRule::class)];
+            $rules['typoTolerance'] = ['nullable', 'array', App::make(ArrayAssocRule::class)];
         }
 
         return $rules;

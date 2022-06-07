@@ -23,12 +23,14 @@
         "meilisearch/meilisearch-php": ">=0.23.0"
     },
     "require-dev": {
+        "brick/varexporter": "^0.3.5",
         "friendsofphp/php-cs-fixer": "^3.4",
         "guzzlehttp/guzzle": "^7.4",
         "http-interop/http-factory-guzzle": "^1.2",
-        "orchestra/testbench": "^6.0|^7.0",
-        "phpunit/phpunit": "^9.5",
-        "brick/varexporter": "^0.3.5"
+        "illuminate/support": "^8.69|^9.0",
+        "orchestra/testbench": "^6.5|^7.0",
+        "php-http/discovery": "^1.12",
+        "phpunit/phpunit": "^9.4"
     },
     "autoload": {
         "psr-4": {

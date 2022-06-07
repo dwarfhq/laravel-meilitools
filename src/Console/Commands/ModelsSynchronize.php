@@ -65,7 +65,7 @@ class ModelsSynchronize extends Command
                 } else {
                     $error = sprintf(
                         "Exception '%s' with message '%s' in %s:%d",
-                        $result::class,
+                        get_class($result),
                         $result->getMessage(),
                         $result->getFile(),
                         $result->getline()
