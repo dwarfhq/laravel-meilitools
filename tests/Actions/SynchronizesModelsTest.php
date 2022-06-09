@@ -11,6 +11,7 @@ use Dwarf\MeiliTools\Helpers;
 use Dwarf\MeiliTools\Tests\Models\MeiliMovie;
 use Dwarf\MeiliTools\Tests\Models\Movie;
 use Dwarf\MeiliTools\Tests\TestCase;
+use Illuminate\Support\Arr;
 
 /**
  * @internal
@@ -61,8 +62,9 @@ class SynchronizesModelsTest extends TestCase
 
             $details = $this->app->make(DetailsModel::class)(Movie::class);
             $this->assertSame($defaults, $details);
+
             $details = $this->app->make(DetailsModel::class)(MeiliMovie::class);
-            $this->assertSame($settings, $details);
+            $this->assertSame($settings, Arr::except($details, ['typoTolerance']));
         } finally {
             $this->deleteIndex((new Movie())->searchableAs());
             $this->deleteIndex((new MeiliMovie())->searchableAs());

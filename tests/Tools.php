@@ -18,7 +18,47 @@ class Tools
      */
     public static function movieSettings(bool $sorted = true): array
     {
-        $settings = include __DIR__ . '/datasets/movie_settings.php';
+        $settings = [
+            'rankingRules' => [
+                'words',
+                'typo',
+                'proximity',
+                'attribute',
+                'sort',
+                'exactness',
+                'release_date:desc',
+                'rank:desc',
+            ],
+            'distinctAttribute'    => 'movie_id',
+            'searchableAttributes' => [
+                'title',
+                'overview',
+                'genres',
+            ],
+            'displayedAttributes' => [
+                'title',
+                'overview',
+                'genres',
+                'release_date',
+            ],
+            'filterableAttributes' => [
+                'release_date',
+                'rank',
+            ],
+            'stopWords' => [
+                'the',
+                'a',
+                'an',
+            ],
+            'sortableAttributes' => [
+                'title',
+                'release_date',
+            ],
+            'synonyms' => [
+                'wolverine' => ['xmen', 'logan'],
+                'logan'     => ['wolverine'],
+            ],
+        ];
 
         if ($sorted) {
             // Certain settings are automatically sorted by MeiliSearch,

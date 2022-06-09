@@ -8,6 +8,7 @@ use Dwarf\MeiliTools\Contracts\Actions\DetailsModel;
 use Dwarf\MeiliTools\Helpers;
 use Dwarf\MeiliTools\Tests\Models\MeiliMovie;
 use Dwarf\MeiliTools\Tests\TestCase;
+use Illuminate\Support\Arr;
 
 /**
  * @internal
@@ -46,7 +47,7 @@ class ModelSynchronizeTest extends TestCase
             ;
 
             $details = $this->app->make(DetailsModel::class)(MeiliMovie::class);
-            $this->assertSame($settings, $details);
+            $this->assertSame($settings, Arr::except($details, ['typoTolerance']));
         } finally {
             $this->deleteIndex((new MeiliMovie())->searchableAs());
         }
