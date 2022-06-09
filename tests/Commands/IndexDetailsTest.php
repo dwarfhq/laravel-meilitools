@@ -8,6 +8,7 @@ use Dwarf\MeiliTools\Contracts\Actions\SynchronizesIndex;
 use Dwarf\MeiliTools\Helpers;
 use Dwarf\MeiliTools\Tests\TestCase;
 use Dwarf\MeiliTools\Tests\Tools;
+use Illuminate\Support\Arr;
 
 /**
  * @internal
@@ -52,12 +53,13 @@ class IndexDetailsTest extends TestCase
     public function testWithAdvancedSettings(): void
     {
         $this->withIndex(self::INDEX, function () {
+            $defaults = Helpers::defaultSettings($this->engineVersion());
             $settings = Tools::movieSettings();
 
             $changes = $this->app->make(SynchronizesIndex::class)(self::INDEX, $settings);
             $this->assertNotEmpty($changes);
 
-            $values = Helpers::convertIndexSettingsToTable($settings);
+            $values = Helpers::convertIndexSettingsToTable($settings + Arr::only($defaults, ['typoTolerance']));
 
             $this->artisan('meili:index:details', ['index' => self::INDEX])
                 ->expectsTable(['Setting', 'Value'], $values)

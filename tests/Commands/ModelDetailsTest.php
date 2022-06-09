@@ -9,6 +9,7 @@ use Dwarf\MeiliTools\Helpers;
 use Dwarf\MeiliTools\Tests\Models\MeiliMovie;
 use Dwarf\MeiliTools\Tests\Models\Movie;
 use Dwarf\MeiliTools\Tests\TestCase;
+use Illuminate\Support\Arr;
 
 /**
  * @internal
@@ -48,12 +49,13 @@ class ModelDetailsTest extends TestCase
     public function testWithAdvancedSettings(): void
     {
         try {
+            $defaults = Helpers::defaultSettings($this->engineVersion());
             $settings = MeiliMovie::meiliSettings();
 
             $changes = $this->app->make(SynchronizesModel::class)(MeiliMovie::class);
             $this->assertNotEmpty($changes);
 
-            $values = Helpers::convertIndexSettingsToTable($settings);
+            $values = Helpers::convertIndexSettingsToTable($settings + Arr::only($defaults, ['typoTolerance']));
 
             $this->artisan('meili:model:details', ['model' => MeiliMovie::class])
                 ->expectsTable(['Setting', 'Value'], $values)
