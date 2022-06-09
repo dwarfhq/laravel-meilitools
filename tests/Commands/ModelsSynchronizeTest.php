@@ -39,7 +39,7 @@ class ModelsSynchronizeTest extends TestCase
             $details = $this->app->make(DetailsModel::class)(MeiliMovie::class);
             $this->assertSame($defaults, $details);
 
-            $path = __DIR__ . '/../../Models';
+            $path = __DIR__ . '/../Models';
             $namespace = 'Dwarf\\MeiliTools\\Tests\\Models';
             config(['meilitools.paths' => [$path => $namespace]]);
 
@@ -81,7 +81,7 @@ class ModelsSynchronizeTest extends TestCase
             $details = $this->app->make(DetailsModel::class)(MeiliMovie::class);
             $this->assertSame($defaults, $details);
 
-            $path = __DIR__ . '/../../Models';
+            $path = __DIR__ . '/../Models';
             $namespace = 'Dwarf\\MeiliTools\\Tests\\Models';
             config(['meilitools.paths' => [$path => $namespace]]);
 

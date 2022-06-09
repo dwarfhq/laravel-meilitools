@@ -31,7 +31,7 @@ class ListsClassesTest extends TestCase
         $classes = $action($path, $namespace);
         $this->assertCount(0, $classes);
 
-        $path = __DIR__ . '/../../Models';
+        $path = __DIR__ . '/../Models';
         $namespace = 'Dwarf\\MeiliTools\\Tests\\Models';
         $classes = $action($path, $namespace);
         $this->assertCount(2, $classes);

@@ -9,22 +9,16 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         php: [8.1, 8.0, 7.4]
+        testbench: [7.0, 6.23]
         version: [prefer-stable, prefer-lowest]
         include:
-          - php: 8.1
-            testbench: 7.0
-          - php: 8.1
-            testbench: 6.23
-          - php: 8.0
-            testbench: 7.0
-          - php: 8.0
-            testbench: 6.23
-          - php: 7.4
-            testbench: 6.23
           - version: prefer-stable
             meilisearch: latest
           - version: prefer-lowest
             meilisearch: v0.26.0
+        exclude:
+          - php: 7.4
+            testbench: 7.0
 
     runs-on: ${{ matrix.os }}
 
