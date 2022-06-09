@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Dwarf\MeiliTools\Tests\Feature\Actions;
+namespace Dwarf\MeiliTools\Tests\Actions;
 
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesIndex;
 use Dwarf\MeiliTools\Helpers;
@@ -34,7 +34,7 @@ class SynchronizesIndexTest extends TestCase
             $changes = ($action)(self::INDEX, []);
             $this->assertSame([], $changes);
 
-            $defaults = Helpers::defaultSettings();
+            $defaults = Helpers::defaultSettings($this->engineVersion());
             $settings = Tools::movieSettings();
 
             $changes = ($action)(self::INDEX, $settings);
@@ -126,7 +126,7 @@ class SynchronizesIndexTest extends TestCase
             $changes = ($action)(self::INDEX, []);
             $this->assertSame([], $changes);
 
-            $defaults = Helpers::defaultSettings();
+            $defaults = Helpers::defaultSettings($this->engineVersion());
             $settings = Tools::movieSettings();
 
             $changes = ($action)(self::INDEX, $settings, true);

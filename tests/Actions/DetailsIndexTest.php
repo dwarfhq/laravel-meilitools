@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Dwarf\MeiliTools\Tests\Feature\Actions;
+namespace Dwarf\MeiliTools\Tests\Actions;
 
 use Dwarf\MeiliTools\Contracts\Actions\DetailsIndex;
 use Dwarf\MeiliTools\Exceptions\MeiliToolsException;
@@ -78,7 +78,7 @@ class DetailsIndexTest extends TestCase
         $this->withIndex(self::INDEX, function () {
             $action = $this->app->make(DetailsIndex::class);
             $details = ($action)(self::INDEX);
-            $this->assertSame(Helpers::defaultSettings(), $details);
+            $this->assertSame(Helpers::defaultSettings($this->engineVersion()), $details);
         });
     }
 }

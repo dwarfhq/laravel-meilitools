@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Dwarf\MeiliTools\Tests\Feature\Actions;
+namespace Dwarf\MeiliTools\Tests\Actions;
 
 use Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists;
 use Dwarf\MeiliTools\Exceptions\MeiliToolsException;

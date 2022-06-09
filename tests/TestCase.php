@@ -78,4 +78,16 @@ class TestCase extends BaseTestCase
         $task = $engine->deleteIndex($index);
         $engine->waitForTask($task['uid']);
     }
+
+    /**
+     * Get MeiliSearch engine version.
+     *
+     * @return string|null
+     */
+    protected function engineVersion(): ?string
+    {
+        $engine = $this->app->make(EngineManager::class)->engine();
+
+        return $engine->version()['pkgVersion'] ?? null;
+    }
 }

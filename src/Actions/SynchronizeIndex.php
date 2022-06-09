@@ -74,9 +74,13 @@ class SynchronizeIndex implements SynchronizesIndex
             return [];
         }
 
+        // Get engine version.
+        $engine = $this->manager->engine();
+        $version = $engine->version()['pkgVersion'] ?? null;
+
         // Fetch index settings.
         $details = ($this->detailIndex)($index);
-        $defaults = Helpers::defaultSettings();
+        $defaults = Helpers::defaultSettings($version);
 
         // Compare and extract settings changes.
         $changes = array_filter($validated, function ($value, string $key) use ($details, $defaults) {
@@ -102,8 +106,8 @@ class SynchronizeIndex implements SynchronizesIndex
 
         // Update index settings and wait for completion.
         if (!$pretending) {
-            $task = $this->manager->engine()->index($index)->updateSettings($changes);
-            $this->manager->engine()->waitForTask($task['uid']);
+            $task = $engine->index($index)->updateSettings($changes);
+            $engine->waitForTask($task['uid']);
         }
 
         return collect($changes)->map(fn ($value, $key) => ['old' => $details[$key], 'new' => $value])->all();

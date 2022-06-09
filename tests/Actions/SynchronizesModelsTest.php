@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Dwarf\MeiliTools\Tests\Feature\Actions;
+namespace Dwarf\MeiliTools\Tests\Actions;
 
 use BadMethodCallException;
 use Dwarf\MeiliTools\Contracts\Actions\DetailsModel;
@@ -25,7 +25,7 @@ class SynchronizesModelsTest extends TestCase
     public function testWithAdvancedSettings(): void
     {
         try {
-            $defaults = Helpers::defaultSettings();
+            $defaults = Helpers::defaultSettings($this->engineVersion());
             $settings = MeiliMovie::meiliSettings();
             $expected = collect($settings)
                 ->mapWithKeys(function ($value, $key) use ($defaults) {
@@ -77,7 +77,7 @@ class SynchronizesModelsTest extends TestCase
     public function testWithDryRun(): void
     {
         try {
-            $defaults = Helpers::defaultSettings();
+            $defaults = Helpers::defaultSettings($this->engineVersion());
             $settings = MeiliMovie::meiliSettings();
             $expected = collect($settings)
                 ->mapWithKeys(function ($value, $key) use ($defaults) {

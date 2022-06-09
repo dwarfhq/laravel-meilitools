@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Dwarf\MeiliTools\Tests\Feature\Commands;
+namespace Dwarf\MeiliTools\Tests\Commands;
 
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesIndex;
 use Dwarf\MeiliTools\Helpers;
@@ -29,7 +29,7 @@ class IndexDetailsTest extends TestCase
     public function testWithDefaultSettings(): void
     {
         $this->withIndex(self::INDEX, function () {
-            $values = Helpers::convertIndexSettingsToTable(Helpers::defaultSettings());
+            $values = Helpers::convertIndexSettingsToTable(Helpers::defaultSettings($this->engineVersion()));
 
             $this->artisan('meili:index:details')
                 ->expectsQuestion('What is the index name?', self::INDEX)

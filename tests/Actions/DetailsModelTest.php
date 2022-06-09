@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Dwarf\MeiliTools\Tests\Feature\Actions;
+namespace Dwarf\MeiliTools\Tests\Actions;
 
 use Dwarf\MeiliTools\Contracts\Actions\DetailsModel;
 use Dwarf\MeiliTools\Helpers;
@@ -23,7 +23,7 @@ class DetailsModelTest extends TestCase
     {
         try {
             $details = $this->app->make(DetailsModel::class)(Movie::class);
-            $this->assertSame(Helpers::defaultSettings(), $details);
+            $this->assertSame(Helpers::defaultSettings($this->engineVersion()), $details);
         } finally {
             $this->deleteIndex((new Movie())->searchableAs());
         }

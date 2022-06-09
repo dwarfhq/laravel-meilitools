@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Dwarf\MeiliTools\Tests\Feature\Commands;
+namespace Dwarf\MeiliTools\Tests\Commands;
 
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesModel;
 use Dwarf\MeiliTools\Helpers;
@@ -23,7 +23,7 @@ class ModelDetailsTest extends TestCase
     public function testWithDefaultSettings(): void
     {
         try {
-            $values = Helpers::convertIndexSettingsToTable(Helpers::defaultSettings());
+            $values = Helpers::convertIndexSettingsToTable(Helpers::defaultSettings($this->engineVersion()));
 
             $this->artisan('meili:model:details')
                 ->expectsQuestion('What is the model class?', Movie::class)

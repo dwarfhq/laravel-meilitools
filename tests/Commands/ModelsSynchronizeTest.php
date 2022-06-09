@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Dwarf\MeiliTools\Tests\Feature\Commands;
+namespace Dwarf\MeiliTools\Tests\Commands;
 
 use Dwarf\MeiliTools\Contracts\Actions\DetailsModel;
 use Dwarf\MeiliTools\Helpers;
@@ -22,7 +22,7 @@ class ModelsSynchronizeTest extends TestCase
     public function testWithAdvancedSettings(): void
     {
         try {
-            $defaults = Helpers::defaultSettings();
+            $defaults = Helpers::defaultSettings($this->engineVersion());
             $settings = MeiliMovie::meiliSettings();
             $changes = collect($settings)
                 ->mapWithKeys(function ($value, $key) use ($defaults) {
@@ -64,7 +64,7 @@ class ModelsSynchronizeTest extends TestCase
     public function testWithDryRun(): void
     {
         try {
-            $defaults = Helpers::defaultSettings();
+            $defaults = Helpers::defaultSettings($this->engineVersion());
             $settings = MeiliMovie::meiliSettings();
             $changes = collect($settings)
                 ->mapWithKeys(function ($value, $key) use ($defaults) {

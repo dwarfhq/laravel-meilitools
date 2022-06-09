@@ -13,9 +13,11 @@ class Helpers
     /**
      * Default MeiliSearch index settings.
      *
+     * @param string|null $version MeiliSearch engine version.
+     *
      * @return array
      */
-    public static function defaultSettings(): array
+    public static function defaultSettings(?string $version = null): array
     {
         $settings = [
             'displayedAttributes'  => ['*'],
@@ -31,6 +33,19 @@ class Helpers
         // Add typo tolerance to default settings for version >=0.23.2.
         if (version_compare(MeiliSearch::VERSION, '0.23.2', '>=')) {
             $settings['typoTolerance'] = [];
+        }
+
+        // Add actual typo tolerance defaults for engine version >=0.27.0.
+        if ($version && version_compare($version, '0.27.0', '>=')) {
+            $settings['typoTolerance'] = [
+                'enabled'             => true,
+                'minWordSizeForTypos' => [
+                    'oneTypo'  => 5,
+                    'twoTypos' => 9,
+                ],
+                'disableOnWords'      => [],
+                'disableOnAttributes' => [],
+            ];
         }
 
         return $settings;
