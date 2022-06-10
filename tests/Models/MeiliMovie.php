@@ -12,7 +12,7 @@ class MeiliMovie extends Movie implements MeiliSettings
     /**
      * {@inheritdoc}
      */
-    public static function meiliSettings(): array
+    public function meiliSettings(): array
     {
         return Tools::movieSettings();
     }

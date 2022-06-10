@@ -40,7 +40,7 @@ class SynchronizesModelTest extends TestCase
     {
         try {
             $defaults = Helpers::defaultSettings($this->engineVersion());
-            $settings = MeiliMovie::meiliSettings();
+            $settings = app(MeiliMovie::class)->meiliSettings();
             $expected = collect($settings)
                 ->mapWithKeys(function ($value, $key) use ($defaults) {
                     $old = $defaults[$key];
@@ -61,7 +61,7 @@ class SynchronizesModelTest extends TestCase
             $details = $this->app->make(DetailsModel::class)(MeiliMovie::class);
             $this->assertSame($settings, Arr::except($details, ['typoTolerance']));
         } finally {
-            $this->deleteIndex((new MeiliMovie())->searchableAs());
+            $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
         }
     }
 
@@ -74,7 +74,7 @@ class SynchronizesModelTest extends TestCase
     {
         try {
             $defaults = Helpers::defaultSettings($this->engineVersion());
-            $settings = MeiliMovie::meiliSettings();
+            $settings = app(MeiliMovie::class)->meiliSettings();
             $expected = collect($settings)
                 ->mapWithKeys(function ($value, $key) use ($defaults) {
                     $old = $defaults[$key];
@@ -95,7 +95,7 @@ class SynchronizesModelTest extends TestCase
             $details = $this->app->make(DetailsModel::class)(MeiliMovie::class);
             $this->assertSame($defaults, $details);
         } finally {
-            $this->deleteIndex((new MeiliMovie())->searchableAs());
+            $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
         }
     }
 }

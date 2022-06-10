@@ -50,7 +50,7 @@ class DetailModel implements DetailsModel
      */
     public function __invoke(string $class): array
     {
-        $model = new $class();
+        $model = app($class);
         $index = $model->searchableAs();
         $primaryKey = $model->getKeyName();
 

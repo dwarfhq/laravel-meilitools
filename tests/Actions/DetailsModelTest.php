@@ -25,7 +25,7 @@ class DetailsModelTest extends TestCase
             $details = $this->app->make(DetailsModel::class)(Movie::class);
             $this->assertSame(Helpers::defaultSettings($this->engineVersion()), $details);
         } finally {
-            $this->deleteIndex((new Movie())->searchableAs());
+            $this->deleteIndex(app(Movie::class)->searchableAs());
         }
     }
 }

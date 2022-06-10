@@ -37,7 +37,7 @@ class ModelDetailsTest extends TestCase
                 ->assertSuccessful()
             ;
         } finally {
-            $this->deleteIndex((new Movie())->searchableAs());
+            $this->deleteIndex(app(Movie::class)->searchableAs());
         }
     }
 
@@ -50,7 +50,7 @@ class ModelDetailsTest extends TestCase
     {
         try {
             $defaults = Helpers::defaultSettings($this->engineVersion());
-            $settings = MeiliMovie::meiliSettings();
+            $settings = app(MeiliMovie::class)->meiliSettings();
 
             $changes = $this->app->make(SynchronizesModel::class)(MeiliMovie::class);
             $this->assertNotEmpty($changes);
@@ -62,7 +62,7 @@ class ModelDetailsTest extends TestCase
                 ->assertSuccessful()
             ;
         } finally {
-            $this->deleteIndex((new MeiliMovie())->searchableAs());
+            $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
         }
     }
 }

@@ -53,10 +53,10 @@ class SynchronizeModel implements SynchronizesModel
      */
     public function __invoke(string $class, bool $pretending = false): array
     {
-        $model = new $class();
+        $model = app($class);
         $index = $model->searchableAs();
         $primaryKey = $model->getKeyName();
-        $settings = $class::meiliSettings();
+        $settings = $model->meiliSettings();
 
         ($this->ensureIndexExists)($index, compact('primaryKey'));
 
