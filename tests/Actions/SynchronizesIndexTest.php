@@ -8,6 +8,7 @@ use Dwarf\MeiliTools\Contracts\Actions\SynchronizesIndex;
 use Dwarf\MeiliTools\Helpers;
 use Dwarf\MeiliTools\Tests\TestCase;
 use Dwarf\MeiliTools\Tests\Tools;
+use Illuminate\Support\Arr;
 
 /**
  * @internal
@@ -110,6 +111,120 @@ class SynchronizesIndexTest extends TestCase
 
             $changes = ($action)(self::INDEX, $update4);
             $this->assertEmpty($changes);
+        });
+    }
+
+    /**
+     * Test SynchronizesIndex::__invoke() method with typo tolerance settings.
+     *
+     * @return void
+     */
+    public function testWithTypoToleranceSettings(): void
+    {
+        // Check if test should be run on this engine version.
+        $version = $this->engineVersion();
+        if (!$version || version_compare($version, '0.27.0', '<')) {
+            $this->markTestSkipped('Typo tolerance is only available from 0.27.0 and up.');
+        }
+
+        $this->withIndex(self::INDEX, function () use ($version) {
+            $action = $this->app->make(SynchronizesIndex::class);
+
+            // Grab default settings.
+            $defaults = Helpers::defaultSettings($version);
+            $default = $defaults['typoTolerance'];
+
+            $update = ['enabled' => false];
+            $current = Arr::only($default, array_keys($update));
+            $updates = ['typoTolerance' => $update];
+            $expected = ['typoTolerance' => ['old' => $current, 'new' => $update]];
+            $changes = ($action)(self::INDEX, $updates);
+            $this->assertCount(1, $changes);
+            $this->assertCount(1, $changes['typoTolerance']['old']);
+            $this->assertCount(1, $changes['typoTolerance']['new']);
+            $this->assertSame($expected, $changes);
+
+            // Attempting to do the same updates should result in zero changes.
+            $changes = ($action)(self::INDEX, $updates);
+            $this->assertCount(0, $changes);
+
+            $default = array_replace($default, $update);
+            $update = [
+                'enabled'             => null,
+                'minWordSizeForTypos' => [
+                    'oneTypo'  => 2,
+                    'twoTypos' => 6,
+                ],
+            ];
+            $current = Arr::only($default, array_keys($update));
+            $updates = ['typoTolerance' => $update];
+            $expected = ['typoTolerance' => ['old' => $current, 'new' => $update]];
+            $changes = ($action)(self::INDEX, $updates);
+            $this->assertCount(1, $changes);
+            $this->assertCount(2, $changes['typoTolerance']['old']);
+            $this->assertCount(2, $changes['typoTolerance']['new']);
+            $this->assertSame($expected, $changes);
+
+            // Attempting to do the same updates should result in zero changes.
+            $changes = ($action)(self::INDEX, $updates);
+            $this->assertCount(0, $changes);
+
+            $default = array_replace($default, $update, Arr::only($defaults['typoTolerance'], 'enabled'));
+            $update = [
+                'minWordSizeForTypos' => null,
+                'disableOnWords'      => ['title', 'rank'],
+            ];
+            $current = Arr::only($default, array_keys($update));
+            $updates = ['typoTolerance' => $update];
+            sort($update['disableOnWords']); // List is sorted automatically before update.
+            $expected = ['typoTolerance' => ['old' => $current, 'new' => $update]];
+            $changes = ($action)(self::INDEX, $updates);
+            $this->assertCount(1, $changes);
+            $this->assertCount(2, $changes['typoTolerance']['old']);
+            $this->assertCount(2, $changes['typoTolerance']['new']);
+            $this->assertSame($expected, $changes);
+
+            // Attempting to do the same updates should result in zero changes.
+            $changes = ($action)(self::INDEX, $updates);
+            $this->assertCount(0, $changes);
+
+            $default = array_replace($default, $update, Arr::only($defaults['typoTolerance'], 'minWordSizeForTypos'));
+            $update = [
+                'disableOnWords'      => null,
+                'disableOnAttributes' => ['title', 'rank'],
+            ];
+            $current = Arr::only($default, array_keys($update));
+            $updates = ['typoTolerance' => $update];
+            sort($update['disableOnAttributes']); // List is sorted automatically before update.
+            $expected = ['typoTolerance' => ['old' => $current, 'new' => $update]];
+            $changes = ($action)(self::INDEX, $updates);
+            $this->assertCount(1, $changes);
+            $this->assertCount(2, $changes['typoTolerance']['old']);
+            $this->assertCount(2, $changes['typoTolerance']['new']);
+            $this->assertSame($expected, $changes);
+
+            // Attempting to do the same updates should result in zero changes.
+            $changes = ($action)(self::INDEX, $updates);
+            $this->assertCount(0, $changes);
+
+            $default = Arr::only($update, 'disableOnAttributes');
+            $update = [
+                'minWordSizeForTypos' => null,
+                'disableOnWords'      => null,
+                'disableOnAttributes' => null,
+            ];
+            $current = Arr::only($default, array_keys($update));
+            $updates = ['typoTolerance' => $update];
+            $expected = ['typoTolerance' => ['old' => $current, 'new' => Arr::only($update, 'disableOnAttributes')]];
+            $changes = ($action)(self::INDEX, $updates);
+            $this->assertCount(1, $changes);
+            $this->assertCount(1, $changes['typoTolerance']['old']);
+            $this->assertCount(1, $changes['typoTolerance']['new']);
+            $this->assertSame($expected, $changes);
+
+            // Attempting to do the same updates should result in zero changes.
+            $changes = ($action)(self::INDEX, $updates);
+            $this->assertCount(0, $changes);
         });
     }
 

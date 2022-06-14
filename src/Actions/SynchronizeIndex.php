@@ -8,6 +8,7 @@ use Dwarf\MeiliTools\Contracts\Actions\DetailsIndex;
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesIndex;
 use Dwarf\MeiliTools\Contracts\Actions\ValidatesIndexSettings;
 use Dwarf\MeiliTools\Helpers;
+use Illuminate\Support\Arr;
 use Laravel\Scout\EngineManager;
 
 /**
@@ -83,19 +84,28 @@ class SynchronizeIndex implements SynchronizesIndex
         $defaults = Helpers::defaultSettings($version);
         $sorted = Helpers::sortSettings($validated);
 
+        // Remove typo tolerance if not present in defaults.
+        if (!\array_key_exists('typoTolerance', $defaults)) {
+            unset($sorted['typoTolerance']);
+        }
+
+        // Special handling for typo tolerance.
+        if (\array_key_exists('typoTolerance', $sorted) && \is_array($sorted['typoTolerance'])) {
+            $sorted['typoTolerance'] = array_filter(
+                $sorted['typoTolerance'],
+                function ($value, string $key) use ($details, $defaults) {
+                    return $this->filter($value, $details['typoTolerance'][$key], $defaults['typoTolerance'][$key]);
+                },
+                \ARRAY_FILTER_USE_BOTH
+            );
+            $keys = array_keys($sorted['typoTolerance']);
+            $defaults['typoTolerance'] = Arr::only($defaults['typoTolerance'], $keys);
+            $details['typoTolerance'] = Arr::only($details['typoTolerance'], $keys);
+        }
+
         // Compare and extract settings changes.
         $changes = array_filter($sorted, function ($value, string $key) use ($details, $defaults) {
-            // Straight comparison.
-            if ($value === $details[$key]) {
-                return false;
-            }
-
-            // Check if settings are default.
-            if ($value === null && $details[$key] === $defaults[$key]) {
-                return false;
-            }
-
-            return true;
+            return $this->filter($value, $details[$key], $defaults[$key]);
         }, \ARRAY_FILTER_USE_BOTH);
 
         // Return if no changes exists.
@@ -112,5 +122,29 @@ class SynchronizeIndex implements SynchronizesIndex
         }
 
         return collect($changes)->map(fn ($value, $key) => ['old' => $details[$key], 'new' => $value])->all();
+    }
+
+    /**
+     * Whether the value should be filtered as changed.
+     *
+     * @param mixed $value
+     * @param mixed $detail
+     * @param mixed $default
+     *
+     * @return bool
+     */
+    protected function filter($value, $detail, $default): bool
+    {
+        // Straight comparison.
+        if ($value === $detail) {
+            return false;
+        }
+
+        // Check if settings are default.
+        if ($value === null && $detail === $default) {
+            return false;
+        }
+
+        return true;
     }
 }
