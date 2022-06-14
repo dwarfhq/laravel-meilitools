@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Dwarf\MeiliTools;
 
 use Brick\VarExporter\VarExporter;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use MeiliSearch\MeiliSearch;
 
@@ -47,6 +48,58 @@ class Helpers
                 'disableOnAttributes' => [],
             ];
         }
+
+        return $settings;
+    }
+
+    /**
+     * Sort MeiliSearch settings.
+     *
+     * Certain settings are automatically sorted by MeiliSearch,
+     * so we do it the same way to correctly compare data.
+     *
+     * @param array $settings Settings.
+     *
+     * @return array
+     */
+    public static function sortSettings(array $settings): array
+    {
+        $sorter = function (&$value, $key) {
+            if (\is_array($value)) {
+                if (\in_array($key, ['filterableAttributes', 'stopWords', 'sortableAttributes'], true)) {
+                    sort($value);
+                }
+                if ($key === 'synonyms') {
+                    ksort($value);
+                    array_walk($value, fn (&$list) => sort($list));
+                }
+                if ($key === 'typoTolerance') {
+                    $value = array_replace(
+                        Arr::only(
+                            [
+                                'enabled'             => null,
+                                'minWordSizeForTypos' => null,
+                                'disableOnWords'      => null,
+                                'disableOnAttributes' => null,
+                            ],
+                            array_keys($value)
+                        ),
+                        $value
+                    );
+                    if (isset($value['minWordSizeForTypos'])) {
+                        ksort($value['minWordSizeForTypos']);
+                    }
+                    if (isset($value['disableOnWords'])) {
+                        sort($value['disableOnWords']);
+                    }
+                    if (isset($value['disableOnAttributes'])) {
+                        sort($value['disableOnAttributes']);
+                    }
+                }
+            }
+        };
+        ksort($settings);
+        array_walk($settings, $sorter);
 
         return $settings;
     }

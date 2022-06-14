@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Dwarf\MeiliTools\Tests;
 
+use Dwarf\MeiliTools\Helpers;
+
 /**
  * @internal
  */
@@ -61,21 +63,7 @@ class Tools
         ];
 
         if ($sorted) {
-            // Certain settings are automatically sorted by MeiliSearch,
-            // so we do it the same way to correctly verify data.
-            $sorter = function (&$value, $key) {
-                if (\is_array($value)) {
-                    if (\in_array($key, ['filterableAttributes', 'stopWords', 'sortableAttributes'], true)) {
-                        sort($value);
-                    }
-                    if ($key === 'synonyms') {
-                        ksort($value);
-                        array_walk($value, fn (&$list) => sort($list));
-                    }
-                }
-            };
-            ksort($settings);
-            array_walk($settings, $sorter);
+            $settings = Helpers::sortSettings($settings);
         }
 
         return $settings;

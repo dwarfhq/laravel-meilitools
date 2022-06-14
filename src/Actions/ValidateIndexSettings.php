@@ -8,6 +8,7 @@ use Dwarf\MeiliTools\Contracts\Actions\ValidatesIndexSettings;
 use Dwarf\MeiliTools\Contracts\Rules\ArrayAssocRule;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use MeiliSearch\MeiliSearch;
 
 /**
@@ -31,10 +32,12 @@ class ValidateIndexSettings implements ValidatesIndexSettings
 
     /**
      * {@inheritDoc}
+     *
+     * @param string|null $version MeiliSearch engine version.
      */
-    public function passes(array $settings): bool
+    public function passes(array $settings, ?string $version = null): bool
     {
-        $validator = Validator::make($settings, $this->rules());
+        $validator = Validator::make($settings, $this->rules($version), [], $this->attributes());
         if ($validator->fails()) {
             $this->validated = null;
             $this->messages = $validator->messages()->toArray();
@@ -51,11 +54,13 @@ class ValidateIndexSettings implements ValidatesIndexSettings
     /**
      * {@inheritDoc}
      *
+     * @param string|null $version MeiliSearch engine version.
+     *
      * @throws \Illuminate\Validation\ValidationException On validation failure.
      */
-    public function validate(array $settings): array
+    public function validate(array $settings, ?string $version = null): array
     {
-        return Validator::make($settings, $this->rules())->validate();
+        return Validator::make($settings, $this->rules($version), [], $this->attributes())->validate();
     }
 
     /**
@@ -76,33 +81,79 @@ class ValidateIndexSettings implements ValidatesIndexSettings
 
     /**
      * {@inheritDoc}
+     *
+     * @param string|null $version MeiliSearch engine version.
      */
-    public function rules(): array
+    public function rules(?string $version = null): array
     {
         $rules = [
-            'displayedAttributes'    => ['nullable', 'array', 'min:1'],
+            'displayedAttributes'    => ['sometimes', 'nullable', 'array', 'min:1'],
             'displayedAttributes.*'  => ['required', 'string'],
-            'distinctAttribute'      => ['nullable', 'string'],
-            'filterableAttributes'   => ['nullable', 'array', 'min:1'],
+            'distinctAttribute'      => ['sometimes', 'nullable', 'string'],
+            'filterableAttributes'   => ['sometimes', 'nullable', 'array'],
             'filterableAttributes.*' => ['required', 'string'],
-            'rankingRules'           => ['nullable', 'array', 'min:1'],
+            'rankingRules'           => ['sometimes', 'nullable', 'array', 'min:1'],
             'rankingRules.*'         => ['required', 'string'],
-            'searchableAttributes'   => ['nullable', 'array', 'min:1'],
+            'searchableAttributes'   => ['sometimes', 'nullable', 'array', 'min:1'],
             'searchableAttributes.*' => ['required', 'string'],
-            'sortableAttributes'     => ['nullable', 'array', 'min:1'],
+            'sortableAttributes'     => ['sometimes', 'nullable', 'array'],
             'sortableAttributes.*'   => ['required', 'string'],
-            'stopWords'              => ['nullable', 'array', 'min:1'],
+            'stopWords'              => ['sometimes', 'nullable', 'array'],
             'stopWords.*'            => ['required', 'string'],
-            'synonyms'               => ['nullable', 'array', App::make(ArrayAssocRule::class), 'min:1'],
+            'synonyms'               => ['sometimes', 'nullable', App::make(ArrayAssocRule::class)],
             'synonyms.*'             => ['required', 'array'],
             'synonyms.*.*'           => ['required', 'string'],
         ];
 
         // Add typo tolerance to validation rules for version >=0.23.2.
         if (version_compare(MeiliSearch::VERSION, '0.23.2', '>=')) {
-            $rules['typoTolerance'] = ['nullable', 'array', App::make(ArrayAssocRule::class)];
+            $rules['typoTolerance'] = ['sometimes', 'nullable', App::make(ArrayAssocRule::class)];
+        }
+
+        // Add actual typo tolerance validation rules for engine version >=0.27.0.
+        if ($version && version_compare($version, '0.27.0', '>=')) {
+            $rules['typoTolerance.enabled'] = ['sometimes', 'nullable', 'boolean'];
+            $rules['typoTolerance.minWordSizeForTypos'] = ['sometimes', 'nullable', App::make(ArrayAssocRule::class)];
+            $rules['typoTolerance.minWordSizeForTypos.oneTypo'] = [
+                'sometimes',
+                'nullable',
+                'integer',
+                'between:0,255',
+            ];
+            $rules['typoTolerance.minWordSizeForTypos.twoTypos'] = [
+                'sometimes',
+                'nullable',
+                'integer',
+                'between:0,255',
+            ];
+            $rules['typoTolerance.disableOnWords'] = ['sometimes', 'nullable', 'array'];
+            $rules['typoTolerance.disableOnWords.*'] = ['required', 'string'];
+            $rules['typoTolerance.disableOnAttributes'] = ['sometimes', 'nullable', 'array'];
+            $rules['typoTolerance.disableOnAttributes.*'] = ['required', 'string'];
         }
 
         return $rules;
+    }
+
+    /**
+     * Custom attribute values for typo tolerance rules.
+     *
+     * @return array
+     */
+    public function attributes(): array
+    {
+        $fields = [
+            'typoTolerance.enabled',
+            'typoTolerance.minWordSizeForTypos',
+            'typoTolerance.minWordSizeForTypos.oneTypo',
+            'typoTolerance.minWordSizeForTypos.twoTypos',
+            'typoTolerance.disableOnWords',
+            'typoTolerance.disableOnAttributes',
+        ];
+
+        return collect($fields)
+            ->mapWithKeys(fn ($field) => [$field => Str::of($field)->headline()->replace('.', ' ')->lower()])
+            ->all()
+        ;
     }
 }

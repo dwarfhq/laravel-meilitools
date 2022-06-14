@@ -68,22 +68,23 @@ class SynchronizeIndex implements SynchronizesIndex
      */
     public function __invoke(string $index, array $settings, bool $pretending = false): array
     {
-        $validated = $this->validateSettings->validate($settings);
-        // Quick return if no valid settings.
-        if (empty($settings)) {
-            return [];
-        }
-
         // Get engine version.
         $engine = $this->manager->engine();
         $version = $engine->version()['pkgVersion'] ?? null;
 
+        $validated = $this->validateSettings->validate($settings, $version);
+        // Quick return if no valid settings.
+        if (empty($validated)) {
+            return [];
+        }
+
         // Fetch index settings.
         $details = ($this->detailIndex)($index);
         $defaults = Helpers::defaultSettings($version);
+        $sorted = Helpers::sortSettings($validated);
 
         // Compare and extract settings changes.
-        $changes = array_filter($validated, function ($value, string $key) use ($details, $defaults) {
+        $changes = array_filter($sorted, function ($value, string $key) use ($details, $defaults) {
             // Straight comparison.
             if ($value === $details[$key]) {
                 return false;
