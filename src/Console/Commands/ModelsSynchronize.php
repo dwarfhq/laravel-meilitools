@@ -63,13 +63,7 @@ class ModelsSynchronize extends Command
                     $changes = Helpers::convertIndexChangesToTable($result);
                     $this->table(['Setting', 'Old', 'New'], $changes);
                 } else {
-                    $error = sprintf(
-                        "Exception '%s' with message '%s' in %s:%d",
-                        \get_class($result),
-                        $result->getMessage(),
-                        $result->getFile(),
-                        $result->getline()
-                    );
+                    $error = sprintf("Exception '%s' with message '%s'", \get_class($result), $result->getMessage());
                     $this->error($error);
                 }
             }, $this->option('dry-run'));

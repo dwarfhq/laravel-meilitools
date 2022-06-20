@@ -34,9 +34,9 @@ class ListsClassesTest extends TestCase
         $path = __DIR__ . '/../Models';
         $namespace = 'Dwarf\\MeiliTools\\Tests\\Models';
         $classes = $action($path, $namespace);
-        $this->assertCount(2, $classes);
+        $this->assertCount(3, $classes);
 
         $classes = $action($path, $namespace, fn ($class) => is_a($class, MeiliSettings::class, true));
-        $this->assertCount(1, $classes);
+        $this->assertCount(2, $classes);
     }
 }

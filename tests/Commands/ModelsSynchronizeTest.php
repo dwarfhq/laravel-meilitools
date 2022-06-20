@@ -6,9 +6,11 @@ namespace Dwarf\MeiliTools\Tests\Commands;
 
 use Dwarf\MeiliTools\Contracts\Actions\DetailsModel;
 use Dwarf\MeiliTools\Helpers;
+use Dwarf\MeiliTools\Tests\Models\BrokenMovie;
 use Dwarf\MeiliTools\Tests\Models\MeiliMovie;
 use Dwarf\MeiliTools\Tests\TestCase;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\ValidationException;
 
 /**
  * @internal
@@ -45,6 +47,12 @@ class ModelsSynchronizeTest extends TestCase
             config(['meilitools.paths' => [$path => $namespace]]);
 
             $this->artisan('meili:models:synchronize')
+                ->expectsOutput('Processed ' . BrokenMovie::class)
+                ->expectsOutput(sprintf(
+                    "Exception '%s' with message '%s'",
+                    ValidationException::class,
+                    'The distinct attribute must be a string.'
+                ))
                 ->expectsOutput('Processed ' . MeiliMovie::class)
                 ->expectsTable(['Setting', 'Old', 'New'], $values)
                 ->assertSuccessful()

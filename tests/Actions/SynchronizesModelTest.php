@@ -8,10 +8,12 @@ use BadMethodCallException;
 use Dwarf\MeiliTools\Contracts\Actions\DetailsModel;
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesModel;
 use Dwarf\MeiliTools\Helpers;
+use Dwarf\MeiliTools\Tests\Models\BrokenMovie;
 use Dwarf\MeiliTools\Tests\Models\MeiliMovie;
 use Dwarf\MeiliTools\Tests\Models\Movie;
 use Dwarf\MeiliTools\Tests\TestCase;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\ValidationException;
 
 /**
  * @internal
@@ -29,6 +31,19 @@ class SynchronizesModelTest extends TestCase
         $this->expectExceptionMessage('Call to undefined method ' . Movie::class . '::meiliSettings()');
 
         $this->app->make(SynchronizesModel::class)(Movie::class);
+    }
+
+    /**
+     * Test SynchronizesModel::__invoke() method with invalid settings.
+     *
+     * @return void
+     */
+    public function testWithInvalidSettings(): void
+    {
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('The distinct attribute must be a string.');
+
+        $this->app->make(SynchronizesModel::class)(BrokenMovie::class);
     }
 
     /**
