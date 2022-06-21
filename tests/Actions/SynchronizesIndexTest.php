@@ -123,7 +123,7 @@ class SynchronizesIndexTest extends TestCase
     {
         // Check if test should be run on this engine version.
         $version = $this->engineVersion();
-        if (!$version || version_compare($version, '0.27.0', '<')) {
+        if (version_compare($version, '0.27.0', '<')) {
             $this->markTestSkipped('Typo tolerance is only available from 0.27.0 and up.');
         }
 

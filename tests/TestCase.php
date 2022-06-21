@@ -82,12 +82,12 @@ class TestCase extends BaseTestCase
     /**
      * Get MeiliSearch engine version.
      *
-     * @return string|null
+     * @return string
      */
-    protected function engineVersion(): ?string
+    protected function engineVersion(): string
     {
         $engine = $this->app->make(EngineManager::class)->engine();
 
-        return $engine->version()['pkgVersion'] ?? null;
+        return $engine->version()['pkgVersion'] ?? '0.0.0';
     }
 }

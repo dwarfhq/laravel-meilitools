@@ -52,7 +52,7 @@ class ValidatesIndexSettingsTest extends TestCase
         }
 
         // Add actual typo tolerance validation rules for engine version >=0.27.0.
-        if ($version && version_compare($version, '0.27.0', '>=')) {
+        if (version_compare($version, '0.27.0', '>=')) {
             $expected['typoTolerance.enabled'] = ['sometimes', 'nullable', 'boolean'];
             $expected['typoTolerance.minWordSizeForTypos'] = [
                 'sometimes',
@@ -118,7 +118,7 @@ class ValidatesIndexSettingsTest extends TestCase
     {
         // Check if test should be run on this engine version.
         $version = $this->engineVersion();
-        if (!$version || version_compare($version, '0.27.0', '<')) {
+        if (version_compare(MeiliSearch::VERSION, '0.23.2', '<') || version_compare($version, '0.27.0', '<')) {
             $this->markTestSkipped('Typo tolerance is only available from 0.27.0 and up.');
         }
 

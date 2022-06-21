@@ -46,13 +46,13 @@ class ModelsSynchronizeTest extends TestCase
             $namespace = 'Dwarf\\MeiliTools\\Tests\\Models';
             config(['meilitools.paths' => [$path => $namespace]]);
 
+            $message = version_compare(app()->version(), '9.0.0', '<')
+                ? 'The given data was invalid.'
+                : 'The distinct attribute must be a string.';
+
             $this->artisan('meili:models:synchronize')
                 ->expectsOutput('Processed ' . BrokenMovie::class)
-                ->expectsOutput(sprintf(
-                    "Exception '%s' with message '%s'",
-                    ValidationException::class,
-                    'The distinct attribute must be a string.'
-                ))
+                ->expectsOutput(sprintf("Exception '%s' with message '%s'", ValidationException::class, $message))
                 ->expectsOutput('Processed ' . MeiliMovie::class)
                 ->expectsTable(['Setting', 'Old', 'New'], $values)
                 ->assertSuccessful()
@@ -95,13 +95,13 @@ class ModelsSynchronizeTest extends TestCase
             $namespace = 'Dwarf\\MeiliTools\\Tests\\Models';
             config(['meilitools.paths' => [$path => $namespace]]);
 
+            $message = version_compare(app()->version(), '9.0.0', '<')
+                ? 'The given data was invalid.'
+                : 'The distinct attribute must be a string.';
+
             $this->artisan('meili:models:synchronize', ['--pretend' => true])
                 ->expectsOutput('Processed ' . BrokenMovie::class)
-                ->expectsOutput(sprintf(
-                    "Exception '%s' with message '%s'",
-                    ValidationException::class,
-                    'The distinct attribute must be a string.'
-                ))
+                ->expectsOutput(sprintf("Exception '%s' with message '%s'", ValidationException::class, $message))
                 ->expectsOutput('Processed ' . MeiliMovie::class)
                 ->expectsTable(['Setting', 'Old', 'New'], $values)
                 ->assertSuccessful()
