@@ -17,7 +17,7 @@ class ModelSynchronize extends Command
      */
     protected $signature = 'meili:model:synchronize
                             {model? : Model class}
-                            {--dry-run : Only shows what changes would have been done to the index}';
+                            {--pretend : Only shows what changes would have been done to the index}';
 
     /**
      * The console command description.
@@ -35,7 +35,7 @@ class ModelSynchronize extends Command
      */
     public function handle(SynchronizesModel $synchronizeModel)
     {
-        $changes = $synchronizeModel($this->getModel(), $this->option('dry-run'));
+        $changes = $synchronizeModel($this->getModel(), $this->option('pretend'));
         $values = Helpers::convertIndexChangesToTable($changes);
 
         $this->table(['Setting', 'Old', 'New'], $values);

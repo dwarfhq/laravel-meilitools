@@ -233,7 +233,7 @@ class SynchronizesIndexTest extends TestCase
      *
      * @return void
      */
-    public function testWithDryRun(): void
+    public function testWithPretend(): void
     {
         $this->withIndex(self::INDEX, function () {
             $action = $this->app->make(SynchronizesIndex::class);

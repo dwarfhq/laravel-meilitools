@@ -44,6 +44,7 @@ class SynchronizesModelTest extends TestCase
         $this->expectExceptionMessage('The distinct attribute must be a string.');
 
         $this->app->make(SynchronizesModel::class)(BrokenMovie::class);
+        $this->deleteIndex(app(BrokenMovie::class)->searchableAs());
     }
 
     /**
@@ -81,11 +82,11 @@ class SynchronizesModelTest extends TestCase
     }
 
     /**
-     * Test SynchronizesModel::__invoke() method with dry-run option.
+     * Test SynchronizesModel::__invoke() method with pretend option.
      *
      * @return void
      */
-    public function testWithDryRun(): void
+    public function testWithPretend(): void
     {
         try {
             $defaults = Helpers::defaultSettings($this->engineVersion());

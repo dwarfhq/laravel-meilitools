@@ -72,11 +72,11 @@ class SynchronizesModelsTest extends TestCase
     }
 
     /**
-     * Test SynchronizesModels::__invoke() method with dry-run option.
+     * Test SynchronizesModels::__invoke() method with pretend option.
      *
      * @return void
      */
-    public function testWithDryRun(): void
+    public function testWithPretend(): void
     {
         try {
             $defaults = Helpers::defaultSettings($this->engineVersion());

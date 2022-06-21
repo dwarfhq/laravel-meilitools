@@ -57,7 +57,7 @@ class SynchronizeIndex implements SynchronizesIndex
     /**
      * {@inheritDoc}
      *
-     * @param bool $pretending Whether to pretend running the action.
+     * @param bool $pretend Whether to pretend running the action.
      *
      * @uses \Dwarf\MeiliTools\Contracts\Actions\DetailsIndex
      * @uses \Dwarf\MeiliTools\Contracts\Actions\ValidatesIndexSettings
@@ -67,7 +67,7 @@ class SynchronizeIndex implements SynchronizesIndex
      * @throws \MeiliSearch\Exceptions\CommunicationException   When connection to MeiliSearch fails.
      * @throws \MeiliSearch\Exceptions\ApiException             When index is not found.
      */
-    public function __invoke(string $index, array $settings, bool $pretending = false): array
+    public function __invoke(string $index, array $settings, bool $pretend = false): array
     {
         // Get engine version.
         $engine = $this->manager->engine();
@@ -116,7 +116,7 @@ class SynchronizeIndex implements SynchronizesIndex
         ksort($changes);
 
         // Update index settings and wait for completion.
-        if (!$pretending) {
+        if (!$pretend) {
             $task = $engine->index($index)->updateSettings($changes);
             $engine->waitForTask($task['uid']);
         }

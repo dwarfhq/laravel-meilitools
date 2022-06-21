@@ -42,7 +42,7 @@ class SynchronizeModel implements SynchronizesModel
     /**
      * {@inheritDoc}
      *
-     * @param bool $pretending Whether to pretend running the action.
+     * @param bool $pretend Whether to pretend running the action.
      *
      * @uses \Dwarf\MeiliTools\Contracts\Actions\SynchronizesIndex
      * @uses \Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists
@@ -51,7 +51,7 @@ class SynchronizeModel implements SynchronizesModel
      * @throws \Dwarf\MeiliTools\Exceptions\MeiliToolsException When not using the MeiliSearch Scout driver.
      * @throws \MeiliSearch\Exceptions\CommunicationException   When connection to MeiliSearch fails.
      */
-    public function __invoke(string $class, bool $pretending = false): array
+    public function __invoke(string $class, bool $pretend = false): array
     {
         $model = app($class);
         $index = $model->searchableAs();
@@ -60,6 +60,6 @@ class SynchronizeModel implements SynchronizesModel
 
         ($this->ensureIndexExists)($index, compact('primaryKey'));
 
-        return ($this->synchronizeIndex)($index, $settings, $pretending);
+        return ($this->synchronizeIndex)($index, $settings, $pretend);
     }
 }

@@ -33,17 +33,17 @@ class SynchronizeModels implements SynchronizesModels
     /**
      * {@inheritDoc}
      *
-     * @param bool $pretending Whether to pretend running the action.
+     * @param bool $pretend Whether to pretend running the action.
      *
      * @uses \Dwarf\MeiliTools\Contracts\Actions\SynchronizesModel
      */
-    public function __invoke(array $classes, ?callable $callback = null, bool $pretending = false): void
+    public function __invoke(array $classes, ?callable $callback = null, bool $pretend = false): void
     {
         foreach ($classes as $class) {
             $result = null;
 
             try {
-                $result = ($this->synchronizeModel)($class, $pretending);
+                $result = ($this->synchronizeModel)($class, $pretend);
             } catch (Throwable $e) {
                 $result = $e;
             }

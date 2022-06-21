@@ -54,11 +54,11 @@ class ModelSynchronizeTest extends TestCase
     }
 
     /**
-     * Test `meili:model:synchronize` command with dry-run option.
+     * Test `meili:model:synchronize` command with pretend option.
      *
      * @return void
      */
-    public function testWithDryRun(): void
+    public function testWithPretend(): void
     {
         try {
             $defaults = Helpers::defaultSettings($this->engineVersion());
@@ -79,7 +79,7 @@ class ModelSynchronizeTest extends TestCase
 
             $values = Helpers::convertIndexChangesToTable($changes);
 
-            $this->artisan('meili:model:synchronize', ['model' => MeiliMovie::class, '--dry-run' => true])
+            $this->artisan('meili:model:synchronize', ['model' => MeiliMovie::class, '--pretend' => true])
                 ->expectsTable(['Setting', 'Old', 'New'], $values)
                 ->assertSuccessful()
             ;

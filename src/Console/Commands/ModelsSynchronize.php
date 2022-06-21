@@ -21,7 +21,7 @@ class ModelsSynchronize extends Command
      * @var string
      */
     protected $signature = 'meili:models:synchronize
-                            {--dry-run : Only shows what changes would have been done to the indexes}
+                            {--pretend : Only shows what changes would have been done to the indexes}
                             {--force : Force the operation to run when in production}';
 
     /**
@@ -41,8 +41,8 @@ class ModelsSynchronize extends Command
      */
     public function handle(ListsClasses $listClasses, SynchronizesModels $synchronizeModels)
     {
-        // Confirm execution if not running dry-run and in production.
-        if (!$this->option('dry-run') && !$this->confirmToProceed()) {
+        // Confirm execution if not pretending and in production.
+        if (!$this->option('pretend') && !$this->confirmToProceed()) {
             return Command::SUCCESS;
         }
 
@@ -66,7 +66,7 @@ class ModelsSynchronize extends Command
                     $error = sprintf("Exception '%s' with message '%s'", \get_class($result), $result->getMessage());
                     $this->error($error);
                 }
-            }, $this->option('dry-run'));
+            }, $this->option('pretend'));
         }
 
         return Command::SUCCESS;

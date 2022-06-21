@@ -61,16 +61,17 @@ class ModelsSynchronizeTest extends TestCase
             $details = $this->app->make(DetailsModel::class)(MeiliMovie::class);
             $this->assertSame($settings, Arr::except($details, ['typoTolerance']));
         } finally {
+            $this->deleteIndex(app(BrokenMovie::class)->searchableAs());
             $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
         }
     }
 
     /**
-     * Test `meili:models:synchronize` command.
+     * Test `meili:models:synchronize` command with pretend option.
      *
      * @return void
      */
-    public function testWithDryRun(): void
+    public function testWithPretend(): void
     {
         try {
             $defaults = Helpers::defaultSettings($this->engineVersion());
@@ -94,7 +95,13 @@ class ModelsSynchronizeTest extends TestCase
             $namespace = 'Dwarf\\MeiliTools\\Tests\\Models';
             config(['meilitools.paths' => [$path => $namespace]]);
 
-            $this->artisan('meili:models:synchronize', ['--dry-run' => true])
+            $this->artisan('meili:models:synchronize', ['--pretend' => true])
+                ->expectsOutput('Processed ' . BrokenMovie::class)
+                ->expectsOutput(sprintf(
+                    "Exception '%s' with message '%s'",
+                    ValidationException::class,
+                    'The distinct attribute must be a string.'
+                ))
                 ->expectsOutput('Processed ' . MeiliMovie::class)
                 ->expectsTable(['Setting', 'Old', 'New'], $values)
                 ->assertSuccessful()
@@ -103,6 +110,7 @@ class ModelsSynchronizeTest extends TestCase
             $details = $this->app->make(DetailsModel::class)(MeiliMovie::class);
             $this->assertSame($defaults, $details);
         } finally {
+            $this->deleteIndex(app(BrokenMovie::class)->searchableAs());
             $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
         }
     }
