@@ -4,21 +4,21 @@ declare(strict_types=1);
 
 namespace Dwarf\MeiliTools\Actions;
 
-use Dwarf\MeiliTools\Contracts\Actions\DetailsIndex;
-use Dwarf\MeiliTools\Contracts\Actions\DetailsModel;
 use Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists;
+use Dwarf\MeiliTools\Contracts\Actions\ResetsIndex;
+use Dwarf\MeiliTools\Contracts\Actions\ResetsModel;
 
 /**
- * Detail model index.
+ * Reset model index.
  */
-class DetailModel implements DetailsModel
+class ResetModel implements ResetsModel
 {
     /**
-     * Details index action.
+     * Resets index action.
      *
-     * @var \Dwarf\MeiliTools\Contracts\Actions\DetailsIndex
+     * @var \Dwarf\MeiliTools\Contracts\Actions\ResetsIndex
      */
-    protected DetailsIndex $detailIndex;
+    protected ResetsIndex $resetIndex;
 
     /**
      * Ensures index exists action.
@@ -30,25 +30,27 @@ class DetailModel implements DetailsModel
     /**
      * Constructor.
      *
-     * @param \Dwarf\MeiliTools\Contracts\Actions\DetailsIndex       $detailIndex       Detail action.
+     * @param \Dwarf\MeiliTools\Contracts\Actions\ResetsIndex        $resetIndex        Reset action.
      * @param \Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists $ensureIndexExists Action ensuring index exists.
      */
-    public function __construct(DetailsIndex $detailIndex, EnsuresIndexExists $ensureIndexExists)
+    public function __construct(ResetsIndex $resetIndex, EnsuresIndexExists $ensureIndexExists)
     {
-        $this->detailIndex = $detailIndex;
+        $this->resetIndex = $resetIndex;
         $this->ensureIndexExists = $ensureIndexExists;
     }
 
     /**
      * {@inheritDoc}
      *
-     * @uses \Dwarf\MeiliTools\Contracts\Actions\DetailsIndex
+     * @param bool $pretend Whether to pretend running the action.
+     *
+     * @uses \Dwarf\MeiliTools\Contracts\Actions\ResetsIndex
      * @uses \Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists
      *
      * @throws \Dwarf\MeiliTools\Exceptions\MeiliToolsException When not using the MeiliSearch Scout driver.
      * @throws \MeiliSearch\Exceptions\CommunicationException   When connection to MeiliSearch fails.
      */
-    public function __invoke(string $class): array
+    public function __invoke(string $class, bool $pretend = false): array
     {
         $model = app($class);
         $index = $model->searchableAs();
@@ -56,6 +58,6 @@ class DetailModel implements DetailsModel
 
         ($this->ensureIndexExists)($index, compact('primaryKey'));
 
-        return ($this->detailIndex)($index);
+        return ($this->resetIndex)($index, $pretend);
     }
 }

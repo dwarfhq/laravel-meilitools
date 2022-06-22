@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Dwarf\MeiliTools\Contracts\Actions;
 
 /**
- * Synchronizes model index.
+ * Resets model index.
  */
-interface SynchronizesModel
+interface ResetsModel
 {
     /**
-     * Synchronizes model index settings.
+     * Resets model index details.
      *
      * @param string $class Model class.
      *

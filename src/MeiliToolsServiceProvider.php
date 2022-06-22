@@ -8,6 +8,8 @@ use Dwarf\MeiliTools\Actions\DetailIndex;
 use Dwarf\MeiliTools\Actions\DetailModel;
 use Dwarf\MeiliTools\Actions\EnsureIndexExists;
 use Dwarf\MeiliTools\Actions\ListClasses;
+use Dwarf\MeiliTools\Actions\ResetIndex;
+use Dwarf\MeiliTools\Actions\ResetModel;
 use Dwarf\MeiliTools\Actions\SynchronizeIndex;
 use Dwarf\MeiliTools\Actions\SynchronizeModel;
 use Dwarf\MeiliTools\Actions\SynchronizeModels;
@@ -20,6 +22,8 @@ use Dwarf\MeiliTools\Contracts\Actions\DetailsIndex;
 use Dwarf\MeiliTools\Contracts\Actions\DetailsModel;
 use Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists;
 use Dwarf\MeiliTools\Contracts\Actions\ListsClasses;
+use Dwarf\MeiliTools\Contracts\Actions\ResetsIndex;
+use Dwarf\MeiliTools\Contracts\Actions\ResetsModel;
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesIndex;
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesModel;
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesModels;
@@ -41,6 +45,8 @@ class MeiliToolsServiceProvider extends ServiceProvider
         DetailsModel::class           => DetailModel::class,
         EnsuresIndexExists::class     => EnsureIndexExists::class,
         ListsClasses::class           => ListClasses::class,
+        ResetsIndex::class            => ResetIndex::class,
+        ResetsModel::class            => ResetModel::class,
         SynchronizesIndex::class      => SynchronizeIndex::class,
         SynchronizesModel::class      => SynchronizeModel::class,
         SynchronizesModels::class     => SynchronizeModels::class,

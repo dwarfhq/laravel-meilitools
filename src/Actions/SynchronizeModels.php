@@ -18,7 +18,7 @@ class SynchronizeModels implements SynchronizesModels
      *
      * @var \Dwarf\MeiliTools\Contracts\Actions\SynchronizesModel
      */
-    private SynchronizesModel $synchronizeModel;
+    protected SynchronizesModel $synchronizeModel;
 
     /**
      * Constructor.

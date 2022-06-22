@@ -19,7 +19,7 @@ class DetailIndex implements DetailsIndex
      *
      * @var \Laravel\Scout\EngineManager
      */
-    private EngineManager $manager;
+    protected EngineManager $manager;
 
     /**
      * Constructor.

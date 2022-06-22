@@ -1,7 +1,7 @@
 # Laravel MeiliTools
 
-[![Packagist](https://img.shields.io/packagist/v/dwarfhq/laravel-meilitools.svg?style=flat-square)](https://packagist.org/packages/dwarfdk/laravel-meilitools)
-[![Downloads](https://img.shields.io/packagist/dt/dwarfhq/laravel-meilitools.svg?style=flat-square)](https://packagist.org/packages/dwarfdk/laravel-meilitools)
+[![Packagist](https://img.shields.io/packagist/v/dwarfdk/laravel-meilitools.svg?style=flat-square)](https://packagist.org/packages/dwarfdk/laravel-meilitools)
+[![Downloads](https://img.shields.io/packagist/dt/dwarfdk/laravel-meilitools.svg?style=flat-square)](https://packagist.org/packages/dwarfdk/laravel-meilitools)
 [![License](https://img.shields.io/github/license/dwarfhq/laravel-meilitools.svg?style=flat-square)](LICENSE)
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/dwarfhq/laravel-meilitools/Tests)](https://github.com/dwarfhq/laravel-meilitools/actions)
 

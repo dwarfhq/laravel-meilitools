@@ -6,6 +6,7 @@ namespace Dwarf\MeiliTools\Tests\Actions;
 
 use Dwarf\MeiliTools\Contracts\Actions\ValidatesIndexSettings;
 use Dwarf\MeiliTools\Contracts\Rules\ArrayAssocRule;
+use Dwarf\MeiliTools\Helpers;
 use Dwarf\MeiliTools\Tests\TestCase;
 use Dwarf\MeiliTools\Tests\Tools;
 use Illuminate\Support\Facades\App;
@@ -25,7 +26,7 @@ class ValidatesIndexSettingsTest extends TestCase
     public function testRules(): void
     {
         $action = $this->app->make(ValidatesIndexSettings::class);
-        $version = $this->engineVersion();
+        $version = Helpers::engineVersion() ?: '0.0.0';
 
         $actual = $action->rules($version);
         $expected = [
@@ -95,7 +96,7 @@ class ValidatesIndexSettingsTest extends TestCase
 
         [$value, $validated, $passes, $messages] = $data();
 
-        $actualPasses = $action->passes($value, $this->engineVersion());
+        $actualPasses = $action->passes($value, Helpers::engineVersion());
         $this->assertSame($passes, $actualPasses);
 
         $actualValidated = $action->validated();
@@ -117,7 +118,7 @@ class ValidatesIndexSettingsTest extends TestCase
     public function testPassesTypoTolerance(callable $data): void
     {
         // Check if test should be run on this engine version.
-        $version = $this->engineVersion();
+        $version = Helpers::engineVersion() ?: '0.0.0';
         if (version_compare(MeiliSearch::VERSION, '0.23.2', '<') || version_compare($version, '0.27.0', '<')) {
             $this->markTestSkipped('Typo tolerance is only available from 0.27.0 and up.');
         }

@@ -78,7 +78,7 @@ class DetailsIndexTest extends TestCase
         $this->withIndex(self::INDEX, function () {
             $action = $this->app->make(DetailsIndex::class);
             $details = ($action)(self::INDEX);
-            $this->assertSame(Helpers::defaultSettings($this->engineVersion()), $details);
+            $this->assertSame(Helpers::defaultSettings(Helpers::engineVersion()), $details);
         });
     }
 }

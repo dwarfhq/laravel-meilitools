@@ -24,7 +24,7 @@ class ModelDetailsTest extends TestCase
     public function testWithDefaultSettings(): void
     {
         try {
-            $values = Helpers::convertIndexSettingsToTable(Helpers::defaultSettings($this->engineVersion()));
+            $values = Helpers::convertIndexSettingsToTable(Helpers::defaultSettings(Helpers::engineVersion()));
 
             $this->artisan('meili:model:details')
                 ->expectsQuestion('What is the model class?', Movie::class)
@@ -49,7 +49,7 @@ class ModelDetailsTest extends TestCase
     public function testWithAdvancedSettings(): void
     {
         try {
-            $defaults = Helpers::defaultSettings($this->engineVersion());
+            $defaults = Helpers::defaultSettings(Helpers::engineVersion());
             $settings = app(MeiliMovie::class)->meiliSettings();
 
             $changes = $this->app->make(SynchronizesModel::class)(MeiliMovie::class);

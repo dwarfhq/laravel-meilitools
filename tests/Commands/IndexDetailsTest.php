@@ -30,7 +30,7 @@ class IndexDetailsTest extends TestCase
     public function testWithDefaultSettings(): void
     {
         $this->withIndex(self::INDEX, function () {
-            $values = Helpers::convertIndexSettingsToTable(Helpers::defaultSettings($this->engineVersion()));
+            $values = Helpers::convertIndexSettingsToTable(Helpers::defaultSettings(Helpers::engineVersion()));
 
             $this->artisan('meili:index:details')
                 ->expectsQuestion('What is the index name?', self::INDEX)
@@ -53,7 +53,7 @@ class IndexDetailsTest extends TestCase
     public function testWithAdvancedSettings(): void
     {
         $this->withIndex(self::INDEX, function () {
-            $defaults = Helpers::defaultSettings($this->engineVersion());
+            $defaults = Helpers::defaultSettings(Helpers::engineVersion());
             $settings = Tools::movieSettings();
 
             $changes = $this->app->make(SynchronizesIndex::class)(self::INDEX, $settings);

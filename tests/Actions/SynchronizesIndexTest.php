@@ -35,7 +35,7 @@ class SynchronizesIndexTest extends TestCase
             $changes = ($action)(self::INDEX, []);
             $this->assertSame([], $changes);
 
-            $defaults = Helpers::defaultSettings($this->engineVersion());
+            $defaults = Helpers::defaultSettings(Helpers::engineVersion());
             $settings = Tools::movieSettings();
 
             $changes = ($action)(self::INDEX, $settings);
@@ -122,7 +122,7 @@ class SynchronizesIndexTest extends TestCase
     public function testWithTypoToleranceSettings(): void
     {
         // Check if test should be run on this engine version.
-        $version = $this->engineVersion();
+        $version = Helpers::engineVersion() ?: '0.0.0';
         if (version_compare($version, '0.27.0', '<')) {
             $this->markTestSkipped('Typo tolerance is only available from 0.27.0 and up.');
         }
@@ -229,7 +229,7 @@ class SynchronizesIndexTest extends TestCase
     }
 
     /**
-     * Test SynchronizesIndex::__invoke() method with dry run.
+     * Test SynchronizesIndex::__invoke() method with pretend.
      *
      * @return void
      */
@@ -241,7 +241,7 @@ class SynchronizesIndexTest extends TestCase
             $changes = ($action)(self::INDEX, []);
             $this->assertSame([], $changes);
 
-            $defaults = Helpers::defaultSettings($this->engineVersion());
+            $defaults = Helpers::defaultSettings(Helpers::engineVersion());
             $settings = Tools::movieSettings();
 
             $changes = ($action)(self::INDEX, $settings, true);

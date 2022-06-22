@@ -21,21 +21,21 @@ class SynchronizeIndex implements SynchronizesIndex
      *
      * @var \Laravel\Scout\EngineManager
      */
-    private EngineManager $manager;
+    protected EngineManager $manager;
 
     /**
      * Details index action.
      *
      * @var \Dwarf\MeiliTools\Contracts\Actions\DetailsIndex
      */
-    private DetailsIndex $detailIndex;
+    protected DetailsIndex $detailIndex;
 
     /**
      * Validates index settings action.
      *
      * @var \Dwarf\MeiliTools\Contracts\Actions\ValidatesIndexSettings
      */
-    private ValidatesIndexSettings $validateSettings;
+    protected ValidatesIndexSettings $validateSettings;
 
     /**
      * Constructor.
@@ -70,8 +70,7 @@ class SynchronizeIndex implements SynchronizesIndex
     public function __invoke(string $index, array $settings, bool $pretend = false): array
     {
         // Get engine version.
-        $engine = $this->manager->engine();
-        $version = $engine->version()['pkgVersion'] ?? null;
+        $version = Helpers::engineVersion();
 
         $validated = $this->validateSettings->validate($settings, $version);
         // Quick return if no valid settings.
@@ -117,6 +116,7 @@ class SynchronizeIndex implements SynchronizesIndex
 
         // Update index settings and wait for completion.
         if (!$pretend) {
+            $engine = $this->manager->engine();
             $task = $engine->index($index)->updateSettings($changes);
             $engine->waitForTask($task['uid']);
         }

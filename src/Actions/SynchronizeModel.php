@@ -18,14 +18,14 @@ class SynchronizeModel implements SynchronizesModel
      *
      * @var \Dwarf\MeiliTools\Contracts\Actions\SynchronizesIndex
      */
-    private SynchronizesIndex $synchronizeIndex;
+    protected SynchronizesIndex $synchronizeIndex;
 
     /**
      * Ensures index exists action.
      *
      * @var \Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists
      */
-    private EnsuresIndexExists $ensureIndexExists;
+    protected EnsuresIndexExists $ensureIndexExists;
 
     /**
      * Constructor.

@@ -7,7 +7,9 @@ namespace Dwarf\MeiliTools;
 use Brick\VarExporter\VarExporter;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use Laravel\Scout\EngineManager;
 use MeiliSearch\MeiliSearch;
+use Throwable;
 
 class Helpers
 {
@@ -102,6 +104,24 @@ class Helpers
         array_walk($settings, $sorter);
 
         return $settings;
+    }
+
+    /**
+     * Get MeiliSearch engine version.
+     *
+     * @return string|null
+     */
+    public static function engineVersion(): ?string
+    {
+        $version = null;
+
+        try {
+            $version = app(EngineManager::class)->engine()->version()['pkgVersion'] ?? null;
+        } catch (Throwable $e) {
+            // Silently ignore.
+        }
+
+        return $version;
     }
 
     /**

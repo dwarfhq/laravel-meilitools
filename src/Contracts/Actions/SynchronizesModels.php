@@ -10,7 +10,7 @@ namespace Dwarf\MeiliTools\Contracts\Actions;
 interface SynchronizesModels
 {
     /**
-     * Synchronizes model index details.
+     * Synchronizes model index settings.
      *
      * @param array         $classes  Model classes.
      * @param callable|null $callback Callback executed for each model.

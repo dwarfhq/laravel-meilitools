@@ -23,7 +23,7 @@ class DetailsModelTest extends TestCase
     {
         try {
             $details = $this->app->make(DetailsModel::class)(Movie::class);
-            $this->assertSame(Helpers::defaultSettings($this->engineVersion()), $details);
+            $this->assertSame(Helpers::defaultSettings(Helpers::engineVersion()), $details);
         } finally {
             $this->deleteIndex(app(Movie::class)->searchableAs());
         }

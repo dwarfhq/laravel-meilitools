@@ -25,7 +25,7 @@ class ModelsSynchronizeTest extends TestCase
     public function testWithAdvancedSettings(): void
     {
         try {
-            $defaults = Helpers::defaultSettings($this->engineVersion());
+            $defaults = Helpers::defaultSettings(Helpers::engineVersion());
             $settings = app(MeiliMovie::class)->meiliSettings();
             $changes = collect($settings)
                 ->mapWithKeys(function ($value, $key) use ($defaults) {
@@ -74,7 +74,7 @@ class ModelsSynchronizeTest extends TestCase
     public function testWithPretend(): void
     {
         try {
-            $defaults = Helpers::defaultSettings($this->engineVersion());
+            $defaults = Helpers::defaultSettings(Helpers::engineVersion());
             $settings = app(MeiliMovie::class)->meiliSettings();
             $changes = collect($settings)
                 ->mapWithKeys(function ($value, $key) use ($defaults) {
