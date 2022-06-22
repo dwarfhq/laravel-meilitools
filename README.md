@@ -58,9 +58,23 @@ The following commands are available:
 **Arguments:**
 - `index` : Index name
 
+#### `meili:index:reset` - Reset settings for a MeiliSearch index
+**Arguments:**
+- `index` : Index name
+
+**Options:**
+- `--pretend` : Only shows what changes would have been done to the index
+
 #### `meili:model:details` - Get details for a MeiliSearch model index
 **Arguments:**
 - `model` : Model class
+
+#### `meili:model:reset` - Reset settings for a MeiliSearch model index
+**Arguments:**
+- `model` : Model class
+
+**Options:**
+- `--pretend` : Only shows what changes would have been done to the index
 
 #### `meili:model:synchronize` - Synchronize settings for a MeiliSearch model index
 **Arguments:**
