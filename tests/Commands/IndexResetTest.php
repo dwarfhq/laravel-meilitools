@@ -36,7 +36,6 @@ class IndexResetTest extends TestCase
             $this->app->make(SynchronizesIndex::class)(self::INDEX, $settings);
             $details = $this->app->make(DetailsIndex::class)(self::INDEX);
             $this->assertNotSame($defaults, $details);
-            $this->assertNotSame($settings, $details);
             $this->assertSame(array_replace($defaults, $settings), $details);
 
             $changes = collect($settings)
@@ -81,7 +80,6 @@ class IndexResetTest extends TestCase
             $this->app->make(SynchronizesIndex::class)(self::INDEX, $settings);
             $details = $this->app->make(DetailsIndex::class)(self::INDEX);
             $this->assertNotSame($defaults, $details);
-            $this->assertNotSame($settings, $details);
             $this->assertSame(array_replace($defaults, $settings), $details);
 
             $changes = collect($settings)

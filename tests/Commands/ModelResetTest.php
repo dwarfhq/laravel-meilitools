@@ -29,7 +29,6 @@ class ModelResetTest extends TestCase
             $this->app->make(SynchronizesModel::class)(MeiliMovie::class);
             $details = $this->app->make(DetailsModel::class)(MeiliMovie::class);
             $this->assertNotSame($defaults, $details);
-            $this->assertNotSame($settings, $details);
             $this->assertSame(array_replace($defaults, $settings), $details);
 
             $changes = collect($settings)
@@ -76,7 +75,6 @@ class ModelResetTest extends TestCase
             $this->app->make(SynchronizesModel::class)(MeiliMovie::class);
             $details = $this->app->make(DetailsModel::class)(MeiliMovie::class);
             $this->assertNotSame($defaults, $details);
-            $this->assertNotSame($settings, $details);
             $this->assertSame(array_replace($defaults, $settings), $details);
 
             $changes = collect($settings)
