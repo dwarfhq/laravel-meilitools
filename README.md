@@ -1,9 +1,12 @@
 # Laravel MeiliTools
 
+[![PHP](https://img.shields.io/packagist/php-v/dwarfdk/laravel-meilitools.svg?style=flat-square)](https://packagist.org/packages/dwarfdk/laravel-meilitools)
 [![Packagist](https://img.shields.io/packagist/v/dwarfdk/laravel-meilitools.svg?style=flat-square)](https://packagist.org/packages/dwarfdk/laravel-meilitools)
 [![Downloads](https://img.shields.io/packagist/dt/dwarfdk/laravel-meilitools.svg?style=flat-square)](https://packagist.org/packages/dwarfdk/laravel-meilitools)
 [![License](https://img.shields.io/github/license/dwarfhq/laravel-meilitools.svg?style=flat-square)](LICENSE)
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/dwarfhq/laravel-meilitools/Tests)](https://github.com/dwarfhq/laravel-meilitools/actions)
+
+The purpose of this package is to ease the configuration of indexes for MeiliSearch, so it's possible to use advanced filtering and sorting through Laravel Scout, without having to meddle with their API manually.
 
 ## Table of Contents
 - [Installation](#installation)
@@ -98,6 +101,12 @@ To run tests with code coverage, please make sure that `phpdbg` exists and is ex
 $ composer test:coverage
 $ open tests/_reports/index.html
 ```
+
+## Career
+
+Dwarf A/S is a digital agency based in Copenhagen (Denmark) and established January 1st 2000.
+
+We're always looking for new talent, so have a look at our [website](https://dwarf.dk/career/php-developer) for job openings.
 
 ## License
 The MIT License (MIT). Please see [License File](LICENSE) for more information.
