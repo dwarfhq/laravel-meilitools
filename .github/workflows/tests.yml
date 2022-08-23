@@ -14,10 +14,8 @@ jobs:
         include:
           - version: prefer-stable
             meilisearch: latest
-            meilicmd: meilisearch
           - version: prefer-lowest
-            meilisearch: v0.28.1
-            meilicmd: ./meilisearch
+            meilisearch: v0.28.0
         exclude:
           - php: 7.4
             testbench: 7.0
@@ -49,7 +47,7 @@ jobs:
           composer update --${{ matrix.version }} --prefer-dist --no-interaction
 
       - name: Meilisearch setup with Docker
-        run: docker run -d -p 7700:7700 getmeili/meilisearch:${{ matrix.meilisearch }} ${{ matrix.meilicmd }} --master-key=masterKey --no-analytics
+        run: docker run -d -p 7700:7700 getmeili/meilisearch:${{ matrix.meilisearch }} meilisearch --master-key=masterKey --no-analytics
 
       - name: Setup Problem Matches
         run: |
