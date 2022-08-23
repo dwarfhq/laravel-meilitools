@@ -64,7 +64,7 @@ class SynchronizesModelsTest extends TestCase
             $this->assertSame($defaults, $details);
 
             $details = $this->app->make(DetailsModel::class)(MeiliMovie::class);
-            $this->assertSame($settings, Arr::except($details, ['typoTolerance']));
+            $this->assertSame($settings, Arr::except($details, ['faceting', 'pagination', 'typoTolerance']));
         } finally {
             $this->deleteIndex(app(Movie::class)->searchableAs());
             $this->deleteIndex(app(MeiliMovie::class)->searchableAs());

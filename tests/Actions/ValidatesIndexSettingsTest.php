@@ -46,11 +46,8 @@ class ValidatesIndexSettingsTest extends TestCase
             'synonyms'               => ['sometimes', 'nullable', $this->app->make(ArrayAssocRule::class)],
             'synonyms.*'             => ['required', 'array'],
             'synonyms.*.*'           => ['required', 'string'],
+            'typoTolerance'          => ['sometimes', 'nullable', $this->app->make(ArrayAssocRule::class)],
         ];
-        // Add typo tolerance to validation rules for version >=0.23.2.
-        if (version_compare(MeiliSearch::VERSION, '0.23.2', '>=')) {
-            $expected['typoTolerance'] = ['sometimes', 'nullable', $this->app->make(ArrayAssocRule::class)];
-        }
 
         // Add actual typo tolerance validation rules for engine version >=0.27.0.
         if (version_compare($version, '0.27.0', '>=')) {
@@ -76,6 +73,14 @@ class ValidatesIndexSettingsTest extends TestCase
             $expected['typoTolerance.disableOnWords.*'] = ['required', 'string'];
             $expected['typoTolerance.disableOnAttributes'] = ['sometimes', 'nullable', 'array'];
             $expected['typoTolerance.disableOnAttributes.*'] = ['required', 'string'];
+        }
+
+        // Add faceting and pagination validation rules for engine version >=0.28.0.
+        if (version_compare($version, '0.28.0', '>=')) {
+            $expected['faceting'] = ['sometimes', 'nullable', $this->app->make(ArrayAssocRule::class)];
+            $expected['faceting.maxValuesPerFacet'] = ['sometimes', 'nullable', 'integer', 'min:0'];
+            $expected['pagination'] = ['sometimes', 'nullable', $this->app->make(ArrayAssocRule::class)];
+            $expected['pagination.maxTotalHits'] = ['sometimes', 'nullable', 'integer', 'min:0'];
         }
 
         $this->assertEquals($expected, $actual);
@@ -306,29 +311,27 @@ class ValidatesIndexSettingsTest extends TestCase
             ],
         ]];
 
-        if (version_compare(MeiliSearch::VERSION, '0.23.2', '>=')) {
-            yield 'typo tolerance not array nor assoc' => [fn () => [
-                ['typoTolerance' => 42],
-                null,
-                false,
-                [
-                    'typoTolerance' => [
-                        Str::replace(':attribute', 'typo tolerance', App::make(ArrayAssocRule::class)->message()),
-                    ],
+        yield 'typo tolerance not array nor assoc' => [fn () => [
+            ['typoTolerance' => 42],
+            null,
+            false,
+            [
+                'typoTolerance' => [
+                    Str::replace(':attribute', 'typo tolerance', App::make(ArrayAssocRule::class)->message()),
                 ],
-            ]];
+            ],
+        ]];
 
-            yield 'typo tolerance array not assoc' => [fn () => [
-                ['typoTolerance' => [42]],
-                null,
-                false,
-                [
-                    'typoTolerance' => [
-                        Str::replace(':attribute', 'typo tolerance', App::make(ArrayAssocRule::class)->message()),
-                    ],
+        yield 'typo tolerance array not assoc' => [fn () => [
+            ['typoTolerance' => [42]],
+            null,
+            false,
+            [
+                'typoTolerance' => [
+                    Str::replace(':attribute', 'typo tolerance', App::make(ArrayAssocRule::class)->message()),
                 ],
-            ]];
-        }
+            ],
+        ]];
     }
 
     /**

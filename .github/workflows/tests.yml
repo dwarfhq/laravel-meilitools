@@ -16,7 +16,7 @@ jobs:
             meilisearch: latest
             meilicmd: meilisearch
           - version: prefer-lowest
-            meilisearch: v0.26.0
+            meilisearch: v0.28.0
             meilicmd: ./meilisearch
         exclude:
           - php: 7.4

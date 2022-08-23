@@ -49,7 +49,7 @@ class EnsureIndexExists implements EnsuresIndexExists
             $info = $engine->index($index)->fetchRawInfo();
         } catch (ApiException $e) {
             $task = $engine->createIndex($index, $options);
-            $engine->waitForTask($task['uid']);
+            $engine->waitForTask($task['taskUid']);
         }
     }
 }

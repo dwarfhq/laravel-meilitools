@@ -55,7 +55,9 @@ class ModelDetailsTest extends TestCase
             $changes = $this->app->make(SynchronizesModel::class)(MeiliMovie::class);
             $this->assertNotEmpty($changes);
 
-            $values = Helpers::convertIndexSettingsToTable($settings + Arr::only($defaults, ['typoTolerance']));
+            $values = Helpers::convertIndexSettingsToTable(
+                Helpers::sortSettings($settings + Arr::only($defaults, ['faceting', 'pagination', 'typoTolerance']))
+            );
 
             $this->artisan('meili:model:details', ['model' => MeiliMovie::class])
                 ->expectsTable(['Setting', 'Value'], $values)

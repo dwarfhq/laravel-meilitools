@@ -103,12 +103,8 @@ class ValidateIndexSettings implements ValidatesIndexSettings
             'synonyms'               => ['sometimes', 'nullable', App::make(ArrayAssocRule::class)],
             'synonyms.*'             => ['required', 'array'],
             'synonyms.*.*'           => ['required', 'string'],
+            'typoTolerance'          => ['sometimes', 'nullable', App::make(ArrayAssocRule::class)],
         ];
-
-        // Add typo tolerance to validation rules for version >=0.23.2.
-        if (version_compare(MeiliSearch::VERSION, '0.23.2', '>=')) {
-            $rules['typoTolerance'] = ['sometimes', 'nullable', App::make(ArrayAssocRule::class)];
-        }
 
         // Add actual typo tolerance validation rules for engine version >=0.27.0.
         if ($version && version_compare($version, '0.27.0', '>=')) {
@@ -132,6 +128,14 @@ class ValidateIndexSettings implements ValidatesIndexSettings
             $rules['typoTolerance.disableOnAttributes.*'] = ['required', 'string'];
         }
 
+        // Add faceting and pagination validation rules for engine version >=0.28.0.
+        if ($version && version_compare($version, '0.28.0', '>=')) {
+            $rules['faceting'] = ['sometimes', 'nullable', App::make(ArrayAssocRule::class)];
+            $rules['faceting.maxValuesPerFacet'] = ['sometimes', 'nullable', 'integer', 'min:0'];
+            $rules['pagination'] = ['sometimes', 'nullable', App::make(ArrayAssocRule::class)];
+            $rules['pagination.maxTotalHits'] = ['sometimes', 'nullable', 'integer', 'min:0'];
+        }
+
         return $rules;
     }
 
@@ -143,6 +147,8 @@ class ValidateIndexSettings implements ValidatesIndexSettings
     public function attributes(): array
     {
         $fields = [
+            'faceting.maxValuesPerFacet',
+            'pagination.maxTotalHits',
             'typoTolerance.enabled',
             'typoTolerance.minWordSizeForTypos',
             'typoTolerance.minWordSizeForTypos.oneTypo',

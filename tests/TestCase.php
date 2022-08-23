@@ -62,7 +62,7 @@ class TestCase extends BaseTestCase
     {
         $engine = $this->app->make(EngineManager::class)->engine();
         $task = $engine->createIndex($index, $options);
-        $engine->waitForTask($task['uid']);
+        $engine->waitForTask($task['taskUid']);
     }
 
     /**
@@ -76,6 +76,6 @@ class TestCase extends BaseTestCase
     {
         $engine = $this->app->make(EngineManager::class)->engine();
         $task = $engine->deleteIndex($index);
-        $engine->waitForTask($task['uid']);
+        $engine->waitForTask($task['taskUid']);
     }
 }

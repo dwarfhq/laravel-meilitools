@@ -59,7 +59,9 @@ class IndexDetailsTest extends TestCase
             $changes = $this->app->make(SynchronizesIndex::class)(self::INDEX, $settings);
             $this->assertNotEmpty($changes);
 
-            $values = Helpers::convertIndexSettingsToTable($settings + Arr::only($defaults, ['typoTolerance']));
+            $values = Helpers::convertIndexSettingsToTable(
+                Helpers::sortSettings($settings + Arr::only($defaults, ['faceting', 'pagination', 'typoTolerance']))
+            );
 
             $this->artisan('meili:index:details', ['index' => self::INDEX])
                 ->expectsTable(['Setting', 'Value'], $values)

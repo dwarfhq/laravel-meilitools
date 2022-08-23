@@ -31,12 +31,8 @@ class Helpers
             'sortableAttributes'   => [],
             'stopWords'            => [],
             'synonyms'             => [],
+            'typoTolerance'        => [],
         ];
-
-        // Add typo tolerance to default settings for version >=0.23.2.
-        if (version_compare(MeiliSearch::VERSION, '0.23.2', '>=')) {
-            $settings['typoTolerance'] = [];
-        }
 
         // Add actual typo tolerance defaults for engine version >=0.27.0.
         if ($version && version_compare($version, '0.27.0', '>=')) {
@@ -50,6 +46,15 @@ class Helpers
                 'disableOnAttributes' => [],
             ];
         }
+
+        // Add faceting and pagination defaults for version >=0.28.0.
+        if ($version && version_compare($version, '0.28.0', '>=')) {
+            $settings['faceting'] = ['maxValuesPerFacet' => 100];
+            $settings['pagination'] = ['maxTotalHits' => 1000];
+        }
+
+        // Sort settings by key.
+        ksort($settings);
 
         return $settings;
     }
@@ -74,6 +79,12 @@ class Helpers
                 if ($key === 'synonyms') {
                     ksort($value);
                     array_walk($value, fn (&$list) => sort($list));
+                }
+                if ($key === 'faceting') {
+                    $value = array_replace(Arr::only(['maxValuesPerFacet' => null], array_keys($value)), $value);
+                }
+                if ($key === 'pagination') {
+                    $value = array_replace(Arr::only(['maxTotalHits' => null], array_keys($value)), $value);
                 }
                 if ($key === 'typoTolerance') {
                     $value = array_replace(

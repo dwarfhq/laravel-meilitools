@@ -118,7 +118,7 @@ class SynchronizeIndex implements SynchronizesIndex
         if (!$pretend) {
             $engine = $this->manager->engine();
             $task = $engine->index($index)->updateSettings($changes);
-            $engine->waitForTask($task['uid']);
+            $engine->waitForTask($task['taskUid']);
         }
 
         return collect($changes)->map(fn ($value, $key) => ['old' => $details[$key], 'new' => $value])->all();
