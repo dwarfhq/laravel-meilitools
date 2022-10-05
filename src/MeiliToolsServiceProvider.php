@@ -8,6 +8,7 @@ use Dwarf\MeiliTools\Actions\DetailIndex;
 use Dwarf\MeiliTools\Actions\DetailModel;
 use Dwarf\MeiliTools\Actions\EnsureIndexExists;
 use Dwarf\MeiliTools\Actions\ListClasses;
+use Dwarf\MeiliTools\Actions\ListIndexes;
 use Dwarf\MeiliTools\Actions\ResetIndex;
 use Dwarf\MeiliTools\Actions\ResetModel;
 use Dwarf\MeiliTools\Actions\SynchronizeIndex;
@@ -15,6 +16,7 @@ use Dwarf\MeiliTools\Actions\SynchronizeModel;
 use Dwarf\MeiliTools\Actions\SynchronizeModels;
 use Dwarf\MeiliTools\Actions\ValidateIndexSettings;
 use Dwarf\MeiliTools\Console\Commands\IndexDetails;
+use Dwarf\MeiliTools\Console\Commands\IndexList;
 use Dwarf\MeiliTools\Console\Commands\IndexReset;
 use Dwarf\MeiliTools\Console\Commands\ModelDetails;
 use Dwarf\MeiliTools\Console\Commands\ModelReset;
@@ -24,6 +26,7 @@ use Dwarf\MeiliTools\Contracts\Actions\DetailsIndex;
 use Dwarf\MeiliTools\Contracts\Actions\DetailsModel;
 use Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists;
 use Dwarf\MeiliTools\Contracts\Actions\ListsClasses;
+use Dwarf\MeiliTools\Contracts\Actions\ListsIndexes;
 use Dwarf\MeiliTools\Contracts\Actions\ResetsIndex;
 use Dwarf\MeiliTools\Contracts\Actions\ResetsModel;
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesIndex;
@@ -47,6 +50,7 @@ class MeiliToolsServiceProvider extends ServiceProvider
         DetailsModel::class           => DetailModel::class,
         EnsuresIndexExists::class     => EnsureIndexExists::class,
         ListsClasses::class           => ListClasses::class,
+        ListsIndexes::class           => ListIndexes::class,
         ResetsIndex::class            => ResetIndex::class,
         ResetsModel::class            => ResetModel::class,
         SynchronizesIndex::class      => SynchronizeIndex::class,
@@ -81,6 +85,7 @@ class MeiliToolsServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
+                IndexList::class,
                 IndexDetails::class,
                 IndexReset::class,
                 ModelDetails::class,

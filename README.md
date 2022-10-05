@@ -57,6 +57,8 @@ A full list of available index settings can be found [here](https://docs.meilise
 
 ### Commands
 The following commands are available:
+#### `meili:index:list` - Display all Meilisearch indexes
+
 #### `meili:index:details` - Get details for a MeiliSearch index
 **Arguments:**
 - `index` : Index name
