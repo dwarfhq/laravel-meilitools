@@ -10,6 +10,8 @@ use Illuminate\Console\Command;
 
 class ModelDetails extends Command
 {
+    use HasModelTrait;
+
     /**
      * The name and signature of the console command.
      *
@@ -39,15 +41,5 @@ class ModelDetails extends Command
         $this->table(['Setting', 'Value'], $values);
 
         return Command::SUCCESS;
-    }
-
-    /**
-     * Get model class.
-     *
-     * @return string
-     */
-    protected function getModel(): string
-    {
-        return $this->argument('model') ?? $this->ask('What is the model class?');
     }
 }

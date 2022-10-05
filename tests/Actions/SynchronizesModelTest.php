@@ -117,4 +117,42 @@ class SynchronizesModelTest extends TestCase
             $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
         }
     }
+
+    /**
+     * Test SynchronizesModel::__invoke() method with short model name.
+     *
+     * @return void
+     */
+    public function testWithShortModelName(): void
+    {
+        $path = __DIR__ . '/../Models';
+        $namespace = 'Dwarf\\MeiliTools\\Tests\\Models';
+        config(['meilitools.paths' => [$path => $namespace]]);
+
+        try {
+            $defaults = Helpers::defaultSettings(Helpers::engineVersion());
+            $settings = app(MeiliMovie::class)->meiliSettings();
+            $expected = collect($settings)
+                ->mapWithKeys(function ($value, $key) use ($defaults) {
+                    $old = $defaults[$key];
+                    $new = $value;
+
+                    return [$key => $old === $new ? false : compact('old', 'new')];
+                })
+                ->filter()
+                ->all()
+            ;
+
+            $details = $this->app->make(DetailsModel::class)('MeiliMovie');
+            $this->assertSame($defaults, $details);
+
+            $changes = $this->app->make(SynchronizesModel::class)('MeiliMovie', true);
+            $this->assertSame($expected, $changes);
+
+            $details = $this->app->make(DetailsModel::class)('MeiliMovie');
+            $this->assertSame($defaults, $details);
+        } finally {
+            $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
+        }
+    }
 }

@@ -7,6 +7,7 @@ namespace Dwarf\MeiliTools\Actions;
 use Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists;
 use Dwarf\MeiliTools\Contracts\Actions\ResetsIndex;
 use Dwarf\MeiliTools\Contracts\Actions\ResetsModel;
+use Dwarf\MeiliTools\Helpers;
 
 /**
  * Reset model index.
@@ -52,7 +53,7 @@ class ResetModel implements ResetsModel
      */
     public function __invoke(string $class, bool $pretend = false): array
     {
-        $model = app($class);
+        $model = app(Helpers::guessModelNamespace($class));
         $index = $model->searchableAs();
         $primaryKey = $model->getKeyName();
 

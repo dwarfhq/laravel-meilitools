@@ -193,4 +193,18 @@ class Helpers
             ->all()
         ;
     }
+
+    /**
+     * Guess the model namespace using the configured paths.
+     *
+     * @param string $model Name of the model.
+     *
+     * @return string
+     */
+    public static function guessModelNamespace(string $model): string
+    {
+        return collect(config('meilitools.paths'))
+            ->map(fn (string $path) => $path.'\\')
+            ->first(fn (string $path) => class_exists($path.$model)).$model;
+    }
 }
