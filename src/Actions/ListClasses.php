@@ -22,7 +22,7 @@ class ListClasses implements ListsClasses
 
         $classes = collect($files)
             ->filter(fn ($file) => Str::endsWith($file, '.php'))
-            ->map(fn ($file)    => Str::finish($namespace, '\\') . basename($file, '.php'))
+            ->map(fn ($file) => Str::finish($namespace, '\\') . basename($file, '.php'))
         ;
         if ($filter) {
             $classes = $classes->filter($filter);
