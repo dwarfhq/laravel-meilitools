@@ -9,6 +9,7 @@
 The purpose of this package is to ease the configuration of indexes for MeiliSearch, so it's possible to use advanced filtering and sorting through Laravel Scout, without having to meddle with their API manually.
 
 ## Table of Contents
+- [Support](#support)
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Usage](#usage)
@@ -16,6 +17,14 @@ The purpose of this package is to ease the configuration of indexes for MeiliSea
     - [Commands](#commands)
 - [Testing](#testing)
 - [License](#license)
+
+## Support
+| Engine  | 0.1.x | 0.2.x | 0.3.x |
+|---------|-------|-------|-------|
+| v0.26.x |   X   |   X   |       |
+| v0.27.x |   X   |   X   |       |
+| v0.28.x |       |       |   X   |
+| v0.29.x |       |       |   X   |
 
 ## Installation
 Install this package via Composer:
