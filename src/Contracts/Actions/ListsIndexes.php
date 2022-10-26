@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Dwarf\MeiliTools\Contracts\Actions;
 
 /**
- * Indexes list.
+ * Lists indexes.
  */
 interface ListsIndexes
 {

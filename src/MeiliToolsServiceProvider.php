@@ -16,7 +16,7 @@ use Dwarf\MeiliTools\Actions\SynchronizeModel;
 use Dwarf\MeiliTools\Actions\SynchronizeModels;
 use Dwarf\MeiliTools\Actions\ValidateIndexSettings;
 use Dwarf\MeiliTools\Console\Commands\IndexDetails;
-use Dwarf\MeiliTools\Console\Commands\IndexList;
+use Dwarf\MeiliTools\Console\Commands\IndexesList;
 use Dwarf\MeiliTools\Console\Commands\IndexReset;
 use Dwarf\MeiliTools\Console\Commands\ModelDetails;
 use Dwarf\MeiliTools\Console\Commands\ModelReset;
@@ -85,9 +85,9 @@ class MeiliToolsServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
-                IndexList::class,
                 IndexDetails::class,
                 IndexReset::class,
+                IndexesList::class,
                 ModelDetails::class,
                 ModelReset::class,
                 ModelSynchronize::class,

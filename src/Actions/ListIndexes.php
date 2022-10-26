@@ -10,7 +10,7 @@ use Laravel\Scout\EngineManager;
 use MeiliSearch\Endpoints\Indexes;
 
 /**
- * Detail list.
+ * List indexes.
  */
 class ListIndexes implements ListsIndexes
 {
@@ -36,7 +36,6 @@ class ListIndexes implements ListsIndexes
      *
      * @throws \Dwarf\MeiliTools\Exceptions\MeiliToolsException When not using the MeiliSearch Scout driver.
      * @throws \MeiliSearch\Exceptions\CommunicationException   When connection to MeiliSearch fails.
-     * @throws \MeiliSearch\Exceptions\ApiException             When index is not found.
      */
     public function __invoke(): array
     {
@@ -44,29 +43,34 @@ class ListIndexes implements ListsIndexes
             throw new MeiliToolsException('Scout must be using the MeiliSearch driver');
         }
 
-        $indexes = $this->manager->engine()->getAllIndexes();
+        $indexes = $this->manager->engine()->getAllIndexes()->getResults();
         // Convert iterator objects from contract to array.
-        $indexes = collect($indexes->getResults())->mapWithKeys(function ($value) {
-            return $value instanceof Indexes ? $this->getIndexData($value) : $value;
-        })->toArray();
-        // Sort keys for consistency.
-        ksort($indexes);
-
-        return $indexes;
+        return collect($indexes)
+            ->mapWithKeys(fn (Indexes $index) => $this->getIndexData($index))
+            ->sortKeys()
+            ->all()
+        ;
     }
 
-    private function getIndexData(Indexes $index): array
+    /**
+     * Get index data and stats.
+     *
+     * @param \MeiliSearch\Endpoints\Indexes $index Index.
+     *
+     * @return array
+     */
+    protected function getIndexData(Indexes $index): array
     {
         $stats = $index->stats();
 
         return [
             $index->getUid() => [
-                'uid' => $index->getUid(),
-                'primaryKey' => $index->getPrimaryKey(),
-                'createdAt' => $index->getCreatedAtString(),
-                'updatedAt' => $index->getUpdatedAtString(),
+                'uid'               => $index->getUid(),
+                'primaryKey'        => $index->getPrimaryKey(),
+                'createdAt'         => $index->getCreatedAtString(),
+                'updatedAt'         => $index->getUpdatedAtString(),
                 'numberOfDocuments' => $stats['numberOfDocuments'],
-                'isIndexing' => $stats['isIndexing'],
+                'isIndexing'        => $stats['isIndexing'],
             ],
         ];
     }

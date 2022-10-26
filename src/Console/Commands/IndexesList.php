@@ -8,21 +8,21 @@ use Dwarf\MeiliTools\Contracts\Actions\ListsIndexes;
 use Dwarf\MeiliTools\Helpers;
 use Illuminate\Console\Command;
 
-class IndexList extends Command
+class IndexesList extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'meili:index:list';
+    protected $signature = 'meili:indexes:list';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Get details for all MeiliSearch indexes';
+    protected $description = 'List all MeiliSearch indexes';
 
     /**
      * Execute the console command.
@@ -36,7 +36,7 @@ class IndexList extends Command
         $list = $listIndexes();
         $values = Helpers::convertIndexSettingsToTable($list);
 
-        $this->table(['Setting', 'Value'], $values);
+        $this->table(['Index', 'Stats'], $values);
 
         return Command::SUCCESS;
     }

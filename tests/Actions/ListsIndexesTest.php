@@ -12,7 +12,7 @@ use MeiliSearch\Exceptions\CommunicationException;
 /**
  * @internal
  */
-class IndexesListTest extends TestCase
+class ListsIndexesTest extends TestCase
 {
     /**
      * Test index.
