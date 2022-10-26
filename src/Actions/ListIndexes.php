@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Dwarf\MeiliTools\Actions;
 
 use Dwarf\MeiliTools\Contracts\Actions\ListsIndexes;
-use Dwarf\MeiliTools\Exceptions\MeiliToolsException;
+use Dwarf\MeiliTools\Helpers;
 use Laravel\Scout\EngineManager;
 use MeiliSearch\Endpoints\Indexes;
 
@@ -39,9 +39,7 @@ class ListIndexes implements ListsIndexes
      */
     public function __invoke(): array
     {
-        if ($this->manager->getDefaultDriver() !== 'meilisearch') {
-            throw new MeiliToolsException('Scout must be using the MeiliSearch driver');
-        }
+        Helpers::throwUnlessMeiliSearch();
 
         $indexes = $this->manager->engine()->getAllIndexes()->getResults();
         // Convert iterator objects from contract to array.

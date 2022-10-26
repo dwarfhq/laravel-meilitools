@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Dwarf\MeiliTools\Actions;
 
 use Dwarf\MeiliTools\Contracts\Actions\DetailsIndex;
-use Dwarf\MeiliTools\Exceptions\MeiliToolsException;
+use Dwarf\MeiliTools\Helpers;
 use Laravel\Scout\EngineManager;
 use MeiliSearch\Contracts\Data;
 
@@ -40,9 +40,7 @@ class DetailIndex implements DetailsIndex
      */
     public function __invoke(string $index): array
     {
-        if ($this->manager->getDefaultDriver() !== 'meilisearch') {
-            throw new MeiliToolsException('Scout must be using the MeiliSearch driver');
-        }
+        Helpers::throwUnlessMeiliSearch();
 
         $details = $this->manager->engine()->index($index)->getSettings();
         // Convert iterator objects from contract to array.

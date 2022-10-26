@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Dwarf\MeiliTools;
 
 use Brick\VarExporter\VarExporter;
+use Dwarf\MeiliTools\Exceptions\MeiliToolsException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Laravel\Scout\EngineManager;
@@ -13,6 +14,32 @@ use Throwable;
 
 class Helpers
 {
+    /**
+     * Whether Scout is using the MeiliSearch driver.
+     *
+     * @return bool
+     */
+    public static function usingMeiliSearch(): bool
+    {
+        return app(EngineManager::class)->getDefaultDriver() === 'meilisearch';
+    }
+
+    /**
+     * Throw exception unless Scout is using the MeiliSearch driver.
+     *
+     * @throws \Dwarf\MeiliTools\Exceptions\MeiliToolsException
+     *
+     * @return void
+     */
+    public static function throwUnlessMeiliSearch(): void
+    {
+        throw_unless(
+            self::usingMeiliSearch(),
+            MeiliToolsException::class,
+            'Scout must be using the MeiliSearch driver'
+        );
+    }
+
     /**
      * Default MeiliSearch index settings.
      *
