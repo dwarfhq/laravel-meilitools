@@ -42,10 +42,6 @@ class ModelsSynchronizeTest extends TestCase
             $details = $this->app->make(DetailsModel::class)(MeiliMovie::class);
             $this->assertSame($defaults, $details);
 
-            $path = __DIR__ . '/../Models';
-            $namespace = 'Dwarf\\MeiliTools\\Tests\\Models';
-            config(['meilitools.paths' => [$path => $namespace]]);
-
             $message = version_compare(app()->version(), '9.0.0', '<')
                 ? 'The given data was invalid.'
                 : 'The distinct attribute must be a string.';

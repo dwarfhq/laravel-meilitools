@@ -31,7 +31,10 @@ class TestCase extends BaseTestCase
      */
     protected function defineEnvironment($app): void
     {
-        $app->make('config')->set('scout.driver', 'meilisearch');
+        $path = __DIR__ . '/Models';
+        $namespace = 'Dwarf\\MeiliTools\\Tests\\Models';
+        $app['config']->set('meilitools.paths', [$path => $namespace]);
+        $app['config']->set('scout.driver', 'meilisearch');
     }
 
     /**

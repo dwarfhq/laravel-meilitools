@@ -36,6 +36,11 @@ class ModelDetailsTest extends TestCase
                 ->expectsTable(['Setting', 'Value'], $values)
                 ->assertSuccessful()
             ;
+
+            $this->artisan('meili:model:details', ['model' => 'Movie'])
+                ->expectsTable(['Setting', 'Value'], $values)
+                ->assertSuccessful()
+            ;
         } finally {
             $this->deleteIndex(app(Movie::class)->searchableAs());
         }

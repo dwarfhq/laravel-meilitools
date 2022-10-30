@@ -34,6 +34,11 @@ class ModelViewTest extends TestCase
                 // ->expectsOutputToContain($index) - Laravel 9 only.
                 ->assertSuccessful()
             ;
+
+            $this->artisan('meili:model:view', ['model' => 'Movie'])
+                // ->expectsOutputToContain($index) - Laravel 9 only.
+                ->assertSuccessful()
+            ;
         } finally {
             $this->deleteIndex($index);
         }
