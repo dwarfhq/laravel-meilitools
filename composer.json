@@ -24,7 +24,6 @@
     },
     "require-dev": {
         "brick/varexporter": "^0.3.5",
-        "friendsofphp/php-cs-fixer": "^3.4",
         "guzzlehttp/guzzle": "^7.4",
         "http-interop/http-factory-guzzle": "^1.2",
         "illuminate/support": "^8.69|^9.0",

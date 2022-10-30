@@ -27,9 +27,9 @@ class Helpers
     /**
      * Throw exception unless Scout is using the MeiliSearch driver.
      *
-     * @return void
-     *
      * @throws \Dwarf\MeiliTools\Exceptions\MeiliToolsException
+     *
+     * @return void
      */
     public static function throwUnlessMeiliSearch(): void
     {
