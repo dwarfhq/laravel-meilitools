@@ -30,12 +30,12 @@ class IndexViewTest extends TestCase
             // it's impossible to validate the exact console output.
             $this->artisan('meili:index:view')
                 ->expectsQuestion('What is the index name?', self::INDEX)
-                ->expectsOutputToContain(self::INDEX)
+                // ->expectsOutputToContain(self::INDEX) - Laravel 9 only.
                 ->assertSuccessful()
             ;
 
             $this->artisan('meili:index:view', ['index' => self::INDEX])
-                ->expectsOutputToContain(self::INDEX)
+                // ->expectsOutputToContain(self::INDEX) - Laravel 9 only.
                 ->assertSuccessful()
             ;
         });
@@ -52,7 +52,7 @@ class IndexViewTest extends TestCase
             // Since data returned from MeiliSearch includes microsecond precision timestamps,
             // it's impossible to validate the exact console output.
             $this->artisan('meili:index:view', ['index' => self::INDEX, '--stats' => true])
-                ->expectsOutputToContain(self::INDEX)
+                // ->expectsOutputToContain(self::INDEX) - Laravel 9 only.
                 ->assertSuccessful()
             ;
         });

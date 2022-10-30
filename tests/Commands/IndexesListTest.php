@@ -29,7 +29,7 @@ class IndexesListTest extends TestCase
             // Since data returned from MeiliSearch includes microsecond precision timestamps,
             // it's impossible to validate the exact console output.
             $this->artisan('meili:indexes:list')
-                ->expectsOutputToContain(self::INDEX)
+                // ->expectsOutputToContain(self::INDEX) - Laravel 9 only.
                 ->assertSuccessful()
             ;
         });
@@ -46,7 +46,7 @@ class IndexesListTest extends TestCase
             // Since data returned from MeiliSearch includes microsecond precision timestamps,
             // it's impossible to validate the exact console output.
             $this->artisan('meili:indexes:list', ['--stats' => true])
-                ->expectsOutputToContain(self::INDEX)
+                // ->expectsOutputToContain(self::INDEX) - Laravel 9 only.
                 ->assertSuccessful()
             ;
         });
