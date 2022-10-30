@@ -103,6 +103,13 @@ The following commands are available:
 **Arguments:**
 - `model` : Model class
 
+#### `meili:model:view` - Get base information about a MeiliSearch model index
+**Arguments:**
+- `model` : Model class
+
+**Options:**
+- `--stats` : Whether to include index stats
+
 **Options:**
 - `--pretend` : Only shows what changes would have been done to the index
 

@@ -16,6 +16,7 @@ use Dwarf\MeiliTools\Actions\SynchronizeModel;
 use Dwarf\MeiliTools\Actions\SynchronizeModels;
 use Dwarf\MeiliTools\Actions\ValidateIndexSettings;
 use Dwarf\MeiliTools\Actions\ViewIndex;
+use Dwarf\MeiliTools\Actions\ViewModel;
 use Dwarf\MeiliTools\Console\Commands\IndexDetails;
 use Dwarf\MeiliTools\Console\Commands\IndexesList;
 use Dwarf\MeiliTools\Console\Commands\IndexReset;
@@ -24,6 +25,7 @@ use Dwarf\MeiliTools\Console\Commands\ModelDetails;
 use Dwarf\MeiliTools\Console\Commands\ModelReset;
 use Dwarf\MeiliTools\Console\Commands\ModelsSynchronize;
 use Dwarf\MeiliTools\Console\Commands\ModelSynchronize;
+use Dwarf\MeiliTools\Console\Commands\ModelView;
 use Dwarf\MeiliTools\Contracts\Actions\DetailsIndex;
 use Dwarf\MeiliTools\Contracts\Actions\DetailsModel;
 use Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists;
@@ -36,6 +38,7 @@ use Dwarf\MeiliTools\Contracts\Actions\SynchronizesModel;
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesModels;
 use Dwarf\MeiliTools\Contracts\Actions\ValidatesIndexSettings;
 use Dwarf\MeiliTools\Contracts\Actions\ViewsIndex;
+use Dwarf\MeiliTools\Contracts\Actions\ViewsModel;
 use Dwarf\MeiliTools\Contracts\Rules\ArrayAssocRule;
 use Dwarf\MeiliTools\Rules\ArrayAssoc;
 use Illuminate\Support\ServiceProvider;
@@ -54,13 +57,14 @@ class MeiliToolsServiceProvider extends ServiceProvider
         EnsuresIndexExists::class     => EnsureIndexExists::class,
         ListsClasses::class           => ListClasses::class,
         ListsIndexes::class           => ListIndexes::class,
-        ViewsIndex::class             => ViewIndex::class,
         ResetsIndex::class            => ResetIndex::class,
         ResetsModel::class            => ResetModel::class,
         SynchronizesIndex::class      => SynchronizeIndex::class,
         SynchronizesModel::class      => SynchronizeModel::class,
         SynchronizesModels::class     => SynchronizeModels::class,
         ValidatesIndexSettings::class => ValidateIndexSettings::class,
+        ViewsIndex::class             => ViewIndex::class,
+        ViewsModel::class             => ViewModel::class,
     ];
 
     /**
@@ -96,6 +100,7 @@ class MeiliToolsServiceProvider extends ServiceProvider
                 ModelDetails::class,
                 ModelReset::class,
                 ModelSynchronize::class,
+                ModelView::class,
                 ModelsSynchronize::class,
             ]);
 
