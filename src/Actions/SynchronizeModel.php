@@ -7,7 +7,6 @@ namespace Dwarf\MeiliTools\Actions;
 use Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists;
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesIndex;
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesModel;
-use Dwarf\MeiliTools\Helpers;
 
 /**
  * Synchronize model index.
@@ -54,7 +53,7 @@ class SynchronizeModel implements SynchronizesModel
      */
     public function __invoke(string $class, bool $pretend = false): array
     {
-        $model = app(Helpers::guessModelNamespace($class));
+        $model = app($class);
         $index = $model->searchableAs();
         $primaryKey = $model->getKeyName();
         $settings = $model->meiliSettings();

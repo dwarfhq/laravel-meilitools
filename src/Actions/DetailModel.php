@@ -7,7 +7,6 @@ namespace Dwarf\MeiliTools\Actions;
 use Dwarf\MeiliTools\Contracts\Actions\DetailsIndex;
 use Dwarf\MeiliTools\Contracts\Actions\DetailsModel;
 use Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists;
-use Dwarf\MeiliTools\Helpers;
 
 /**
  * Detail model index.
@@ -51,7 +50,7 @@ class DetailModel implements DetailsModel
      */
     public function __invoke(string $class): array
     {
-        $model = app(Helpers::guessModelNamespace($class));
+        $model = app($class);
         $index = $model->searchableAs();
         $primaryKey = $model->getKeyName();
 

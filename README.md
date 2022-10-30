@@ -9,16 +9,17 @@
 The purpose of this package is to ease the configuration of indexes for MeiliSearch, so it's possible to use advanced filtering and sorting through Laravel Scout, without having to meddle with their API manually.
 
 ## Table of Contents
-- [Support](#support)
+- [Compatibility](#compatibility)
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Usage](#usage)
     - [Model Settings](#model-settings)
     - [Commands](#commands)
+- [Examples](#examples)
 - [Testing](#testing)
 - [License](#license)
 
-## Support
+## Compatibility
 | Engine  | 0.1.x | 0.2.x | 0.3.x |
 |---------|-------|-------|-------|
 | v0.26.x |   X   |   X   |       |
@@ -117,6 +118,22 @@ The following commands are available:
 **Options:**
 - `--pretend` : Only shows what changes would have been done to the indexes
 - `--force` : Force the operation to run when in production
+
+## Examples
+Model commands can take both full class name and base name, with the latter being completed using the configured paths.
+```
+$ php artisan meili:model:details App\\Models\\Article
+$ php artisan meili:model:details Article
+
+$ php artisan meili:model:reset App\\Models\\Article
+$ php artisan meili:model:reset Article
+
+$ php artisan meili:model:synchronize App\\Models\\Article
+$ php artisan meili:model:synchronize Article
+
+$ php artisan meili:model:view App\\Models\\Article
+$ php artisan meili:model:view Article
+```
 
 ## Testing
 Running tests can be done either through composer, or directly calling the PHPUnit binary.

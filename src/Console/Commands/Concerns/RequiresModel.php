@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Dwarf\MeiliTools\Console\Commands\Concerns;
 
+use Dwarf\MeiliTools\Helpers;
+
 trait RequiresModel
 {
     /**
@@ -13,6 +15,8 @@ trait RequiresModel
      */
     protected function getModel(): string
     {
-        return $this->argument('model') ?? $this->ask('What is the model class?');
+        $model = $this->argument('model') ?? $this->ask('What is the model class?');
+
+        return Helpers::guessModelNamespace($model);
     }
 }

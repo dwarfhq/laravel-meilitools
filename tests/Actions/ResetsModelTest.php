@@ -79,40 +79,4 @@ class ResetsModelTest extends TestCase
             $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
         }
     }
-
-    /**
-     * Test ResetsModel::__invoke() method with short model name.
-     *
-     * @return void
-     */
-    public function testWithShortModelName(): void
-    {
-        $path = __DIR__ . '/../Models';
-        $namespace = 'Dwarf\\MeiliTools\\Tests\\Models';
-        config(['meilitools.paths' => [$path => $namespace]]);
-
-        try {
-            $defaults = Helpers::defaultSettings(Helpers::engineVersion());
-            $settings = app(MeiliMovie::class)->meiliSettings();
-
-            $this->app->make(SynchronizesModel::class)('MeiliMovie');
-            $details = $this->app->make(DetailsModel::class)('MeiliMovie');
-            $this->assertNotSame($defaults, $details);
-            $this->assertSame(array_replace($defaults, $settings), $details);
-
-            $changes = $this->app->make(ResetsModel::class)('MeiliMovie', true);
-            $this->assertCount(8, $changes);
-
-            foreach ($changes as $key => $value) {
-                $old = $settings[$key];
-                $new = null;
-                $this->assertSame(compact('old', 'new'), $value);
-            }
-
-            $details = $this->app->make(DetailsModel::class)('MeiliMovie');
-            $this->assertNotSame($defaults, $details);
-        } finally {
-            $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
-        }
-    }
 }

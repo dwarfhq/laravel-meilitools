@@ -28,23 +28,4 @@ class DetailsModelTest extends TestCase
             $this->deleteIndex(app(Movie::class)->searchableAs());
         }
     }
-
-    /**
-     * Test DetailsModel::__invoke() method with short model name.
-     *
-     * @return void
-     */
-    public function testInvokeWithShortModelName(): void
-    {
-        $path = __DIR__ . '/../Models';
-        $namespace = 'Dwarf\\MeiliTools\\Tests\\Models';
-        config(['meilitools.paths' => [$path => $namespace]]);
-
-        try {
-            $details = $this->app->make(DetailsModel::class)('Movie');
-            $this->assertSame(Helpers::defaultSettings(Helpers::engineVersion()), $details);
-        } finally {
-            $this->deleteIndex(app(Movie::class)->searchableAs());
-        }
-    }
 }

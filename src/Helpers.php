@@ -27,9 +27,9 @@ class Helpers
     /**
      * Throw exception unless Scout is using the MeiliSearch driver.
      *
-     * @return void
-     *
      * @throws \Dwarf\MeiliTools\Exceptions\MeiliToolsException
+     *
+     * @return void
      */
     public static function throwUnlessMeiliSearch(): void
     {
@@ -231,7 +231,7 @@ class Helpers
     public static function guessModelNamespace(string $model): string
     {
         return collect(config('meilitools.paths'))
-            ->map(fn (string $path) => $path.'\\')
-            ->first(fn (string $path) => class_exists($path.$model)).$model;
+            ->map(fn (string $path) => $path . '\\')
+            ->first(fn (string $path) => class_exists($path . $model)) . $model;
     }
 }
