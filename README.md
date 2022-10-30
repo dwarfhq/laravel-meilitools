@@ -9,6 +9,7 @@
 The purpose of this package is to ease the configuration of indexes for MeiliSearch, so it's possible to use advanced filtering and sorting through Laravel Scout, without having to meddle with their API manually.
 
 ## Table of Contents
+- [Support](#support)
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Usage](#usage)
@@ -16,6 +17,14 @@ The purpose of this package is to ease the configuration of indexes for MeiliSea
     - [Commands](#commands)
 - [Testing](#testing)
 - [License](#license)
+
+## Support
+| Engine  | 0.1.x | 0.2.x | 0.3.x |
+|---------|-------|-------|-------|
+| v0.26.x |   X   |   X   |       |
+| v0.27.x |   X   |   X   |       |
+| v0.28.x |       |       |   X   |
+| v0.29.x |       |       |   X   |
 
 ## Installation
 Install this package via Composer:
@@ -68,6 +77,17 @@ The following commands are available:
 **Options:**
 - `--pretend` : Only shows what changes would have been done to the index
 
+#### `meili:index:view` - Get base information about a MeiliSearch index
+**Arguments:**
+- `index` : Index name
+
+**Options:**
+- `--stats` : Whether to include index stats
+
+#### `meili:indexes:list` - List all MeiliSearch indexes
+**Options:**
+- `--stats` : Whether to include index stats
+
 #### `meili:model:details` - Get details for a MeiliSearch model index
 **Arguments:**
 - `model` : Model class
@@ -82,6 +102,13 @@ The following commands are available:
 #### `meili:model:synchronize` - Synchronize settings for a MeiliSearch model index
 **Arguments:**
 - `model` : Model class
+
+#### `meili:model:view` - Get base information about a MeiliSearch model index
+**Arguments:**
+- `model` : Model class
+
+**Options:**
+- `--stats` : Whether to include index stats
 
 **Options:**
 - `--pretend` : Only shows what changes would have been done to the index

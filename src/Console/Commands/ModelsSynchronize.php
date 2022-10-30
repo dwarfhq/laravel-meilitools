@@ -21,7 +21,7 @@ class ModelsSynchronize extends Command
      * @var string
      */
     protected $signature = 'meili:models:synchronize
-                            {--pretend : Only shows what changes would have been done to the indexes}
+                            {--P|pretend : Only shows what changes would have been done to the indexes}
                             {--force : Force the operation to run when in production}';
 
     /**

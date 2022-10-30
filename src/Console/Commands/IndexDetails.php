@@ -10,6 +10,8 @@ use Illuminate\Console\Command;
 
 class IndexDetails extends Command
 {
+    use Concerns\RequiresIndex;
+
     /**
      * The name and signature of the console command.
      *
@@ -34,20 +36,10 @@ class IndexDetails extends Command
     public function handle(DetailsIndex $detailIndex)
     {
         $details = $detailIndex($this->getIndex());
-        $values = Helpers::convertIndexSettingsToTable($details);
+        $values = Helpers::convertIndexDataToTable($details);
 
         $this->table(['Setting', 'Value'], $values);
 
         return Command::SUCCESS;
-    }
-
-    /**
-     * Get index name.
-     *
-     * @return string
-     */
-    protected function getIndex(): string
-    {
-        return $this->argument('index') ?? $this->ask('What is the index name?');
     }
 }

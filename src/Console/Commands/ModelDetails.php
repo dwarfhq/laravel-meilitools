@@ -10,7 +10,7 @@ use Illuminate\Console\Command;
 
 class ModelDetails extends Command
 {
-    use HasModelTrait;
+    use Concerns\RequiresModel;
 
     /**
      * The name and signature of the console command.
@@ -36,7 +36,7 @@ class ModelDetails extends Command
     public function handle(DetailsModel $detailModel)
     {
         $details = $detailModel($this->getModel());
-        $values = Helpers::convertIndexSettingsToTable($details);
+        $values = Helpers::convertIndexDataToTable($details);
 
         $this->table(['Setting', 'Value'], $values);
 

@@ -10,7 +10,7 @@ use Illuminate\Console\Command;
 
 class ModelReset extends Command
 {
-    use HasModelTrait;
+    use Concerns\RequiresModel;
 
     /**
      * The name and signature of the console command.
@@ -19,7 +19,7 @@ class ModelReset extends Command
      */
     protected $signature = 'meili:model:reset
                             {model? : Model class}
-                            {--pretend : Only shows what changes would have been done to the index}';
+                            {--P|pretend : Only shows what changes would have been done to the index}';
 
     /**
      * The console command description.

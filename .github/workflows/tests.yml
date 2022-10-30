@@ -2,7 +2,11 @@ name: Tests
 
 on:
   push:
+    branches:
+      - main
   pull_request:
+    branches:
+      - main
   schedule:
     - cron: '0 1 * * 1' # Run at 01:00 on Mondays.
 
@@ -11,7 +15,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
         php: [8.1, 8.0, 7.4]
         testbench: [7.0, 6.23]
         version: [prefer-stable, prefer-lowest]
@@ -24,7 +27,7 @@ jobs:
           - php: 7.4
             testbench: 7.0
 
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
 
     name: P${{ matrix.php }} - T${{ matrix.testbench }} - ${{ matrix.version }}
 
