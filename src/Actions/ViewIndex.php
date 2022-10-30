@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Dwarf\MeiliTools\Actions;
 
-use Dwarf\MeiliTools\Contracts\Actions\ListsIndexes;
+use Dwarf\MeiliTools\Contracts\Actions\ViewsIndex;
 use Dwarf\MeiliTools\Helpers;
 use Laravel\Scout\EngineManager;
 use MeiliSearch\Endpoints\Indexes;
@@ -12,7 +12,7 @@ use MeiliSearch\Endpoints\Indexes;
 /**
  * List indexes.
  */
-class ListIndexes implements ListsIndexes
+class ViewIndex implements ViewsIndex
 {
     use Concerns\ExtractsIndexInformation;
 
@@ -40,17 +40,14 @@ class ListIndexes implements ListsIndexes
      *
      * @throws \Dwarf\MeiliTools\Exceptions\MeiliToolsException When not using the MeiliSearch Scout driver.
      * @throws \MeiliSearch\Exceptions\CommunicationException   When connection to MeiliSearch fails.
+     * @throws \MeiliSearch\Exceptions\ApiException             When index is not found.
      */
-    public function __invoke(bool $stats = false): array
+    public function __invoke(string $index, bool $stats = false): array
     {
         Helpers::throwUnlessMeiliSearch();
 
-        $indexes = $this->manager->engine()->getAllIndexes()->getResults();
-        // Convert iterator objects from contract to array.
-        return collect($indexes)
-            ->mapWithKeys(fn (Indexes $index) => [$index->getUid() => $this->getIndexData($index, $stats)])
-            ->sortKeys()
-            ->all()
-        ;
+        $index = $this->manager->engine()->getIndex($index);
+
+        return $this->getIndexData($index, $stats);
     }
 }

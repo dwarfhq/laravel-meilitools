@@ -9,17 +9,17 @@ use Dwarf\MeiliTools\Tests\TestCase;
 /**
  * @internal
  */
-class IndexesListTest extends TestCase
+class IndexViewTest extends TestCase
 {
     /**
      * Test index.
      *
      * @var string
      */
-    private const INDEX = 'testing-indexes-list';
+    private const INDEX = 'testing-index-view';
 
     /**
-     * Test `meili:indexes:list` command with default settings.
+     * Test `meili:index:view` command with default settings.
      *
      * @return void
      */
@@ -28,7 +28,13 @@ class IndexesListTest extends TestCase
         $this->withIndex(self::INDEX, function () {
             // Since data returned from MeiliSearch includes microsecond precision timestamps,
             // it's impossible to validate the exact console output.
-            $this->artisan('meili:indexes:list')
+            $this->artisan('meili:index:view')
+                ->expectsQuestion('What is the index name?', self::INDEX)
+                ->expectsOutputToContain(self::INDEX)
+                ->assertSuccessful()
+            ;
+
+            $this->artisan('meili:index:view', ['index' => self::INDEX])
                 ->expectsOutputToContain(self::INDEX)
                 ->assertSuccessful()
             ;
@@ -36,7 +42,7 @@ class IndexesListTest extends TestCase
     }
 
     /**
-     * Test `meili:indexes:list` command with stats option.
+     * Test `meili:index:view` command with stats option.
      *
      * @return void
      */
@@ -45,7 +51,7 @@ class IndexesListTest extends TestCase
         $this->withIndex(self::INDEX, function () {
             // Since data returned from MeiliSearch includes microsecond precision timestamps,
             // it's impossible to validate the exact console output.
-            $this->artisan('meili:indexes:list', ['--stats' => true])
+            $this->artisan('meili:index:view', ['index' => self::INDEX, '--stats' => true])
                 ->expectsOutputToContain(self::INDEX)
                 ->assertSuccessful()
             ;

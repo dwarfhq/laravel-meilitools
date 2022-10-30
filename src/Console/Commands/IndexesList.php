@@ -15,7 +15,7 @@ class IndexesList extends Command
      *
      * @var string
      */
-    protected $signature = 'meili:indexes:list';
+    protected $signature = 'meili:indexes:list {--S|stats : Whether to include index stats}';
 
     /**
      * The console command description.
@@ -33,10 +33,10 @@ class IndexesList extends Command
      */
     public function handle(ListsIndexes $listIndexes)
     {
-        $list = $listIndexes();
-        $values = Helpers::convertIndexSettingsToTable($list);
+        $list = $listIndexes($this->option('stats'));
+        $values = Helpers::convertIndexDataToTable($list);
 
-        $this->table(['Index', 'Stats'], $values);
+        $this->table(['Index', 'Data'], $values);
 
         return Command::SUCCESS;
     }

@@ -77,7 +77,16 @@ The following commands are available:
 **Options:**
 - `--pretend` : Only shows what changes would have been done to the index
 
+#### `meili:index:view` - Get base information about a MeiliSearch index
+**Arguments:**
+- `index` : Index name
+
+**Options:**
+- `--stats` : Whether to include index stats
+
 #### `meili:indexes:list` - List all MeiliSearch indexes
+**Options:**
+- `--stats` : Whether to include index stats
 
 #### `meili:model:details` - Get details for a MeiliSearch model index
 **Arguments:**

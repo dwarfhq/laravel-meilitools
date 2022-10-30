@@ -179,15 +179,15 @@ class Helpers
     }
 
     /**
-     * Convert index settings to table array.
+     * Convert index data to table array.
      *
-     * @param array $settings Key / value array.
+     * @param array $data Key / value array.
      *
      * @return array
      */
-    public static function convertIndexSettingsToTable(array $settings): array
+    public static function convertIndexDataToTable(array $data): array
     {
-        return collect($settings)
+        return collect($data)
             ->map(function ($value, $key) {
                 return [
                     (string) Str::of($key)->snake()->replace('_', ' ')->title(),
