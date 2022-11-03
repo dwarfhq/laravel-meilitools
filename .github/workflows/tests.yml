@@ -2,7 +2,11 @@ name: Tests
 
 on:
   push:
+    branches:
+      - main
   pull_request:
+    branches:
+      - main
   schedule:
     - cron: '0 1 * * 1' # Run at 01:00 on Mondays.
 
@@ -30,6 +34,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          # Make sure the actual branch is checked out when running on pull requests.
+          ref: ${{ github.head_ref }}
 
       - name: Install SQLite 3
         run: |
@@ -45,7 +52,6 @@ jobs:
 
       - name: Install dependencies
         run: |
-          composer remove --dev friendsofphp/php-cs-fixer --no-update --no-interaction
           composer require "orchestra/testbench:^${{ matrix.testbench }}" --no-interaction --no-update
           composer update --${{ matrix.version }} --prefer-dist --no-interaction
 

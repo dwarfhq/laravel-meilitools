@@ -1,0 +1,35 @@
+{
+    "preset": "laravel",
+    "rules": {
+        "binary_operator_spaces": {
+            "operators": {
+                "=>": "align_single_space_minimal"
+            }
+        },
+        "concat_space": {
+            "spacing": "one"
+        },
+        "increment_style": {
+            "style": "post"
+        },
+        "Laravel/laravel_phpdoc_alignment": false,
+        "Laravel/laravel_phpdoc_order": false,
+        "Laravel/laravel_phpdoc_separation": false,
+        "multiline_whitespace_before_semicolons": {
+            "strategy": "new_line_for_chained_calls"
+        },
+        "not_operator_with_successor_space": false,
+        "ordered_interfaces": true,
+        "ordered_traits": true,
+        "phpdoc_align": true,
+        "phpdoc_annotation_without_dot": false,
+        "phpdoc_order": true,
+        "phpdoc_separation": true,
+        "phpdoc_types_order": {
+            "null_adjustment": "always_last"
+        },
+        "simplified_null_return": true,
+        "single_trait_insert_per_statement": true,
+        "yoda_style": false
+    }
+}

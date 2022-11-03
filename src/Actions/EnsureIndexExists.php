@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Dwarf\MeiliTools\Actions;
 
 use Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists;
-use Dwarf\MeiliTools\Exceptions\MeiliToolsException;
+use Dwarf\MeiliTools\Helpers;
 use Laravel\Scout\EngineManager;
 use MeiliSearch\Exceptions\ApiException;
 
@@ -39,9 +39,7 @@ class EnsureIndexExists implements EnsuresIndexExists
      */
     public function __invoke(string $index, array $options = []): void
     {
-        if ($this->manager->getDefaultDriver() !== 'meilisearch') {
-            throw new MeiliToolsException('Scout must be using the MeiliSearch driver');
-        }
+        Helpers::throwUnlessMeiliSearch();
 
         $engine = $this->manager->engine();
 

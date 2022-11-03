@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Dwarf\MeiliTools;
 
 use Brick\VarExporter\VarExporter;
+use Dwarf\MeiliTools\Exceptions\MeiliToolsException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Laravel\Scout\EngineManager;
@@ -13,6 +14,32 @@ use Throwable;
 
 class Helpers
 {
+    /**
+     * Whether Scout is using the MeiliSearch driver.
+     *
+     * @return bool
+     */
+    public static function usingMeiliSearch(): bool
+    {
+        return app(EngineManager::class)->getDefaultDriver() === 'meilisearch';
+    }
+
+    /**
+     * Throw exception unless Scout is using the MeiliSearch driver.
+     *
+     * @throws \Dwarf\MeiliTools\Exceptions\MeiliToolsException
+     *
+     * @return void
+     */
+    public static function throwUnlessMeiliSearch(): void
+    {
+        throw_unless(
+            self::usingMeiliSearch(),
+            MeiliToolsException::class,
+            'Scout must be using the MeiliSearch driver'
+        );
+    }
+
     /**
      * Default MeiliSearch index settings.
      *
@@ -152,15 +179,15 @@ class Helpers
     }
 
     /**
-     * Convert index settings to table array.
+     * Convert index data to table array.
      *
-     * @param array $settings Key / value array.
+     * @param array $data Key / value array.
      *
      * @return array
      */
-    public static function convertIndexSettingsToTable(array $settings): array
+    public static function convertIndexDataToTable(array $data): array
     {
-        return collect($settings)
+        return collect($data)
             ->map(function ($value, $key) {
                 return [
                     (string) Str::of($key)->snake()->replace('_', ' ')->title(),
@@ -192,5 +219,19 @@ class Helpers
             ->values()
             ->all()
         ;
+    }
+
+    /**
+     * Guess the model namespace using the configured paths.
+     *
+     * @param string $model Name of the model.
+     *
+     * @return string
+     */
+    public static function guessModelNamespace(string $model): string
+    {
+        return collect(config('meilitools.paths'))
+            ->map(fn (string $path) => $path . '\\')
+            ->first(fn (string $path) => class_exists($path . $model)) . $model;
     }
 }

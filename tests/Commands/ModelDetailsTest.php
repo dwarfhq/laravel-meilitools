@@ -24,7 +24,7 @@ class ModelDetailsTest extends TestCase
     public function testWithDefaultSettings(): void
     {
         try {
-            $values = Helpers::convertIndexSettingsToTable(Helpers::defaultSettings(Helpers::engineVersion()));
+            $values = Helpers::convertIndexDataToTable(Helpers::defaultSettings(Helpers::engineVersion()));
 
             $this->artisan('meili:model:details')
                 ->expectsQuestion('What is the model class?', Movie::class)
@@ -33,6 +33,11 @@ class ModelDetailsTest extends TestCase
             ;
 
             $this->artisan('meili:model:details', ['model' => Movie::class])
+                ->expectsTable(['Setting', 'Value'], $values)
+                ->assertSuccessful()
+            ;
+
+            $this->artisan('meili:model:details', ['model' => 'Movie'])
                 ->expectsTable(['Setting', 'Value'], $values)
                 ->assertSuccessful()
             ;
@@ -55,7 +60,7 @@ class ModelDetailsTest extends TestCase
             $changes = $this->app->make(SynchronizesModel::class)(MeiliMovie::class);
             $this->assertNotEmpty($changes);
 
-            $values = Helpers::convertIndexSettingsToTable(
+            $values = Helpers::convertIndexDataToTable(
                 Helpers::sortSettings($settings + Arr::only($defaults, ['faceting', 'pagination', 'typoTolerance']))
             );
 

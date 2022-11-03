@@ -4,16 +4,18 @@ declare(strict_types=1);
 
 namespace Dwarf\MeiliTools\Actions;
 
-use Dwarf\MeiliTools\Contracts\Actions\DetailsIndex;
+use Dwarf\MeiliTools\Contracts\Actions\ViewsIndex;
 use Dwarf\MeiliTools\Helpers;
 use Laravel\Scout\EngineManager;
-use MeiliSearch\Contracts\Data;
+use MeiliSearch\Endpoints\Indexes;
 
 /**
- * Detail index.
+ * List indexes.
  */
-class DetailIndex implements DetailsIndex
+class ViewIndex implements ViewsIndex
 {
+    use Concerns\ExtractsIndexInformation;
+
     /**
      * Scout engine manager.
      *
@@ -34,22 +36,18 @@ class DetailIndex implements DetailsIndex
     /**
      * {@inheritDoc}
      *
+     * @param bool $stats Whether to include index stats.
+     *
      * @throws \Dwarf\MeiliTools\Exceptions\MeiliToolsException When not using the MeiliSearch Scout driver.
      * @throws \MeiliSearch\Exceptions\CommunicationException   When connection to MeiliSearch fails.
      * @throws \MeiliSearch\Exceptions\ApiException             When index is not found.
      */
-    public function __invoke(string $index): array
+    public function __invoke(string $index, bool $stats = false): array
     {
         Helpers::throwUnlessMeiliSearch();
 
-        $details = $this->manager->engine()->index($index)->getSettings();
-        // Convert iterator objects from contract to array.
-        $details = array_map(function ($value) {
-            return $value instanceof Data ? $value->getIterator()->getArrayCopy() : $value;
-        }, $details);
-        // Sort keys for consistency.
-        ksort($details);
+        $index = $this->manager->engine()->getIndex($index);
 
-        return $details;
+        return $this->getIndexData($index, $stats);
     }
 }

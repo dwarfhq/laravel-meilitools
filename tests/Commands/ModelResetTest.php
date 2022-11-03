@@ -54,6 +54,12 @@ class ModelResetTest extends TestCase
                 ->assertSuccessful()
             ;
 
+            $this->artisan('meili:model:reset')
+                ->expectsQuestion('What is the model class?', 'MeiliMovie')
+                ->expectsTable(['Setting', 'Old', 'New'], [])
+                ->assertSuccessful()
+            ;
+
             $details = $this->app->make(DetailsModel::class)(MeiliMovie::class);
             $this->assertSame($defaults, $details);
         } finally {

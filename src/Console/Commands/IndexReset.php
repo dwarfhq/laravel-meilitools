@@ -10,6 +10,8 @@ use Illuminate\Console\Command;
 
 class IndexReset extends Command
 {
+    use Concerns\RequiresIndex;
+
     /**
      * The name and signature of the console command.
      *
@@ -17,7 +19,7 @@ class IndexReset extends Command
      */
     protected $signature = 'meili:index:reset
                             {index? : Index name}
-                            {--pretend : Only shows what changes would have been done to the index}';
+                            {--P|pretend : Only shows what changes would have been done to the index}';
 
     /**
      * The console command description.
@@ -41,15 +43,5 @@ class IndexReset extends Command
         $this->table(['Setting', 'Old', 'New'], $values);
 
         return Command::SUCCESS;
-    }
-
-    /**
-     * Get index name.
-     *
-     * @return string
-     */
-    protected function getIndex(): string
-    {
-        return $this->argument('index') ?? $this->ask('What is the index name?');
     }
 }
