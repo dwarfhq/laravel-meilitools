@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Dwarf\MeiliTools;
 
+use Dwarf\MeiliTools\Actions\CreateIndex;
 use Dwarf\MeiliTools\Actions\DetailIndex;
 use Dwarf\MeiliTools\Actions\DetailModel;
 use Dwarf\MeiliTools\Actions\EnsureIndexExists;
@@ -17,6 +18,7 @@ use Dwarf\MeiliTools\Actions\SynchronizeModels;
 use Dwarf\MeiliTools\Actions\ValidateIndexSettings;
 use Dwarf\MeiliTools\Actions\ViewIndex;
 use Dwarf\MeiliTools\Actions\ViewModel;
+use Dwarf\MeiliTools\Console\Commands\IndexCreate;
 use Dwarf\MeiliTools\Console\Commands\IndexDetails;
 use Dwarf\MeiliTools\Console\Commands\IndexesList;
 use Dwarf\MeiliTools\Console\Commands\IndexReset;
@@ -26,6 +28,7 @@ use Dwarf\MeiliTools\Console\Commands\ModelReset;
 use Dwarf\MeiliTools\Console\Commands\ModelsSynchronize;
 use Dwarf\MeiliTools\Console\Commands\ModelSynchronize;
 use Dwarf\MeiliTools\Console\Commands\ModelView;
+use Dwarf\MeiliTools\Contracts\Actions\CreatesIndex;
 use Dwarf\MeiliTools\Contracts\Actions\DetailsIndex;
 use Dwarf\MeiliTools\Contracts\Actions\DetailsModel;
 use Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists;
@@ -52,6 +55,7 @@ class MeiliToolsServiceProvider extends ServiceProvider
      */
     public array $bindings = [
         ArrayAssocRule::class         => ArrayAssoc::class,
+        CreatesIndex::class           => CreateIndex::class,
         DetailsIndex::class           => DetailIndex::class,
         DetailsModel::class           => DetailModel::class,
         EnsuresIndexExists::class     => EnsureIndexExists::class,
@@ -93,6 +97,7 @@ class MeiliToolsServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
+                IndexCreate::class,
                 IndexDetails::class,
                 IndexReset::class,
                 IndexView::class,
