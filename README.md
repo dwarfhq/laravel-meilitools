@@ -53,7 +53,7 @@ use Laravel\Scout\Searchable;
 class Article extends Model implements MeiliSettings
 {
     use Searchable;
-    
+
     /**
      * {@inheritdoc}
      */
@@ -89,6 +89,10 @@ The following commands are available:
 
 **Options:**
 - `--stats` : Whether to include index stats
+
+#### `meili:index:delete` - Delete a MeiliSearch index
+**Arguments:**
+- `index` : Index name
 
 #### `meili:indexes:list` - List all MeiliSearch indexes
 **Options:**
