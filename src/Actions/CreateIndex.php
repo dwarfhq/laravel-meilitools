@@ -10,7 +10,7 @@ use Laravel\Scout\EngineManager;
 use MeiliSearch\Contracts\Data;
 
 /**
- * Detail index.
+ * Create index.
  */
 class CreateIndex implements CreatesIndex
 {
