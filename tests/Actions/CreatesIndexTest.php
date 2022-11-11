@@ -6,15 +6,13 @@ namespace Dwarf\MeiliTools\Tests\Actions;
 
 use Dwarf\MeiliTools\Contracts\Actions\CreatesIndex;
 use Dwarf\MeiliTools\Exceptions\MeiliToolsException;
-use Dwarf\MeiliTools\Helpers;
 use Dwarf\MeiliTools\Tests\TestCase;
-use MeiliSearch\Exceptions\ApiException;
 use MeiliSearch\Exceptions\CommunicationException;
 
 /**
  * @internal
  */
-class DetailsCreateTest extends TestCase
+class CreatesIndexTest extends TestCase
 {
     /**
      * Test index.
