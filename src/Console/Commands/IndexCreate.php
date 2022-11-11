@@ -17,7 +17,7 @@ class IndexCreate extends Command
      *
      * @var string
      */
-    protected $signature = 'meili:index:create {index : Index name}';
+    protected $signature = 'meili:index:create {index? : Index name}';
 
     /**
      * The console command description.
