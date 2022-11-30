@@ -29,6 +29,11 @@ trait Searchable
                 'model'    => new static(),
                 'query'    => $query,
                 'callback' => function (Indexes $index, ?string $query, array $params) use ($builder, $callback) {
+                    $filter =  $builder->filter();
+                    if (!empty($filter)) {
+                        $params['filter'] = empty($params['filter']) ? $filter : "{$params['filter']} AND ({$filter})";
+                    }
+
                     if ($callback) {
                         return $callback($index, $query, $params);
                     }

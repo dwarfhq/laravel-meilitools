@@ -4,18 +4,24 @@ declare(strict_types=1);
 
 namespace Dwarf\MeiliTools;
 
-use Closure;
+use Illuminate\Contracts\Support\Arrayable;
 
 class FilterBuilder
 {
-    public function where($column, $operator = null, $value = null, string $boolean = 'and'): self
+    protected array $wheres = [];
+
+    public function where(string $column, $operator = null, $value = null, string $boolean = 'and'): self
     {
+        $type = 'Basic';
+
+        $this->wheres[] = compact('type', 'column', 'operator', 'value', 'boolean');
+
         return $this;
     }
 
-    public function orWhere($column, $operator = null, $value = null): self
+    public function orWhere(string $column, $operator = null, $value = null): self
     {
-        return $this;
+        return $this->where($column, $operator, $value, 'or');
     }
 
     /**
@@ -29,6 +35,14 @@ class FilterBuilder
      */
     public function whereIn(string $column, $values, string $boolean = 'and', bool $not = false): self
     {
+        $type = $not ? 'NotIn' : 'In';
+
+        if ($values instanceof Arrayable) {
+            $values = $values->toArray();
+        }
+
+        $this->wheres[] = compact('type', 'column', 'values', 'boolean');
+
         return $this;
     }
 
@@ -39,7 +53,7 @@ class FilterBuilder
      * @param  mixed  $values
      * @return $this
      */
-    public function orWhereIn($column, $values): self
+    public function orWhereIn(string $column, $values): self
     {
         return $this->whereIn($column, $values, 'or');
     }
@@ -52,7 +66,7 @@ class FilterBuilder
      * @param  string  $boolean
      * @return $this
      */
-    public function whereNotIn($column, $values, $boolean = 'and'): self
+    public function whereNotIn(string $column, $values, $boolean = 'and'): self
     {
         return $this->whereIn($column, $values, $boolean, true);
     }
@@ -118,6 +132,16 @@ class FilterBuilder
     public function orWhereNotBetween(string $column, iterable $values): self
     {
         return $this->whereNotBetween($column, $values, 'or');
+    }
+
+    public function whereNested(self $builder, string $boolean = 'and'): self
+    {
+        return $this;
+    }
+
+    public function orWhereNested(self $builder): self
+    {
+        return $this->whereNested($builder, 'or');
     }
 
     public function whereGeoRadius(float $lat, float $lng, int $distance, string $boolean = 'and', bool $not = false): self
