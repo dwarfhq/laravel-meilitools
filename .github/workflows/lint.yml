@@ -20,9 +20,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          # Make sure the actual branch is checked out when running on pull requests.
-          ref: ${{ github.head_ref }}
 
       - name: Laravel Pint
         uses: aglipanci/laravel-pint-action@0.1.0
