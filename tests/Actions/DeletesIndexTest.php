@@ -19,7 +19,7 @@ class DeletesIndexTest extends TestCase
      *
      * @var string
      */
-    private const INDEX = 'testing-delete-index';
+    private const INDEX = 'testing-deletes-index';
 
     /**
      * Test using wrong Scout driver.
@@ -49,7 +49,7 @@ class DeletesIndexTest extends TestCase
         $this->expectExceptionMessage('Failed to connect to localhost port 7777');
 
         $action = $this->app->make(DeletesIndex::class);
-        $delete = ($action)(self::INDEX);
+        ($action)(self::INDEX);
     }
 
     /**
@@ -57,15 +57,11 @@ class DeletesIndexTest extends TestCase
      *
      * @return void
      */
-    public function testApiException(): void
+    public function testIndexMissing(): void
     {
-        $this->markTestSkipped('Meilisearch happily returns an enqueued task ID even for missing indices');
-
-        $this->expectException(ApiException::class);
-        $this->expectExceptionMessage('Index `' . self::INDEX . '` not found.');
-
+        // No errors will be thrown in this case.
         $action = $this->app->make(DeletesIndex::class);
-        $delete = ($action)(self::INDEX);
+        ($action)(self::INDEX);
     }
 
     /**
@@ -75,13 +71,8 @@ class DeletesIndexTest extends TestCase
      */
     public function testInvoke(): void
     {
-        $this->withIndex(self::INDEX, function () {
-            $action = $this->app->make(DeletesIndex::class);
-            $delete = ($action)(self::INDEX);
-            $this->assertArrayHasKey('enqueuedAt', $delete);
-            $this->assertEquals(self::INDEX, $delete['indexUid']);
-            $this->assertEquals('enqueued', $delete['status']);
-            $this->assertEquals('indexDeletion', $delete['type']);
-        });
+        $this->createIndex(self::INDEX);
+        $action = $this->app->make(DeletesIndex::class);
+        ($action)(self::INDEX);
     }
 }

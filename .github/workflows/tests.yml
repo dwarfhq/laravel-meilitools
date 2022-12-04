@@ -1,12 +1,17 @@
 name: Tests
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
+    paths:
+      - '**.php'
   pull_request:
     branches:
       - main
+    paths:
+      - '**.php'
   schedule:
     - cron: '0 1 * * 1' # Run at 01:00 on Mondays.
 

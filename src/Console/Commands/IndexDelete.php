@@ -5,19 +5,22 @@ declare(strict_types=1);
 namespace Dwarf\MeiliTools\Console\Commands;
 
 use Dwarf\MeiliTools\Contracts\Actions\DeletesIndex;
-use Dwarf\MeiliTools\Helpers;
 use Illuminate\Console\Command;
+use Illuminate\Console\ConfirmableTrait;
 
 class IndexDelete extends Command
 {
     use Concerns\RequiresIndex;
+    use ConfirmableTrait;
 
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'meili:index:delete {index? : Index name}';
+    protected $signature = 'meili:index:delete
+                            {index? : Index name}
+                            {--force : Force the operation to run}';
 
     /**
      * The console command description.
@@ -29,21 +32,19 @@ class IndexDelete extends Command
     /**
      * Execute the console command.
      *
-     * @param  \Dwarf\MeiliTools\Contracts\Actions\DeletesIndex  $deleteIndex
+     * @param \Dwarf\MeiliTools\Contracts\Actions\DeletesIndex $deleteIndex
+     *
      * @return int
      */
     public function handle(DeletesIndex $deleteIndex)
     {
+        // Confirm execution.
         $index = $this->getIndex();
-
-        if (! $this->confirm(__('Are you sure you wish to permanently delete the :index index?', ['index' => $index]))) {
+        if (!$this->confirmToProceed("Index '{$index}' is about to be deleted", fn () => true)) {
             return Command::FAILURE;
         }
 
-        $details = $deleteIndex($index);
-        $values = Helpers::convertIndexDataToTable($details);
-
-        $this->table(['Setting', 'Value'], $values);
+        $deleteIndex($index);
 
         return Command::SUCCESS;
     }

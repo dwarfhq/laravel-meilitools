@@ -7,13 +7,14 @@ namespace Dwarf\MeiliTools\Actions;
 use Dwarf\MeiliTools\Contracts\Actions\CreatesIndex;
 use Dwarf\MeiliTools\Helpers;
 use Laravel\Scout\EngineManager;
-use MeiliSearch\Contracts\Data;
 
 /**
  * Create index.
  */
 class CreateIndex implements CreatesIndex
 {
+    use Concerns\ExtractsIndexInformation;
+
     /**
      * Scout engine manager.
      *
@@ -24,7 +25,7 @@ class CreateIndex implements CreatesIndex
     /**
      * Constructor.
      *
-     * @param  \Laravel\Scout\EngineManager  $manager Scout engine manager.
+     * @param \Laravel\Scout\EngineManager $manager Scout engine manager.
      */
     public function __construct(EngineManager $manager)
     {
@@ -36,20 +37,14 @@ class CreateIndex implements CreatesIndex
      *
      * @throws \Dwarf\MeiliTools\Exceptions\MeiliToolsException When not using the MeiliSearch Scout driver.
      * @throws \MeiliSearch\Exceptions\CommunicationException   When connection to MeiliSearch fails.
-     * @throws \MeiliSearch\Exceptions\ApiException             When index is not found.
      */
-    public function __invoke(string $index): array
+    public function __invoke(string $index, array $options = []): array
     {
         Helpers::throwUnlessMeiliSearch();
+        $engine = $this->manager->engine();
+        $task = $engine->createIndex($index, $options);
+        $engine->waitForTask($task['taskUid']);
 
-        $details = $this->manager->engine()->index($index)->create($index);
-        // Convert iterator objects from contract to array.
-        $details = array_map(function ($value) {
-            return $value instanceof Data ? $value->getIterator()->getArrayCopy() : $value;
-        }, $details);
-        // Sort keys for consistency.
-        ksort($details);
-
-        return $details;
+        return $this->getIndexData($engine->getIndex($index));
     }
 }

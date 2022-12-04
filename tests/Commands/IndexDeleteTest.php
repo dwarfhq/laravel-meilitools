@@ -28,13 +28,13 @@ class IndexDeleteTest extends TestCase
         $this->withIndex(self::INDEX, function () {
             $this->artisan('meili:index:delete')
                 ->expectsQuestion('What is the index name?', self::INDEX)
-                ->expectsConfirmation('Are you sure you wish to permanently delete the '.self::INDEX.' index?', 'no')
+                ->expectsConfirmation('Do you really wish to run this command?', 'no')
                 ->assertFailed()
             ;
 
             $this->artisan('meili:index:delete')
                 ->expectsQuestion('What is the index name?', self::INDEX)
-                ->expectsConfirmation('Are you sure you wish to permanently delete the '.self::INDEX.' index?', 'yes')
+                ->expectsConfirmation('Do you really wish to run this command?', 'yes')
                 ->assertSuccessful()
             ;
         });
@@ -49,12 +49,26 @@ class IndexDeleteTest extends TestCase
     {
         $this->withIndex(self::INDEX, function () {
             $this->artisan('meili:index:delete', ['index' => self::INDEX])
-                ->expectsConfirmation('Are you sure you wish to permanently delete the '.self::INDEX.' index?', 'no')
+                ->expectsConfirmation('Do you really wish to run this command?', 'no')
                 ->assertFailed()
             ;
 
             $this->artisan('meili:index:delete', ['index' => self::INDEX])
-                ->expectsConfirmation('Are you sure you wish to permanently delete the '.self::INDEX.' index?', 'yes')
+                ->expectsConfirmation('Do you really wish to run this command?', 'yes')
+                ->assertSuccessful()
+            ;
+        });
+    }
+
+    /**
+     * Test `meili:index:delete` command with force option.
+     *
+     * @return void
+     */
+    public function testWithForceOption(): void
+    {
+        $this->withIndex(self::INDEX, function () {
+            $this->artisan('meili:index:delete', ['index' => self::INDEX, '--force' => true])
                 ->assertSuccessful()
             ;
         });

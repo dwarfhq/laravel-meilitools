@@ -30,7 +30,11 @@ class IndexCreateTest extends TestCase
                 ->expectsQuestion('What is the index name?', self::INDEX)
                 ->assertSuccessful()
             ;
+        } finally {
+            $this->deleteIndex(self::INDEX);
+        }
 
+        try {
             $this->artisan('meili:index:create', ['index' => self::INDEX])
                 ->assertSuccessful()
             ;

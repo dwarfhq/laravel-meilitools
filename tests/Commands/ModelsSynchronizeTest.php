@@ -10,6 +10,7 @@ use Dwarf\MeiliTools\Tests\Models\BrokenMovie;
 use Dwarf\MeiliTools\Tests\Models\MeiliMovie;
 use Dwarf\MeiliTools\Tests\TestCase;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\App;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -105,6 +106,35 @@ class ModelsSynchronizeTest extends TestCase
 
             $details = $this->app->make(DetailsModel::class)(MeiliMovie::class);
             $this->assertSame($defaults, $details);
+        } finally {
+            $this->deleteIndex(app(BrokenMovie::class)->searchableAs());
+            $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
+        }
+    }
+
+    /**
+     * Test `meili:models:synchronize` command in production mode.
+     *
+     * @return void
+     */
+    public function testInProductionMode(): void
+    {
+        App::detectEnvironment(fn () => 'production');
+
+        try {
+            $this->artisan('meili:models:synchronize')
+                ->expectsConfirmation('Do you really wish to run this command?', 'no')
+                ->assertFailed()
+            ;
+
+            $this->artisan('meili:models:synchronize', ['--force' => true])
+                ->assertSuccessful()
+            ;
+
+            $this->artisan('meili:models:synchronize')
+                ->expectsConfirmation('Do you really wish to run this command?', 'yes')
+                ->assertSuccessful()
+            ;
         } finally {
             $this->deleteIndex(app(BrokenMovie::class)->searchableAs());
             $this->deleteIndex(app(MeiliMovie::class)->searchableAs());

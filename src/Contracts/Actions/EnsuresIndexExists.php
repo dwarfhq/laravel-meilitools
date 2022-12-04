@@ -12,7 +12,8 @@ interface EnsuresIndexExists
     /**
      * Ensure that the given index exists.
      *
-     * @param string $index Index name.
+     * @param string $index   Index name.
+     * @param array  $options Index options.
      *
      * @return void
      */

@@ -5,9 +5,13 @@ on:
   push:
     branches:
       - main
+    paths:
+      - '**.php'
   pull_request:
     branches:
       - main
+    paths:
+      - '**.php'
 
 jobs:
   php-cs-fixer:

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Dwarf\MeiliTools\Console\Commands;
 
 use Dwarf\MeiliTools\Contracts\Actions\CreatesIndex;
-use Dwarf\MeiliTools\Helpers;
 use Illuminate\Console\Command;
 
 class IndexCreate extends Command
@@ -29,15 +28,13 @@ class IndexCreate extends Command
     /**
      * Execute the console command.
      *
-     * @param  \Dwarf\MeiliTools\Contracts\Actions\CreatesIndex  $createIndex
+     * @param \Dwarf\MeiliTools\Contracts\Actions\CreatesIndex $createIndex
+     *
      * @return int
      */
     public function handle(CreatesIndex $createIndex)
     {
-        $details = $createIndex($this->getIndex());
-        $values = Helpers::convertIndexDataToTable($details);
-
-        $this->table(['Setting', 'Value'], $values);
+        $createIndex($this->getIndex());
 
         return Command::SUCCESS;
     }

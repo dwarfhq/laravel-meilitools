@@ -72,6 +72,13 @@ The following commands are available:
 **Arguments:**
 - `index` : Index name
 
+**Options:**
+- `--force` : Force the operation to run
+
+#### `meili:index:delete` - Delete a MeiliSearch index
+**Arguments:**
+- `index` : Index name
+
 #### `meili:index:details` - Get details for a MeiliSearch index
 **Arguments:**
 - `index` : Index name
@@ -89,10 +96,6 @@ The following commands are available:
 
 **Options:**
 - `--stats` : Whether to include index stats
-
-#### `meili:index:delete` - Delete a MeiliSearch index
-**Arguments:**
-- `index` : Index name
 
 #### `meili:indexes:list` - List all MeiliSearch indexes
 **Options:**

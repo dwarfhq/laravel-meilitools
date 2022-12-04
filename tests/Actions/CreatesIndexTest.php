@@ -7,6 +7,7 @@ namespace Dwarf\MeiliTools\Tests\Actions;
 use Dwarf\MeiliTools\Contracts\Actions\CreatesIndex;
 use Dwarf\MeiliTools\Exceptions\MeiliToolsException;
 use Dwarf\MeiliTools\Tests\TestCase;
+use Illuminate\Testing\Fluent\AssertableJson;
 use MeiliSearch\Exceptions\CommunicationException;
 
 /**
@@ -19,7 +20,7 @@ class CreatesIndexTest extends TestCase
      *
      * @var string
      */
-    private const INDEX = 'testing-create-index';
+    private const INDEX = 'testing-creates-index';
 
     /**
      * Test using wrong Scout driver.
@@ -33,7 +34,7 @@ class CreatesIndexTest extends TestCase
         $this->expectException(MeiliToolsException::class);
 
         $action = $this->app->make(CreatesIndex::class);
-        $create = ($action)(self::INDEX);
+        $info = ($action)(self::INDEX);
     }
 
     /**
@@ -49,7 +50,7 @@ class CreatesIndexTest extends TestCase
         $this->expectExceptionMessage('Failed to connect to localhost port 7777');
 
         $action = $this->app->make(CreatesIndex::class);
-        $create = ($action)(self::INDEX);
+        $info = ($action)(self::INDEX);
     }
 
     /**
@@ -61,13 +62,40 @@ class CreatesIndexTest extends TestCase
     {
         try {
             $action = $this->app->make(CreatesIndex::class);
-            $create = ($action)(self::INDEX);
-            $this->assertArrayHasKey('enqueuedAt', $create);
-            $this->assertEquals(self::INDEX, $create['indexUid']);
-            $this->assertEquals('enqueued', $create['status']);
-            $this->assertEquals('indexCreation', $create['type']);
+            $info = ($action)(self::INDEX);
+
+            AssertableJson::fromArray($info)
+                ->where('uid', self::INDEX)
+                ->where('primaryKey', null)
+                ->whereType('createdAt', 'string')
+                ->whereType('updatedAt', 'string')
+                ->interacted()
+            ;
         } finally {
-            $this->delete(self::INDEX);
+            $this->deleteIndex(self::INDEX);
+        }
+    }
+
+    /**
+     * Test CreatesIndex::__invoke() method with options.
+     *
+     * @return void
+     */
+    public function testInvokeWithOptions(): void
+    {
+        try {
+            $action = $this->app->make(CreatesIndex::class);
+            $info = ($action)(self::INDEX, ['primaryKey' => 'id']);
+
+            AssertableJson::fromArray($info)
+                ->where('uid', self::INDEX)
+                ->where('primaryKey', 'id')
+                ->whereType('createdAt', 'string')
+                ->whereType('updatedAt', 'string')
+                ->interacted()
+            ;
+        } finally {
+            $this->deleteIndex(self::INDEX);
         }
     }
 }

@@ -7,7 +7,6 @@ namespace Dwarf\MeiliTools\Actions;
 use Dwarf\MeiliTools\Contracts\Actions\DeletesIndex;
 use Dwarf\MeiliTools\Helpers;
 use Laravel\Scout\EngineManager;
-use MeiliSearch\Contracts\Data;
 
 /**
  * Delete index.
@@ -24,7 +23,7 @@ class DeleteIndex implements DeletesIndex
     /**
      * Constructor.
      *
-     * @param  \Laravel\Scout\EngineManager  $manager Scout engine manager.
+     * @param \Laravel\Scout\EngineManager $manager Scout engine manager.
      */
     public function __construct(EngineManager $manager)
     {
@@ -38,18 +37,12 @@ class DeleteIndex implements DeletesIndex
      * @throws \MeiliSearch\Exceptions\CommunicationException   When connection to MeiliSearch fails.
      * @throws \MeiliSearch\Exceptions\ApiException             When index is not found.
      */
-    public function __invoke(string $index): array
+    public function __invoke(string $index): void
     {
         Helpers::throwUnlessMeiliSearch();
 
-        $details = $this->manager->engine()->index($index)->delete($index);
-        // Convert iterator objects from contract to array.
-        $details = array_map(function ($value) {
-            return $value instanceof Data ? $value->getIterator()->getArrayCopy() : $value;
-        }, $details);
-        // Sort keys for consistency.
-        ksort($details);
-
-        return $details;
+        $engine = $this->manager->engine();
+        $task = $engine->deleteIndex($index);
+        $engine->waitForTask($task['taskUid']);
     }
 }
