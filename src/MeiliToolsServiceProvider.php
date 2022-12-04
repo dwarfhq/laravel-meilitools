@@ -71,7 +71,7 @@ class MeiliToolsServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/meilitools.php', 'meilitools');
 
-        if (class_exists('Laravel\Scout\Scout')) {
+        if (class_exists('Laravel\Scout\ScoutServiceProvider')) {
             $this->app->register(MeiliToolsScoutServiceProvider::class);
         }
     }
