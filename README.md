@@ -26,6 +26,7 @@ The purpose of this package is to ease the configuration of indexes for MeiliSea
 | v0.27.x |   X   |   X   |       |
 | v0.28.x |       |       |   X   |
 | v0.29.x |       |       |   X   |
+| v0.30.x |       |       |   X   |
 
 ## Installation
 Install this package via Composer:
