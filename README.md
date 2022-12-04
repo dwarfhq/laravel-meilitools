@@ -53,7 +53,7 @@ use Laravel\Scout\Searchable;
 class Article extends Model implements MeiliSettings
 {
     use Searchable;
-    
+
     /**
      * {@inheritdoc}
      */
@@ -67,6 +67,18 @@ A full list of available index settings can be found [here](https://docs.meilise
 
 ### Commands
 The following commands are available:
+
+#### `meili:index:create` - Create a new MeiliSearch index
+**Arguments:**
+- `index` : Index name
+
+**Options:**
+- `--force` : Force the operation to run
+
+#### `meili:index:delete` - Delete a MeiliSearch index
+**Arguments:**
+- `index` : Index name
+
 #### `meili:index:details` - Get details for a MeiliSearch index
 **Arguments:**
 - `index` : Index name

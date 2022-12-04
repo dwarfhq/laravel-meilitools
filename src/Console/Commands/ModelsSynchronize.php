@@ -43,7 +43,7 @@ class ModelsSynchronize extends Command
     {
         // Confirm execution if not pretending and in production.
         if (!$this->option('pretend') && !$this->confirmToProceed()) {
-            return Command::SUCCESS;
+            return Command::FAILURE;
         }
 
         $paths = config('meilitools.paths');
