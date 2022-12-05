@@ -49,17 +49,20 @@ Setup index settings for a model by implementing the method provided by the cont
 ```php
 use Dwarf\MeiliTools\Contracts\Indexes\MeiliSettings;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Scout\Searchable;
 
 class Article extends Model implements MeiliSettings
 {
     use Searchable;
+    use SoftDeletes;
 
     /**
      * {@inheritdoc}
      */
     public function meiliSettings(): array
     {
+        // When using soft deletes '__soft_deleted' will automatically be added to filterable attributes.
         return ['filterableAttributes' => ['status']];
     }
 }
