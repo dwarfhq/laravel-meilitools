@@ -6,6 +6,7 @@ namespace Dwarf\MeiliTools;
 
 use Brick\VarExporter\VarExporter;
 use Dwarf\MeiliTools\Exceptions\MeiliToolsException;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Laravel\Scout\EngineManager;
@@ -233,5 +234,17 @@ class Helpers
         return collect(config('meilitools.paths'))
             ->map(fn (string $path) => $path . '\\')
             ->first(fn (string $path) => class_exists($path . $model)) . $model;
+    }
+
+    /**
+     * Determine if the given model uses soft deletes and soft deletes are enabled for Scout.
+     *
+     * @param \Illuminate\Database\Eloquent\Model|string $model
+     *
+     * @return bool
+     */
+    public static function usesSoftDelete($model): bool
+    {
+        return config('scout.soft_delete', false) && \in_array(SoftDeletes::class, class_uses_recursive($model));
     }
 }

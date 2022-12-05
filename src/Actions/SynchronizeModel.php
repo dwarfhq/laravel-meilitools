@@ -7,6 +7,7 @@ namespace Dwarf\MeiliTools\Actions;
 use Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists;
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesIndex;
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesModel;
+use Dwarf\MeiliTools\Helpers;
 
 /**
  * Synchronize model index.
@@ -57,6 +58,14 @@ class SynchronizeModel implements SynchronizesModel
         $index = $model->searchableAs();
         $primaryKey = $model->getKeyName();
         $settings = $model->meiliSettings();
+        // Automatically prepend '__soft_deleted' as filter.
+        if (Helpers::usesSoftDelete($class)) {
+            $settings['filterableAttributes'] = collect($settings['filterableAttributes'] ?? [])
+                ->prepend('__soft_deleted')
+                ->unique()
+                ->all()
+            ;
+        }
 
         ($this->ensureIndexExists)($index, compact('primaryKey'));
 

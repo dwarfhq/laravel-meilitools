@@ -117,4 +117,42 @@ class SynchronizesModelTest extends TestCase
             $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
         }
     }
+
+    /**
+     * Test SynchronizesModel::__invoke() method with soft deletes enabled.
+     *
+     * @return void
+     */
+    public function testWithSoftDeletesEnabled(): void
+    {
+        config(['scout.soft_delete' => true]);
+
+        try {
+            $defaults = Helpers::defaultSettings(Helpers::engineVersion());
+            $settings = app(MeiliMovie::class)->meiliSettings();
+            // Prepend '__soft_deleted' to filterable attributes.
+            array_unshift($settings['filterableAttributes'], '__soft_deleted');
+            $expected = collect($settings)
+                ->mapWithKeys(function ($value, $key) use ($defaults) {
+                    $old = $defaults[$key];
+                    $new = $value;
+
+                    return [$key => $old === $new ? false : compact('old', 'new')];
+                })
+                ->filter()
+                ->all()
+            ;
+
+            $details = $this->app->make(DetailsModel::class)(MeiliMovie::class);
+            $this->assertSame($defaults, $details);
+
+            $changes = $this->app->make(SynchronizesModel::class)(MeiliMovie::class);
+            $this->assertSame($expected, $changes);
+
+            $details = $this->app->make(DetailsModel::class)(MeiliMovie::class);
+            $this->assertSame($settings, Arr::except($details, ['faceting', 'pagination', 'typoTolerance']));
+        } finally {
+            $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
+        }
+    }
 }
