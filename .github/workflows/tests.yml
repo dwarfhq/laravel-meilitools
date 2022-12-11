@@ -1,12 +1,17 @@
 name: Tests
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
+    paths:
+      - '**.php'
   pull_request:
     branches:
       - main
+    paths:
+      - '**.php'
   schedule:
     - cron: '0 1 * * 1' # Run at 01:00 on Mondays.
 
@@ -34,9 +39,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          # Make sure the actual branch is checked out when running on pull requests.
-          ref: ${{ github.head_ref }}
 
       - name: Install SQLite 3
         run: |

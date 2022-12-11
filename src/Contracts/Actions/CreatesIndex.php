@@ -5,17 +5,17 @@ declare(strict_types=1);
 namespace Dwarf\MeiliTools\Contracts\Actions;
 
 /**
- * Ensures index exists.
+ * Creates index.
  */
-interface EnsuresIndexExists
+interface CreatesIndex
 {
     /**
-     * Ensure that the given index exists.
+     * Create index.
      *
      * @param string $index   Index name.
      * @param array  $options Index options.
      *
-     * @return void
+     * @return array
      */
-    public function __invoke(string $index, array $options = []): void;
+    public function __invoke(string $index, array $options = []): array;
 }

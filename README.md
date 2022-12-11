@@ -26,6 +26,7 @@ The purpose of this package is to ease the configuration of indexes for MeiliSea
 | v0.27.x |   X   |   X   |       |
 | v0.28.x |       |       |   X   |
 | v0.29.x |       |       |   X   |
+| v0.30.x |       |       |   X   |
 
 ## Installation
 Install this package via Composer:
@@ -48,17 +49,20 @@ Setup index settings for a model by implementing the method provided by the cont
 ```php
 use Dwarf\MeiliTools\Contracts\Indexes\MeiliSettings;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Scout\Searchable;
 
 class Article extends Model implements MeiliSettings
 {
     use Searchable;
-    
+    use SoftDeletes;
+
     /**
      * {@inheritdoc}
      */
     public function meiliSettings(): array
     {
+        // When using soft deletes '__soft_deleted' will automatically be added to filterable attributes.
         return ['filterableAttributes' => ['status']];
     }
 }
@@ -67,6 +71,18 @@ A full list of available index settings can be found [here](https://docs.meilise
 
 ### Commands
 The following commands are available:
+
+#### `meili:index:create` - Create a new MeiliSearch index
+**Arguments:**
+- `index` : Index name
+
+**Options:**
+- `--force` : Force the operation to run
+
+#### `meili:index:delete` - Delete a MeiliSearch index
+**Arguments:**
+- `index` : Index name
+
 #### `meili:index:details` - Get details for a MeiliSearch index
 **Arguments:**
 - `index` : Index name

@@ -5,20 +5,23 @@ on:
   push:
     branches:
       - main
+    paths:
+      - '**.php'
   pull_request:
     branches:
       - main
+    paths:
+      - '**.php'
 
 jobs:
-  php-cs-fixer:
+  laravel-pint:
+    name: PHP Linting (Pint)
+
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          # Make sure the actual branch is checked out when running on pull requests.
-          ref: ${{ github.head_ref }}
 
       - name: Laravel Pint
         uses: aglipanci/laravel-pint-action@0.1.0
