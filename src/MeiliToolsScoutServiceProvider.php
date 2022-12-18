@@ -19,6 +19,8 @@ use Dwarf\MeiliTools\Contracts\Actions\ResetsModel;
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesModel;
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesModels;
 use Dwarf\MeiliTools\Contracts\Actions\ViewsModel;
+use Dwarf\MeiliTools\Contracts\Filtering\Builder as BuilderContract;
+use Dwarf\MeiliTools\Filtering\Builder;
 use Illuminate\Support\ServiceProvider;
 
 class MeiliToolsScoutServiceProvider extends ServiceProvider
@@ -29,6 +31,7 @@ class MeiliToolsScoutServiceProvider extends ServiceProvider
      * @var array
      */
     public array $bindings = [
+        BuilderContract::class    => Builder::class,
         DetailsModel::class       => DetailModel::class,
         ResetsModel::class        => ResetModel::class,
         SynchronizesModel::class  => SynchronizeModel::class,

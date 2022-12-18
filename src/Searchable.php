@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Dwarf\MeiliTools;
 
 use Closure;
+use Dwarf\MeiliTools\Contracts\Filtering\Builder;
 use Laravel\Scout\EngineManager;
 use Laravel\Scout\Searchable as BaseSearchable;
 use MeiliSearch\Endpoints\Indexes;
@@ -19,7 +20,7 @@ trait Searchable
      * @param string|null   $query
      * @param \Closure|null $callback
      *
-     * @return \Dwarf\MeiliTools\Builder|\Laravel\Scout\Builder
+     * @return \Dwarf\MeiliTools\Contracts\Filtering\Builder|\Laravel\Scout\Builder
      */
     public static function search(?string $query = '', ?Closure $callback = null)
     {
@@ -28,8 +29,8 @@ trait Searchable
             $builder = app(Builder::class, [
                 'model'    => new static(),
                 'query'    => $query,
-                'callback' => function (Indexes $index, ?string $query, array $params) use ($builder, $callback) {
-                    $filter =  $builder->filter();
+                'callback' => function (Indexes $index, ?string $query, array $params) use (&$builder, $callback) {
+                    $filter = $builder->filter();
                     if (!empty($filter)) {
                         $params['filter'] = empty($params['filter']) ? $filter : "{$params['filter']} AND ({$filter})";
                     }

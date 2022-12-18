@@ -30,7 +30,17 @@ use Dwarf\MeiliTools\Contracts\Actions\ResetsIndex;
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesIndex;
 use Dwarf\MeiliTools\Contracts\Actions\ValidatesIndexSettings;
 use Dwarf\MeiliTools\Contracts\Actions\ViewsIndex;
+use Dwarf\MeiliTools\Contracts\Filtering\FilterBuilder as FilterBuilderContract;
+use Dwarf\MeiliTools\Contracts\Filtering\Filters\BasicFilter as BasicFilterContract;
+use Dwarf\MeiliTools\Contracts\Filtering\Filters\BetweenFilter as BetweenFilterContract;
+use Dwarf\MeiliTools\Contracts\Filtering\Filters\GeoRadiusFilter as GeoRadiusFilterContract;
+use Dwarf\MeiliTools\Contracts\Filtering\Filters\GroupFilter as GroupFilterContract;
 use Dwarf\MeiliTools\Contracts\Rules\ArrayAssocRule;
+use Dwarf\MeiliTools\Filtering\FilterBuilder;
+use Dwarf\MeiliTools\Filtering\Filters\BasicFilter;
+use Dwarf\MeiliTools\Filtering\Filters\BetweenFilter;
+use Dwarf\MeiliTools\Filtering\Filters\GeoRadiusFilter;
+use Dwarf\MeiliTools\Filtering\Filters\GroupFilter;
 use Dwarf\MeiliTools\Rules\ArrayAssoc;
 use Illuminate\Support\ServiceProvider;
 
@@ -42,17 +52,22 @@ class MeiliToolsServiceProvider extends ServiceProvider
      * @var array
      */
     public array $bindings = [
-        ArrayAssocRule::class         => ArrayAssoc::class,
-        CreatesIndex::class           => CreateIndex::class,
-        DeletesIndex::class           => DeleteIndex::class,
-        DetailsIndex::class           => DetailIndex::class,
-        EnsuresIndexExists::class     => EnsureIndexExists::class,
-        ListsClasses::class           => ListClasses::class,
-        ListsIndexes::class           => ListIndexes::class,
-        ResetsIndex::class            => ResetIndex::class,
-        SynchronizesIndex::class      => SynchronizeIndex::class,
-        ValidatesIndexSettings::class => ValidateIndexSettings::class,
-        ViewsIndex::class             => ViewIndex::class,
+        ArrayAssocRule::class          => ArrayAssoc::class,
+        BasicFilterContract::class     => BasicFilter::class,
+        BetweenFilterContract::class   => BetweenFilter::class,
+        CreatesIndex::class            => CreateIndex::class,
+        DeletesIndex::class            => DeleteIndex::class,
+        DetailsIndex::class            => DetailIndex::class,
+        EnsuresIndexExists::class      => EnsureIndexExists::class,
+        FilterBuilderContract::class   => FilterBuilder::class,
+        GeoRadiusFilterContract::class => GeoRadiusFilter::class,
+        GroupFilterContract::class     => GroupFilter::class,
+        ListsClasses::class            => ListClasses::class,
+        ListsIndexes::class            => ListIndexes::class,
+        ResetsIndex::class             => ResetIndex::class,
+        SynchronizesIndex::class       => SynchronizeIndex::class,
+        ValidatesIndexSettings::class  => ValidateIndexSettings::class,
+        ViewsIndex::class              => ViewIndex::class,
     ];
 
     /**

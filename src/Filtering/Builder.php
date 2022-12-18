@@ -2,20 +2,22 @@
 
 declare(strict_types=1);
 
-namespace Dwarf\MeiliTools;
+namespace Dwarf\MeiliTools\Filtering;
 
 use Closure;
+use Dwarf\MeiliTools\Contracts\Filtering\Builder as Contract;
+use Dwarf\MeiliTools\Contracts\Filtering\FilterBuilder as Filterer;
 use Illuminate\Support\Str;
 use Laravel\Scout\Builder as BaseBuilder;
 
-class Builder extends BaseBuilder
+class Builder extends BaseBuilder implements Contract
 {
     /**
      * Filter builder.
      *
-     * @var \Dwarf\MeiliTools\FilterBuilder
+     * @var \Dwarf\MeiliTools\Contracts\Filtering\FilterBuilder
      */
-    public FilterBuilder $builder;
+    public Filterer $builder;
 
     /**
      * {@inheritDoc}
@@ -24,7 +26,7 @@ class Builder extends BaseBuilder
     {
         parent::__construct($model, $query, $callback, $softDelete);
 
-        $this->builder = new FilterBuilder();
+        $this->builder = app(Filterer::class);
     }
 
     public function where($field, $operator, $value = null, string $boolean = 'and')
@@ -35,7 +37,7 @@ class Builder extends BaseBuilder
 
         if ($field instanceof Closure && is_null($operator)) {
             return $this->whereNested($field, $boolean);
-        )
+        }
 
         return $this;
     }
@@ -71,27 +73,25 @@ class Builder extends BaseBuilder
         return $this->whereNested($callback, 'or');
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function filter(): string
     {
         return (string) $this->builder;
     }
 
     /**
+     * {@inheritDoc}
+     *
      * Proxy 'where' and 'orWhere' calls to filter builder.
-     *
-     * Will trigger undefined method error for all invalid calls.
-     *
-     * @param string $method
-     * @param array  $args
-     *
-     * @return $this
      */
-    public function __call(string $method, array $args)
+    public function __call($method, $parameters)
     {
         if (method_exists($this->builder, $method) && Str::startsWith($method, ['where', 'orWhere'])) {
             return $this->builder->{$method}(...$args);
         }
 
-        trigger_error('Call to undefined method ' . static::class . '::' . $method . '()', \E_USER_ERROR);
+        return parent::__call($method, $parameters);
     }
 }
