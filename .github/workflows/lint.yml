@@ -6,11 +6,13 @@ on:
     branches:
       - main
     paths:
+      - '**.json'
       - '**.php'
   pull_request:
     branches:
       - main
     paths:
+      - '**.json'
       - '**.php'
 
 jobs:

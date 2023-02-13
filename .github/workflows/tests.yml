@@ -6,14 +6,16 @@ on:
     branches:
       - main
     paths:
-      - 'composer.json'
+      - '**.json'
       - '**.php'
+      - '**.yml'
   pull_request:
     branches:
       - main
     paths:
-      - 'composer.json'
+      - '**.json'
       - '**.php'
+      - '**.yml'
   schedule:
     - cron: '0 1 * * 1' # Run at 01:00 on Mondays.
 
