@@ -31,6 +31,11 @@
         "php-http/discovery": "^1.12",
         "phpunit/phpunit": "^9.4"
     },
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": false
+        }
+    },
     "autoload": {
         "psr-4": {
             "Dwarf\\MeiliTools\\": "src"
