@@ -26,7 +26,9 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Laravel Pint
-        uses: aglipanci/laravel-pint-action@0.1.0
+        uses: aglipanci/laravel-pint-action@2.1.0
+        with:
+          pintVersion: 1.2.1
 
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v4
