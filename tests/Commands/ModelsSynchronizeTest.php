@@ -43,9 +43,14 @@ class ModelsSynchronizeTest extends TestCase
             $details = $this->app->make(DetailsModel::class)(MeiliMovie::class);
             $this->assertSame($defaults, $details);
 
-            $message = version_compare(app()->version(), '9.0.0', '<')
-                ? 'The given data was invalid.'
-                : 'The distinct attribute must be a string.';
+            $version = app()->version();
+            $message = 'The distinct attribute field must be a string.';
+            if (version_compare($version, '10.0.0', '<')) {
+                $message = 'The distinct attribute must be a string.';
+            }
+            if (version_compare($version, '9.0.0', '<')) {
+                $message = 'The given data was invalid.';
+            }
 
             $this->artisan('meili:models:synchronize')
                 ->expectsOutput('Processed ' . BrokenMovie::class)
@@ -92,9 +97,14 @@ class ModelsSynchronizeTest extends TestCase
             $namespace = 'Dwarf\\MeiliTools\\Tests\\Models';
             config(['meilitools.paths' => [$path => $namespace]]);
 
-            $message = version_compare(app()->version(), '9.0.0', '<')
-                ? 'The given data was invalid.'
-                : 'The distinct attribute must be a string.';
+            $version = app()->version();
+            $message = 'The distinct attribute field must be a string.';
+            if (version_compare($version, '10.0.0', '<')) {
+                $message = 'The distinct attribute must be a string.';
+            }
+            if (version_compare($version, '9.0.0', '<')) {
+                $message = 'The given data was invalid.';
+            }
 
             $this->artisan('meili:models:synchronize', ['--pretend' => true])
                 ->expectsOutput('Processed ' . BrokenMovie::class)

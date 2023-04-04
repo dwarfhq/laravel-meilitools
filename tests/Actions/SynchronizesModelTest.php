@@ -40,9 +40,14 @@ class SynchronizesModelTest extends TestCase
      */
     public function testWithInvalidSettings(): void
     {
-        $message = version_compare(app()->version(), '9.0.0', '<')
-            ? 'The given data was invalid.'
-            : 'The distinct attribute must be a string.';
+        $version = app()->version();
+        $message = 'The distinct attribute field must be a string.';
+        if (version_compare($version, '10.0.0', '<')) {
+            $message = 'The distinct attribute must be a string.';
+        }
+        if (version_compare($version, '9.0.0', '<')) {
+            $message = 'The given data was invalid.';
+        }
         $this->expectException(ValidationException::class);
         $this->expectExceptionMessage($message);
 
