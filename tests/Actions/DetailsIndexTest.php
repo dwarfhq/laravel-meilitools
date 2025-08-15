@@ -58,6 +58,6 @@ test('invoke', function () {
     $this->withIndex(self::INDEX, function () {
         $action = app()->make(DetailsIndex::class);
         $details = ($action)(self::INDEX);
-        $this->assertSame(Helpers::defaultSettings(Helpers::engineVersion()), $details);
+        expect($details)->toBe(Helpers::defaultSettings(Helpers::engineVersion()));
     });
 });

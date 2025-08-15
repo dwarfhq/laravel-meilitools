@@ -16,7 +16,7 @@ uses(Dwarf\MeiliTools\Tests\TestCase::class);
  * Test Helpers::guessModelNamespace() method.
  */
 test('guess model namespace', function () {
-    $this->assertSame(Movie::class, Helpers::guessModelNamespace(Movie::class));
-    $this->assertSame(Movie::class, Helpers::guessModelNamespace('Movie'));
-    $this->assertSame('Fake', Helpers::guessModelNamespace('Fake'));
+    expect(Helpers::guessModelNamespace(Movie::class))->toBe(Movie::class);
+    expect(Helpers::guessModelNamespace('Movie'))->toBe(Movie::class);
+    expect(Helpers::guessModelNamespace('Fake'))->toBe('Fake');
 });

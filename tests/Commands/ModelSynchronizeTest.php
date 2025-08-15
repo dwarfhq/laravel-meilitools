@@ -33,7 +33,7 @@ test('with advanced settings', function () {
         ;
 
         $details = app()->make(DetailsModel::class)(MeiliMovie::class);
-        $this->assertSame($defaults, $details);
+        expect($details)->toBe($defaults);
 
         $values = Helpers::convertIndexChangesToTable($changes);
 
@@ -43,7 +43,7 @@ test('with advanced settings', function () {
         ;
 
         $details = app()->make(DetailsModel::class)(MeiliMovie::class);
-        $this->assertSame($settings, Arr::except($details, ['faceting', 'pagination', 'typoTolerance']));
+        expect(Arr::except($details, ['faceting', 'pagination', 'typoTolerance']))->toBe($settings);
     } finally {
         $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
     }
@@ -68,7 +68,7 @@ test('with pretend', function () {
         ;
 
         $details = app()->make(DetailsModel::class)(MeiliMovie::class);
-        $this->assertSame($defaults, $details);
+        expect($details)->toBe($defaults);
 
         $values = Helpers::convertIndexChangesToTable($changes);
 
@@ -78,7 +78,7 @@ test('with pretend', function () {
         ;
 
         $details = app()->make(DetailsModel::class)(MeiliMovie::class);
-        $this->assertSame($defaults, $details);
+        expect($details)->toBe($defaults);
     } finally {
         $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
     }

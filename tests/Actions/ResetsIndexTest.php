@@ -26,19 +26,19 @@ test('with movie settings', function () {
         app()->make(SynchronizesIndex::class)(self::INDEX, $settings);
         $details = app()->make(DetailsIndex::class)(self::INDEX);
         $this->assertNotSame($defaults, $details);
-        $this->assertSame(array_replace($defaults, $settings), $details);
+        expect($details)->toBe(array_replace($defaults, $settings));
 
         $changes = app()->make(ResetsIndex::class)(self::INDEX);
-        $this->assertCount(8, $changes);
+        expect($changes)->toHaveCount(8);
 
         foreach ($changes as $key => $value) {
             $old = $settings[$key];
             $new = null;
-            $this->assertSame(compact('old', 'new'), $value);
+            expect($value)->toBe(compact('old', 'new'));
         }
 
         $details = app()->make(DetailsIndex::class)(self::INDEX);
-        $this->assertSame($defaults, $details);
+        expect($details)->toBe($defaults);
     });
 });
 
@@ -53,15 +53,15 @@ test('with pretend', function () {
         app()->make(SynchronizesIndex::class)(self::INDEX, $settings);
         $details = app()->make(DetailsIndex::class)(self::INDEX);
         $this->assertNotSame($defaults, $details);
-        $this->assertSame(array_replace($defaults, $settings), $details);
+        expect($details)->toBe(array_replace($defaults, $settings));
 
         $changes = app()->make(ResetsIndex::class)(self::INDEX, true);
-        $this->assertCount(8, $changes);
+        expect($changes)->toHaveCount(8);
 
         foreach ($changes as $key => $value) {
             $old = $settings[$key];
             $new = null;
-            $this->assertSame(compact('old', 'new'), $value);
+            expect($value)->toBe(compact('old', 'new'));
         }
 
         $details = app()->make(DetailsIndex::class)(self::INDEX);

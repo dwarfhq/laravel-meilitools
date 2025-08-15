@@ -37,7 +37,7 @@ test('with advanced settings', function () {
         $values = Helpers::convertIndexChangesToTable($changes);
 
         $details = app()->make(DetailsModel::class)(MeiliMovie::class);
-        $this->assertSame($defaults, $details);
+        expect($details)->toBe($defaults);
 
         $version = app()->version();
         $message = 'The distinct attribute field must be a string.';
@@ -57,7 +57,7 @@ test('with advanced settings', function () {
         ;
 
         $details = app()->make(DetailsModel::class)(MeiliMovie::class);
-        $this->assertSame($settings, Arr::except($details, ['faceting', 'pagination', 'typoTolerance']));
+        expect(Arr::except($details, ['faceting', 'pagination', 'typoTolerance']))->toBe($settings);
     } finally {
         $this->deleteIndex(app(BrokenMovie::class)->searchableAs());
         $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
@@ -84,7 +84,7 @@ test('with pretend', function () {
         $values = Helpers::convertIndexChangesToTable($changes);
 
         $details = app()->make(DetailsModel::class)(MeiliMovie::class);
-        $this->assertSame($defaults, $details);
+        expect($details)->toBe($defaults);
 
         $path = __DIR__ . '/../Models';
         $namespace = 'Dwarf\\MeiliTools\\Tests\\Models';
@@ -108,7 +108,7 @@ test('with pretend', function () {
         ;
 
         $details = app()->make(DetailsModel::class)(MeiliMovie::class);
-        $this->assertSame($defaults, $details);
+        expect($details)->toBe($defaults);
     } finally {
         $this->deleteIndex(app(BrokenMovie::class)->searchableAs());
         $this->deleteIndex(app(MeiliMovie::class)->searchableAs());

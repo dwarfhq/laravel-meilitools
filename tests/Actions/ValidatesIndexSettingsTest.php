@@ -79,7 +79,7 @@ test('rules', function () {
         $expected['pagination.maxTotalHits'] = ['sometimes', 'nullable', 'integer', 'min:0'];
     }
 
-    $this->assertEquals($expected, $actual);
+    expect($actual)->toEqual($expected);
 });
 
 /**
@@ -94,13 +94,13 @@ test('passes', function (callable $data) {
     [$value, $validated, $passes, $messages] = $data();
 
     $actualPasses = $action->passes($value, Helpers::engineVersion());
-    $this->assertSame($passes, $actualPasses);
+    expect($actualPasses)->toBe($passes);
 
     $actualValidated = $action->validated();
-    $this->assertSame($validated, $actualValidated);
+    expect($actualValidated)->toBe($validated);
 
     $actualMessages = $action->messages();
-    $this->assertSame($messages, $actualMessages);
+    expect($actualMessages)->toBe($messages);
 })->with('passesProvider');
 
 /**
@@ -121,13 +121,13 @@ test('passes typo tolerance', function (callable $data) {
     [$value, $validated, $passes, $messages] = $data();
 
     $actualPasses = $action->passes($value, $version);
-    $this->assertSame($passes, $actualPasses);
+    expect($actualPasses)->toBe($passes);
 
     $actualValidated = $action->validated();
-    $this->assertSame($validated, $actualValidated);
+    expect($actualValidated)->toBe($validated);
 
     $actualMessages = $action->messages();
-    $this->assertSame($messages, $actualMessages);
+    expect($actualMessages)->toBe($messages);
 })->with('passesTypoToleranceProvider');
 
 // Datasets

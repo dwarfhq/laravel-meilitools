@@ -19,7 +19,7 @@ uses(Dwarf\MeiliTools\Tests\TestCase::class);
 test('invoke', function () {
     try {
         $details = app()->make(DetailsModel::class)(Movie::class);
-        $this->assertSame(Helpers::defaultSettings(Helpers::engineVersion()), $details);
+        expect($details)->toBe(Helpers::defaultSettings(Helpers::engineVersion()));
     } finally {
         $this->deleteIndex(app(Movie::class)->searchableAs());
     }

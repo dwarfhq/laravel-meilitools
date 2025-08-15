@@ -25,7 +25,7 @@ test('with advanced settings', function () {
         app()->make(SynchronizesIndex::class)(self::INDEX, $settings);
         $details = app()->make(DetailsIndex::class)(self::INDEX);
         $this->assertNotSame($defaults, $details);
-        $this->assertSame(array_replace($defaults, $settings), $details);
+        expect($details)->toBe(array_replace($defaults, $settings));
 
         $changes = collect($settings)
             ->mapWithKeys(function ($value, $key) {
@@ -51,7 +51,7 @@ test('with advanced settings', function () {
         ;
 
         $details = app()->make(DetailsIndex::class)(self::INDEX);
-        $this->assertSame($defaults, $details);
+        expect($details)->toBe($defaults);
     });
 });
 
@@ -66,7 +66,7 @@ test('with pretend', function () {
         app()->make(SynchronizesIndex::class)(self::INDEX, $settings);
         $details = app()->make(DetailsIndex::class)(self::INDEX);
         $this->assertNotSame($defaults, $details);
-        $this->assertSame(array_replace($defaults, $settings), $details);
+        expect($details)->toBe(array_replace($defaults, $settings));
 
         $changes = collect($settings)
             ->mapWithKeys(function ($value, $key) {

@@ -26,19 +26,19 @@ test('with advanced settings', function () {
         app()->make(SynchronizesModel::class)(MeiliMovie::class);
         $details = app()->make(DetailsModel::class)(MeiliMovie::class);
         $this->assertNotSame($defaults, $details);
-        $this->assertSame(array_replace($defaults, $settings), $details);
+        expect($details)->toBe(array_replace($defaults, $settings));
 
         $changes = app()->make(ResetsModel::class)(MeiliMovie::class);
-        $this->assertCount(8, $changes);
+        expect($changes)->toHaveCount(8);
 
         foreach ($changes as $key => $value) {
             $old = $settings[$key];
             $new = null;
-            $this->assertSame(compact('old', 'new'), $value);
+            expect($value)->toBe(compact('old', 'new'));
         }
 
         $details = app()->make(DetailsModel::class)(MeiliMovie::class);
-        $this->assertSame($defaults, $details);
+        expect($details)->toBe($defaults);
     } finally {
         $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
     }
@@ -55,15 +55,15 @@ test('with pretend', function () {
         app()->make(SynchronizesModel::class)(MeiliMovie::class);
         $details = app()->make(DetailsModel::class)(MeiliMovie::class);
         $this->assertNotSame($defaults, $details);
-        $this->assertSame(array_replace($defaults, $settings), $details);
+        expect($details)->toBe(array_replace($defaults, $settings));
 
         $changes = app()->make(ResetsModel::class)(MeiliMovie::class, true);
-        $this->assertCount(8, $changes);
+        expect($changes)->toHaveCount(8);
 
         foreach ($changes as $key => $value) {
             $old = $settings[$key];
             $new = null;
-            $this->assertSame(compact('old', 'new'), $value);
+            expect($value)->toBe(compact('old', 'new'));
         }
 
         $details = app()->make(DetailsModel::class)(MeiliMovie::class);

@@ -21,17 +21,17 @@ test('path listing', function () {
     $path = 'app/Models';
     $namespace = 'App\\Models';
     $classes = $action($path, $namespace);
-    $this->assertCount(0, $classes);
+    expect($classes)->toHaveCount(0);
 
     $path = base_path($path);
     $classes = $action($path, $namespace);
-    $this->assertCount(0, $classes);
+    expect($classes)->toHaveCount(0);
 
     $path = __DIR__ . '/../Models';
     $namespace = 'Dwarf\\MeiliTools\\Tests\\Models';
     $classes = $action($path, $namespace);
-    $this->assertCount(3, $classes);
+    expect($classes)->toHaveCount(3);
 
     $classes = $action($path, $namespace, fn ($class) => is_a($class, MeiliSettings::class, true));
-    $this->assertCount(2, $classes);
+    expect($classes)->toHaveCount(2);
 });

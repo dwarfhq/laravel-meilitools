@@ -41,25 +41,25 @@ test('with advanced settings', function () {
         ];
 
         $details = app()->make(DetailsModel::class)(Movie::class);
-        $this->assertSame($defaults, $details);
+        expect($details)->toBe($defaults);
         $details = app()->make(DetailsModel::class)(MeiliMovie::class);
-        $this->assertSame($defaults, $details);
+        expect($details)->toBe($defaults);
 
         $action = app()->make(SynchronizesModels::class);
         $action(array_keys($classes), function ($class, $result) use ($classes) {
             if (\is_array($result)) {
-                $this->assertSame($classes[$class], $result);
+                expect($result)->toBe($classes[$class]);
             } else {
-                $this->assertTrue($classes[$class] instanceof $result);
-                $this->assertSame($classes[$class]->getMessage(), $result->getMessage());
+                expect($classes[$class] instanceof $result)->toBeTrue();
+                expect($result->getMessage())->toBe($classes[$class]->getMessage());
             }
         });
 
         $details = app()->make(DetailsModel::class)(Movie::class);
-        $this->assertSame($defaults, $details);
+        expect($details)->toBe($defaults);
 
         $details = app()->make(DetailsModel::class)(MeiliMovie::class);
-        $this->assertSame($settings, Arr::except($details, ['faceting', 'pagination', 'typoTolerance']));
+        expect(Arr::except($details, ['faceting', 'pagination', 'typoTolerance']))->toBe($settings);
     } finally {
         $this->deleteIndex(app(Movie::class)->searchableAs());
         $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
@@ -85,15 +85,15 @@ test('with pretend', function () {
         ;
 
         $details = app()->make(DetailsModel::class)(MeiliMovie::class);
-        $this->assertSame($defaults, $details);
+        expect($details)->toBe($defaults);
 
         $action = app()->make(SynchronizesModels::class);
         $action([MeiliMovie::class], function ($class, $result) use ($expected) {
-            $this->assertSame($expected, $result);
+            expect($result)->toBe($expected);
         }, true);
 
         $details = app()->make(DetailsModel::class)(MeiliMovie::class);
-        $this->assertSame($defaults, $details);
+        expect($details)->toBe($defaults);
     } finally {
         $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
     }

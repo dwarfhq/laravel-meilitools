@@ -66,13 +66,13 @@ test('with advanced settings', function () {
         ;
 
         $details = app()->make(DetailsModel::class)(MeiliMovie::class);
-        $this->assertSame($defaults, $details);
+        expect($details)->toBe($defaults);
 
         $changes = app()->make(SynchronizesModel::class)(MeiliMovie::class);
-        $this->assertSame($expected, $changes);
+        expect($changes)->toBe($expected);
 
         $details = app()->make(DetailsModel::class)(MeiliMovie::class);
-        $this->assertSame($settings, Arr::except($details, ['faceting', 'pagination', 'typoTolerance']));
+        expect(Arr::except($details, ['faceting', 'pagination', 'typoTolerance']))->toBe($settings);
     } finally {
         $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
     }
@@ -97,13 +97,13 @@ test('with pretend', function () {
         ;
 
         $details = app()->make(DetailsModel::class)(MeiliMovie::class);
-        $this->assertSame($defaults, $details);
+        expect($details)->toBe($defaults);
 
         $changes = app()->make(SynchronizesModel::class)(MeiliMovie::class, true);
-        $this->assertSame($expected, $changes);
+        expect($changes)->toBe($expected);
 
         $details = app()->make(DetailsModel::class)(MeiliMovie::class);
-        $this->assertSame($defaults, $details);
+        expect($details)->toBe($defaults);
     } finally {
         $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
     }
@@ -132,13 +132,13 @@ test('with soft deletes enabled', function () {
         ;
 
         $details = app()->make(DetailsModel::class)(MeiliMovie::class);
-        $this->assertSame($defaults, $details);
+        expect($details)->toBe($defaults);
 
         $changes = app()->make(SynchronizesModel::class)(MeiliMovie::class);
-        $this->assertSame($expected, $changes);
+        expect($changes)->toBe($expected);
 
         $details = app()->make(DetailsModel::class)(MeiliMovie::class);
-        $this->assertSame($settings, Arr::except($details, ['faceting', 'pagination', 'typoTolerance']));
+        expect(Arr::except($details, ['faceting', 'pagination', 'typoTolerance']))->toBe($settings);
     } finally {
         $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
     }

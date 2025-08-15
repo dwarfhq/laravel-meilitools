@@ -22,18 +22,18 @@ test('with changing movie settings', function () {
         $action = app()->make(SynchronizesIndex::class);
 
         $changes = ($action)(self::INDEX, []);
-        $this->assertSame([], $changes);
+        expect($changes)->toBe([]);
 
         $defaults = Helpers::defaultSettings(Helpers::engineVersion());
         $settings = Tools::movieSettings();
 
         $changes = ($action)(self::INDEX, $settings);
-        $this->assertCount(8, $changes);
+        expect($changes)->toHaveCount(8);
 
         foreach ($changes as $key => $value) {
             $old = $defaults[$key];
             $new = $settings[$key];
-            $this->assertSame(compact('old', 'new'), $value);
+            expect($value)->toBe(compact('old', 'new'));
         }
 
         $update1 = [
@@ -42,12 +42,12 @@ test('with changing movie settings', function () {
             'synonyms'           => null,
         ];
         $changes = ($action)(self::INDEX, $update1);
-        $this->assertCount(3, $changes);
+        expect($changes)->toHaveCount(3);
 
         foreach ($changes as $key => $value) {
             $old = $settings[$key];
             $new = $update1[$key];
-            $this->assertSame(compact('old', 'new'), $value);
+            expect($value)->toBe(compact('old', 'new'));
         }
 
         $update2 = [
@@ -56,12 +56,12 @@ test('with changing movie settings', function () {
             'stopWords'           => null,
         ];
         $changes = ($action)(self::INDEX, $update2);
-        $this->assertCount(1, $changes);
+        expect($changes)->toHaveCount(1);
 
         foreach ($changes as $key => $value) {
             $old = $settings[$key];
             $new = $update2[$key];
-            $this->assertSame(compact('old', 'new'), $value);
+            expect($value)->toBe(compact('old', 'new'));
         }
 
         $update3 = [
@@ -71,12 +71,12 @@ test('with changing movie settings', function () {
             'stopWords'            => $settings['stopWords'],
         ];
         $changes = ($action)(self::INDEX, $update3);
-        $this->assertCount(3, $changes);
+        expect($changes)->toHaveCount(3);
 
         foreach ($changes as $key => $value) {
             $old = $key === 'stopWords' ? $defaults[$key] : $settings[$key];
             $new = $update3[$key];
-            $this->assertSame(compact('old', 'new'), $value);
+            expect($value)->toBe(compact('old', 'new'));
         }
 
         $update4 = [
@@ -90,16 +90,16 @@ test('with changing movie settings', function () {
             'synonyms'             => null,
         ];
         $changes = ($action)(self::INDEX, $update4);
-        $this->assertCount(3, $changes);
+        expect($changes)->toHaveCount(3);
 
         foreach ($changes as $key => $value) {
             $old = $settings[$key];
             $new = $update4[$key];
-            $this->assertSame(compact('old', 'new'), $value);
+            expect($value)->toBe(compact('old', 'new'));
         }
 
         $changes = ($action)(self::INDEX, $update4);
-        $this->assertEmpty($changes);
+        expect($changes)->toBeEmpty();
     });
 });
 
@@ -125,14 +125,14 @@ test('with typo tolerance settings', function () {
         $updates = ['typoTolerance' => $update];
         $expected = ['typoTolerance' => ['old' => $current, 'new' => $update]];
         $changes = ($action)(self::INDEX, $updates);
-        $this->assertCount(1, $changes);
-        $this->assertCount(1, $changes['typoTolerance']['old']);
-        $this->assertCount(1, $changes['typoTolerance']['new']);
-        $this->assertSame($expected, $changes);
+        expect($changes)->toHaveCount(1);
+        expect($changes['typoTolerance']['old'])->toHaveCount(1);
+        expect($changes['typoTolerance']['new'])->toHaveCount(1);
+        expect($changes)->toBe($expected);
 
         // Attempting to do the same updates should result in zero changes.
         $changes = ($action)(self::INDEX, $updates);
-        $this->assertCount(0, $changes);
+        expect($changes)->toHaveCount(0);
 
         $default = array_replace($default, $update);
         $update = [
@@ -146,14 +146,14 @@ test('with typo tolerance settings', function () {
         $updates = ['typoTolerance' => $update];
         $expected = ['typoTolerance' => ['old' => $current, 'new' => $update]];
         $changes = ($action)(self::INDEX, $updates);
-        $this->assertCount(1, $changes);
-        $this->assertCount(2, $changes['typoTolerance']['old']);
-        $this->assertCount(2, $changes['typoTolerance']['new']);
-        $this->assertSame($expected, $changes);
+        expect($changes)->toHaveCount(1);
+        expect($changes['typoTolerance']['old'])->toHaveCount(2);
+        expect($changes['typoTolerance']['new'])->toHaveCount(2);
+        expect($changes)->toBe($expected);
 
         // Attempting to do the same updates should result in zero changes.
         $changes = ($action)(self::INDEX, $updates);
-        $this->assertCount(0, $changes);
+        expect($changes)->toHaveCount(0);
 
         $default = array_replace($default, $update, Arr::only($defaults['typoTolerance'], 'enabled'));
         $update = [
@@ -165,14 +165,14 @@ test('with typo tolerance settings', function () {
         sort($update['disableOnWords']); // List is sorted automatically before update.
         $expected = ['typoTolerance' => ['old' => $current, 'new' => $update]];
         $changes = ($action)(self::INDEX, $updates);
-        $this->assertCount(1, $changes);
-        $this->assertCount(2, $changes['typoTolerance']['old']);
-        $this->assertCount(2, $changes['typoTolerance']['new']);
-        $this->assertSame($expected, $changes);
+        expect($changes)->toHaveCount(1);
+        expect($changes['typoTolerance']['old'])->toHaveCount(2);
+        expect($changes['typoTolerance']['new'])->toHaveCount(2);
+        expect($changes)->toBe($expected);
 
         // Attempting to do the same updates should result in zero changes.
         $changes = ($action)(self::INDEX, $updates);
-        $this->assertCount(0, $changes);
+        expect($changes)->toHaveCount(0);
 
         $default = array_replace($default, $update, Arr::only($defaults['typoTolerance'], 'minWordSizeForTypos'));
         $update = [
@@ -184,14 +184,14 @@ test('with typo tolerance settings', function () {
         sort($update['disableOnAttributes']); // List is sorted automatically before update.
         $expected = ['typoTolerance' => ['old' => $current, 'new' => $update]];
         $changes = ($action)(self::INDEX, $updates);
-        $this->assertCount(1, $changes);
-        $this->assertCount(2, $changes['typoTolerance']['old']);
-        $this->assertCount(2, $changes['typoTolerance']['new']);
-        $this->assertSame($expected, $changes);
+        expect($changes)->toHaveCount(1);
+        expect($changes['typoTolerance']['old'])->toHaveCount(2);
+        expect($changes['typoTolerance']['new'])->toHaveCount(2);
+        expect($changes)->toBe($expected);
 
         // Attempting to do the same updates should result in zero changes.
         $changes = ($action)(self::INDEX, $updates);
-        $this->assertCount(0, $changes);
+        expect($changes)->toHaveCount(0);
 
         $default = Arr::only($update, 'disableOnAttributes');
         $update = [
@@ -203,14 +203,14 @@ test('with typo tolerance settings', function () {
         $updates = ['typoTolerance' => $update];
         $expected = ['typoTolerance' => ['old' => $current, 'new' => Arr::only($update, 'disableOnAttributes')]];
         $changes = ($action)(self::INDEX, $updates);
-        $this->assertCount(1, $changes);
-        $this->assertCount(1, $changes['typoTolerance']['old']);
-        $this->assertCount(1, $changes['typoTolerance']['new']);
-        $this->assertSame($expected, $changes);
+        expect($changes)->toHaveCount(1);
+        expect($changes['typoTolerance']['old'])->toHaveCount(1);
+        expect($changes['typoTolerance']['new'])->toHaveCount(1);
+        expect($changes)->toBe($expected);
 
         // Attempting to do the same updates should result in zero changes.
         $changes = ($action)(self::INDEX, $updates);
-        $this->assertCount(0, $changes);
+        expect($changes)->toHaveCount(0);
     });
 });
 
@@ -222,18 +222,18 @@ test('with pretend', function () {
         $action = app()->make(SynchronizesIndex::class);
 
         $changes = ($action)(self::INDEX, []);
-        $this->assertSame([], $changes);
+        expect($changes)->toBe([]);
 
         $defaults = Helpers::defaultSettings(Helpers::engineVersion());
         $settings = Tools::movieSettings();
 
         $changes = ($action)(self::INDEX, $settings, true);
-        $this->assertCount(8, $changes);
+        expect($changes)->toHaveCount(8);
 
         foreach ($changes as $key => $value) {
             $old = $defaults[$key];
             $new = $settings[$key];
-            $this->assertSame(compact('old', 'new'), $value);
+            expect($value)->toBe(compact('old', 'new'));
         }
 
         $update = [
@@ -247,6 +247,6 @@ test('with pretend', function () {
             'synonyms'             => null,
         ];
         $changes = ($action)(self::INDEX, $update);
-        $this->assertEmpty($changes);
+        expect($changes)->toBeEmpty();
     });
 });
