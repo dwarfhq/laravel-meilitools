@@ -2,69 +2,49 @@
 
 declare(strict_types=1);
 
-namespace Dwarf\MeiliTools\Tests\Commands;
+/**
+ * Test `meili:index:delete` command with default settings.
+ */
+test('with default settings', function () {
+    $this->withIndex('testing-delete-index', function () {
+        $this->artisan('meili:index:delete')
+            ->expectsQuestion('What is the index name?', 'testing-delete-index')
+            ->expectsConfirmation('Are you sure you want to run this command?', 'no')
+            ->assertFailed()
+        ;
 
-use Dwarf\MeiliTools\Tests\TestCase;
+        $this->artisan('meili:index:delete')
+            ->expectsQuestion('What is the index name?', 'testing-delete-index')
+            ->expectsConfirmation('Are you sure you want to run this command?', 'yes')
+            ->assertSuccessful()
+        ;
+    });
+});
 
 /**
- * @internal
+ * Test `meili:index:delete` command with specified name.
  */
-class IndexDeleteTest extends TestCase
-{
-    /**
-     * Test index.
-     *
-     * @var string
-     */
-    private const INDEX = 'testing-delete-index';
+test('with specified name', function () {
+    $this->withIndex('testing-delete-index', function () {
+        $this->artisan('meili:index:delete', ['index' => 'testing-delete-index'])
+            ->expectsConfirmation('Are you sure you want to run this command?', 'no')
+            ->assertFailed()
+        ;
 
-    /**
-     * Test `meili:index:delete` command with default settings.
-     */
-    public function test_with_default_settings(): void
-    {
-        $this->withIndex(self::INDEX, function () {
-            $this->artisan('meili:index:delete')
-                ->expectsQuestion('What is the index name?', self::INDEX)
-                ->expectsConfirmation('Are you sure you want to run this command?', 'no')
-                ->assertFailed()
-            ;
+        $this->artisan('meili:index:delete', ['index' => 'testing-delete-index'])
+            ->expectsConfirmation('Are you sure you want to run this command?', 'yes')
+            ->assertSuccessful()
+        ;
+    });
+});
 
-            $this->artisan('meili:index:delete')
-                ->expectsQuestion('What is the index name?', self::INDEX)
-                ->expectsConfirmation('Are you sure you want to run this command?', 'yes')
-                ->assertSuccessful()
-            ;
-        });
-    }
-
-    /**
-     * Test `meili:index:delete` command with specified name.
-     */
-    public function test_with_specified_name(): void
-    {
-        $this->withIndex(self::INDEX, function () {
-            $this->artisan('meili:index:delete', ['index' => self::INDEX])
-                ->expectsConfirmation('Are you sure you want to run this command?', 'no')
-                ->assertFailed()
-            ;
-
-            $this->artisan('meili:index:delete', ['index' => self::INDEX])
-                ->expectsConfirmation('Are you sure you want to run this command?', 'yes')
-                ->assertSuccessful()
-            ;
-        });
-    }
-
-    /**
-     * Test `meili:index:delete` command with force option.
-     */
-    public function test_with_force_option(): void
-    {
-        $this->withIndex(self::INDEX, function () {
-            $this->artisan('meili:index:delete', ['index' => self::INDEX, '--force' => true])
-                ->assertSuccessful()
-            ;
-        });
-    }
-}
+/**
+ * Test `meili:index:delete` command with force option.
+ */
+test('with force option', function () {
+    $this->withIndex('testing-delete-index', function () {
+        $this->artisan('meili:index:delete', ['index' => 'testing-delete-index', '--force' => true])
+            ->assertSuccessful()
+        ;
+    });
+});

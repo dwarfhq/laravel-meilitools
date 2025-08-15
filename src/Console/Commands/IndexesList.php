@@ -26,11 +26,8 @@ class IndexesList extends Command
 
     /**
      * Execute the console command.
-     *
-     *
-     * @return int
      */
-    public function handle(ListsIndexes $listIndexes)
+    public function handle(ListsIndexes $listIndexes): int
     {
         $list = $listIndexes($this->option('stats'));
         $values = Helpers::convertIndexDataToTable($list);

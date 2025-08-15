@@ -28,11 +28,8 @@ class ModelDetails extends Command
 
     /**
      * Execute the console command.
-     *
-     *
-     * @return int
      */
-    public function handle(DetailsModel $detailModel)
+    public function handle(DetailsModel $detailModel): int
     {
         $details = $detailModel($this->getModel());
         $values = Helpers::convertIndexDataToTable($details);

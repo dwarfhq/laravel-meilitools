@@ -2,39 +2,29 @@
 
 declare(strict_types=1);
 
-namespace Dwarf\MeiliTools\Tests\Actions;
-
 use Dwarf\MeiliTools\Contracts\Actions\ListsClasses;
 use Dwarf\MeiliTools\Contracts\Indexes\MeiliSettings;
-use Dwarf\MeiliTools\Tests\TestCase;
 
 /**
- * @internal
+ * Test listing models using absolute and relative paths.
  */
-class ListsClassesTest extends TestCase
-{
-    /**
-     * Test listing models using absolute and relative paths.
-     */
-    public function test_path_listing(): void
-    {
-        $action = $this->app->make(ListsClasses::class);
+test('path listing', function () {
+    $action = app()->make(ListsClasses::class);
 
-        $path = 'app/Models';
-        $namespace = 'App\\Models';
-        $classes = $action($path, $namespace);
-        $this->assertCount(0, $classes);
+    $path = 'app/Models';
+    $namespace = 'App\\Models';
+    $classes = $action($path, $namespace);
+    expect($classes)->toHaveCount(0);
 
-        $path = base_path($path);
-        $classes = $action($path, $namespace);
-        $this->assertCount(0, $classes);
+    $path = base_path($path);
+    $classes = $action($path, $namespace);
+    expect($classes)->toHaveCount(0);
 
-        $path = __DIR__ . '/../Models';
-        $namespace = 'Dwarf\\MeiliTools\\Tests\\Models';
-        $classes = $action($path, $namespace);
-        $this->assertCount(3, $classes);
+    $path = __DIR__ . '/../Models';
+    $namespace = 'Dwarf\\MeiliTools\\Tests\\Models';
+    $classes = $action($path, $namespace);
+    expect($classes)->toHaveCount(3);
 
-        $classes = $action($path, $namespace, fn ($class) => is_a($class, MeiliSettings::class, true));
-        $this->assertCount(2, $classes);
-    }
-}
+    $classes = $action($path, $namespace, fn ($class) => is_a($class, MeiliSettings::class, true));
+    expect($classes)->toHaveCount(2);
+});

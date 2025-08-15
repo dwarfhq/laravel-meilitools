@@ -28,14 +28,15 @@
         "illuminate/support": "^10.17|^11.0|^12.0",
         "laravel/pint": "^1.24",
         "laravel/scout": "^9.0|^10.0",
-        "nesbot/carbon": "^2.63|^3.0",
+        "nesbot/carbon": "^2.63|^3.8.4",
         "orchestra/testbench": "^8.0|^9.0|^10.0",
         "php-http/discovery": "^1.12",
-        "phpunit/phpunit": "^10.0|^11.0"
+        "pestphp/pest": "^2.2|^3.0"
     },
     "config": {
         "allow-plugins": {
-            "php-http/discovery": false
+            "php-http/discovery": false,
+            "pestphp/pest-plugin": true
         }
     },
     "autoload": {
@@ -50,8 +51,8 @@
     },
     "scripts": {
         "pint": "pint --parallel",
-        "test": "phpunit",
-        "test:coverage": "phpdbg -qrr vendor/bin/phpunit --coverage-html tests/_reports"
+        "test": "pest --parallel",
+        "test-coverage": "pest --parallel --coverage"
     },
     "extra": {
         "laravel": {

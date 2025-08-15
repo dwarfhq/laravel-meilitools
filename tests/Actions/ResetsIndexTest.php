@@ -2,80 +2,62 @@
 
 declare(strict_types=1);
 
-namespace Dwarf\MeiliTools\Tests\Actions;
-
 use Dwarf\MeiliTools\Contracts\Actions\DetailsIndex;
 use Dwarf\MeiliTools\Contracts\Actions\ResetsIndex;
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesIndex;
 use Dwarf\MeiliTools\Helpers;
-use Dwarf\MeiliTools\Tests\TestCase;
 use Dwarf\MeiliTools\Tests\Tools;
 
 /**
- * @internal
+ * Test ResetsIndex::__invoke() method with movie settings.
  */
-class ResetsIndexTest extends TestCase
-{
-    /**
-     * Test index.
-     *
-     * @var string
-     */
-    private const INDEX = 'testing-resets-index';
+test('with movie settings', function () {
+    $this->withIndex('testing-resets-index', function () {
+        $defaults = Helpers::defaultSettings(Helpers::engineVersion());
+        $settings = Tools::movieSettings();
 
-    /**
-     * Test ResetsIndex::__invoke() method with movie settings.
-     */
-    public function test_with_movie_settings(): void
-    {
-        $this->withIndex(self::INDEX, function () {
-            $defaults = Helpers::defaultSettings(Helpers::engineVersion());
-            $settings = Tools::movieSettings();
+        app()->make(SynchronizesIndex::class)('testing-resets-index', $settings);
+        $details = app()->make(DetailsIndex::class)('testing-resets-index');
+        expect($details)->not->toBe($defaults);
+        expect($details)->toBe(array_replace($defaults, $settings));
 
-            $this->app->make(SynchronizesIndex::class)(self::INDEX, $settings);
-            $details = $this->app->make(DetailsIndex::class)(self::INDEX);
-            $this->assertNotSame($defaults, $details);
-            $this->assertSame(array_replace($defaults, $settings), $details);
+        $changes = app()->make(ResetsIndex::class)('testing-resets-index');
+        expect($changes)->toHaveCount(8);
 
-            $changes = $this->app->make(ResetsIndex::class)(self::INDEX);
-            $this->assertCount(8, $changes);
+        foreach ($changes as $key => $value) {
+            $old = $settings[$key];
+            $new = null;
+            expect($value)->toBe(compact('old', 'new'));
+        }
 
-            foreach ($changes as $key => $value) {
-                $old = $settings[$key];
-                $new = null;
-                $this->assertSame(compact('old', 'new'), $value);
-            }
+        $details = app()->make(DetailsIndex::class)('testing-resets-index');
+        expect($details)->toBe($defaults);
+    });
+});
 
-            $details = $this->app->make(DetailsIndex::class)(self::INDEX);
-            $this->assertSame($defaults, $details);
-        });
-    }
+/**
+ * Test ResetsIndex::__invoke() method with pretend.
+ */
+test('with pretend', function () {
+    $this->withIndex('testing-resets-index', function () {
+        $defaults = Helpers::defaultSettings(Helpers::engineVersion());
+        $settings = Tools::movieSettings();
 
-    /**
-     * Test ResetsIndex::__invoke() method with pretend.
-     */
-    public function test_with_pretend(): void
-    {
-        $this->withIndex(self::INDEX, function () {
-            $defaults = Helpers::defaultSettings(Helpers::engineVersion());
-            $settings = Tools::movieSettings();
+        app()->make(SynchronizesIndex::class)('testing-resets-index', $settings);
+        $details = app()->make(DetailsIndex::class)('testing-resets-index');
+        expect($details)->not->toBe($defaults);
+        expect($details)->toBe(array_replace($defaults, $settings));
 
-            $this->app->make(SynchronizesIndex::class)(self::INDEX, $settings);
-            $details = $this->app->make(DetailsIndex::class)(self::INDEX);
-            $this->assertNotSame($defaults, $details);
-            $this->assertSame(array_replace($defaults, $settings), $details);
+        $changes = app()->make(ResetsIndex::class)('testing-resets-index', true);
+        expect($changes)->toHaveCount(8);
 
-            $changes = $this->app->make(ResetsIndex::class)(self::INDEX, true);
-            $this->assertCount(8, $changes);
+        foreach ($changes as $key => $value) {
+            $old = $settings[$key];
+            $new = null;
+            expect($value)->toBe(compact('old', 'new'));
+        }
 
-            foreach ($changes as $key => $value) {
-                $old = $settings[$key];
-                $new = null;
-                $this->assertSame(compact('old', 'new'), $value);
-            }
-
-            $details = $this->app->make(DetailsIndex::class)(self::INDEX);
-            $this->assertNotSame($defaults, $details);
-        });
-    }
-}
+        $details = app()->make(DetailsIndex::class)('testing-resets-index');
+        expect($details)->not->toBe($defaults);
+    });
+});

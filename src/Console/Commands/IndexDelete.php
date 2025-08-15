@@ -31,11 +31,8 @@ class IndexDelete extends Command
 
     /**
      * Execute the console command.
-     *
-     *
-     * @return int
      */
-    public function handle(DeletesIndex $deleteIndex)
+    public function handle(DeletesIndex $deleteIndex): int
     {
         // Confirm execution.
         $index = $this->getIndex();

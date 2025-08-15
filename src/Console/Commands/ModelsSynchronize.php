@@ -33,11 +33,8 @@ class ModelsSynchronize extends Command
 
     /**
      * Execute the console command.
-     *
-     *
-     * @return int
      */
-    public function handle(ListsClasses $listClasses, SynchronizesModels $synchronizeModels)
+    public function handle(ListsClasses $listClasses, SynchronizesModels $synchronizeModels): int
     {
         // Confirm execution if not pretending and in production.
         if (!$this->option('pretend') && !$this->confirmToProceed()) {

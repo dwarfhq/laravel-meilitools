@@ -2,263 +2,238 @@
 
 declare(strict_types=1);
 
-namespace Dwarf\MeiliTools\Tests\Actions;
-
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesIndex;
 use Dwarf\MeiliTools\Helpers;
-use Dwarf\MeiliTools\Tests\TestCase;
 use Dwarf\MeiliTools\Tests\Tools;
 use Illuminate\Support\Arr;
 
 /**
- * @internal
+ * Test SynchronizesIndex::__invoke() method with movie settings.
  */
-class SynchronizesIndexTest extends TestCase
-{
-    /**
-     * Test index.
-     *
-     * @var string
-     */
-    private const INDEX = 'testing-synchronizes-index';
+test('with changing movie settings', function () {
+    $this->withIndex('testing-synchronizes-index', function () {
+        $action = app()->make(SynchronizesIndex::class);
 
-    /**
-     * Test SynchronizesIndex::__invoke() method with movie settings.
-     */
-    public function test_with_changing_movie_settings(): void
-    {
-        $this->withIndex(self::INDEX, function () {
-            $action = $this->app->make(SynchronizesIndex::class);
+        $changes = $action('testing-synchronizes-index', []);
+        expect($changes)->toBe([]);
 
-            $changes = ($action)(self::INDEX, []);
-            $this->assertSame([], $changes);
+        $defaults = Helpers::defaultSettings(Helpers::engineVersion());
+        $settings = Tools::movieSettings();
 
-            $defaults = Helpers::defaultSettings(Helpers::engineVersion());
-            $settings = Tools::movieSettings();
+        $changes = $action('testing-synchronizes-index', $settings);
+        expect($changes)->toHaveCount(8);
 
-            $changes = ($action)(self::INDEX, $settings);
-            $this->assertCount(8, $changes);
-
-            foreach ($changes as $key => $value) {
-                $old = $defaults[$key];
-                $new = $settings[$key];
-                $this->assertSame(compact('old', 'new'), $value);
-            }
-
-            $update1 = [
-                'stopWords'          => null,
-                'sortableAttributes' => null,
-                'synonyms'           => null,
-            ];
-            $changes = ($action)(self::INDEX, $update1);
-            $this->assertCount(3, $changes);
-
-            foreach ($changes as $key => $value) {
-                $old = $settings[$key];
-                $new = $update1[$key];
-                $this->assertSame(compact('old', 'new'), $value);
-            }
-
-            $update2 = [
-                'distinctAttribute'   => 'movie_id',
-                'displayedAttributes' => null,
-                'stopWords'           => null,
-            ];
-            $changes = ($action)(self::INDEX, $update2);
-            $this->assertCount(1, $changes);
-
-            foreach ($changes as $key => $value) {
-                $old = $settings[$key];
-                $new = $update2[$key];
-                $this->assertSame(compact('old', 'new'), $value);
-            }
-
-            $update3 = [
-                'distinctAttribute'    => null,
-                'searchableAttributes' => null,
-                'displayedAttributes'  => null,
-                'stopWords'            => $settings['stopWords'],
-            ];
-            $changes = ($action)(self::INDEX, $update3);
-            $this->assertCount(3, $changes);
-
-            foreach ($changes as $key => $value) {
-                $old = $key === 'stopWords' ? $defaults[$key] : $settings[$key];
-                $new = $update3[$key];
-                $this->assertSame(compact('old', 'new'), $value);
-            }
-
-            $update4 = [
-                'displayedAttributes'  => null,
-                'distinctAttribute'    => null,
-                'filterableAttributes' => null,
-                'rankingRules'         => null,
-                'searchableAttributes' => null,
-                'sortableAttributes'   => null,
-                'stopWords'            => null,
-                'synonyms'             => null,
-            ];
-            $changes = ($action)(self::INDEX, $update4);
-            $this->assertCount(3, $changes);
-
-            foreach ($changes as $key => $value) {
-                $old = $settings[$key];
-                $new = $update4[$key];
-                $this->assertSame(compact('old', 'new'), $value);
-            }
-
-            $changes = ($action)(self::INDEX, $update4);
-            $this->assertEmpty($changes);
-        });
-    }
-
-    /**
-     * Test SynchronizesIndex::__invoke() method with typo tolerance settings.
-     */
-    public function test_with_typo_tolerance_settings(): void
-    {
-        // Check if test should be run on this engine version.
-        $version = Helpers::engineVersion() ?: '0.0.0';
-        if (version_compare($version, '0.27.0', '<')) {
-            $this->markTestSkipped('Typo tolerance is only available from 0.27.0 and up.');
+        foreach ($changes as $key => $value) {
+            $old = $defaults[$key];
+            $new = $settings[$key];
+            expect($value)->toBe(compact('old', 'new'));
         }
 
-        $this->withIndex(self::INDEX, function () use ($version) {
-            $action = $this->app->make(SynchronizesIndex::class);
+        $update1 = [
+            'stopWords'          => null,
+            'sortableAttributes' => null,
+            'synonyms'           => null,
+        ];
+        $changes = $action('testing-synchronizes-index', $update1);
+        expect($changes)->toHaveCount(3);
 
-            // Grab default settings.
-            $defaults = Helpers::defaultSettings($version);
-            $default = $defaults['typoTolerance'];
+        foreach ($changes as $key => $value) {
+            $old = $settings[$key];
+            $new = $update1[$key];
+            expect($value)->toBe(compact('old', 'new'));
+        }
 
-            $update = ['enabled' => false];
-            $current = Arr::only($default, array_keys($update));
-            $updates = ['typoTolerance' => $update];
-            $expected = ['typoTolerance' => ['old' => $current, 'new' => $update]];
-            $changes = ($action)(self::INDEX, $updates);
-            $this->assertCount(1, $changes);
-            $this->assertCount(1, $changes['typoTolerance']['old']);
-            $this->assertCount(1, $changes['typoTolerance']['new']);
-            $this->assertSame($expected, $changes);
+        $update2 = [
+            'distinctAttribute'   => 'movie_id',
+            'displayedAttributes' => null,
+            'stopWords'           => null,
+        ];
+        $changes = $action('testing-synchronizes-index', $update2);
+        expect($changes)->toHaveCount(1);
 
-            // Attempting to do the same updates should result in zero changes.
-            $changes = ($action)(self::INDEX, $updates);
-            $this->assertCount(0, $changes);
+        foreach ($changes as $key => $value) {
+            $old = $settings[$key];
+            $new = $update2[$key];
+            expect($value)->toBe(compact('old', 'new'));
+        }
 
-            $default = array_replace($default, $update);
-            $update = [
-                'enabled'             => null,
-                'minWordSizeForTypos' => [
-                    'oneTypo'  => 2,
-                    'twoTypos' => 6,
-                ],
-            ];
-            $current = Arr::only($default, array_keys($update));
-            $updates = ['typoTolerance' => $update];
-            $expected = ['typoTolerance' => ['old' => $current, 'new' => $update]];
-            $changes = ($action)(self::INDEX, $updates);
-            $this->assertCount(1, $changes);
-            $this->assertCount(2, $changes['typoTolerance']['old']);
-            $this->assertCount(2, $changes['typoTolerance']['new']);
-            $this->assertSame($expected, $changes);
+        $update3 = [
+            'distinctAttribute'    => null,
+            'searchableAttributes' => null,
+            'displayedAttributes'  => null,
+            'stopWords'            => $settings['stopWords'],
+        ];
+        $changes = $action('testing-synchronizes-index', $update3);
+        expect($changes)->toHaveCount(3);
 
-            // Attempting to do the same updates should result in zero changes.
-            $changes = ($action)(self::INDEX, $updates);
-            $this->assertCount(0, $changes);
+        foreach ($changes as $key => $value) {
+            $old = $key === 'stopWords' ? $defaults[$key] : $settings[$key];
+            $new = $update3[$key];
+            expect($value)->toBe(compact('old', 'new'));
+        }
 
-            $default = array_replace($default, $update, Arr::only($defaults['typoTolerance'], 'enabled'));
-            $update = [
-                'minWordSizeForTypos' => null,
-                'disableOnWords'      => ['title', 'rank'],
-            ];
-            $current = Arr::only($default, array_keys($update));
-            $updates = ['typoTolerance' => $update];
-            sort($update['disableOnWords']); // List is sorted automatically before update.
-            $expected = ['typoTolerance' => ['old' => $current, 'new' => $update]];
-            $changes = ($action)(self::INDEX, $updates);
-            $this->assertCount(1, $changes);
-            $this->assertCount(2, $changes['typoTolerance']['old']);
-            $this->assertCount(2, $changes['typoTolerance']['new']);
-            $this->assertSame($expected, $changes);
+        $update4 = [
+            'displayedAttributes'  => null,
+            'distinctAttribute'    => null,
+            'filterableAttributes' => null,
+            'rankingRules'         => null,
+            'searchableAttributes' => null,
+            'sortableAttributes'   => null,
+            'stopWords'            => null,
+            'synonyms'             => null,
+        ];
+        $changes = $action('testing-synchronizes-index', $update4);
+        expect($changes)->toHaveCount(3);
 
-            // Attempting to do the same updates should result in zero changes.
-            $changes = ($action)(self::INDEX, $updates);
-            $this->assertCount(0, $changes);
+        foreach ($changes as $key => $value) {
+            $old = $settings[$key];
+            $new = $update4[$key];
+            expect($value)->toBe(compact('old', 'new'));
+        }
 
-            $default = array_replace($default, $update, Arr::only($defaults['typoTolerance'], 'minWordSizeForTypos'));
-            $update = [
-                'disableOnWords'      => null,
-                'disableOnAttributes' => ['title', 'rank'],
-            ];
-            $current = Arr::only($default, array_keys($update));
-            $updates = ['typoTolerance' => $update];
-            sort($update['disableOnAttributes']); // List is sorted automatically before update.
-            $expected = ['typoTolerance' => ['old' => $current, 'new' => $update]];
-            $changes = ($action)(self::INDEX, $updates);
-            $this->assertCount(1, $changes);
-            $this->assertCount(2, $changes['typoTolerance']['old']);
-            $this->assertCount(2, $changes['typoTolerance']['new']);
-            $this->assertSame($expected, $changes);
+        $changes = $action('testing-synchronizes-index', $update4);
+        expect($changes)->toBeEmpty();
+    });
+});
 
-            // Attempting to do the same updates should result in zero changes.
-            $changes = ($action)(self::INDEX, $updates);
-            $this->assertCount(0, $changes);
+/**
+ * Test SynchronizesIndex::__invoke() method with typo tolerance settings.
+ */
+test('with typo tolerance settings', function () {
+    $this->withIndex('testing-synchronizes-index', function () {
+        $action = app()->make(SynchronizesIndex::class);
 
-            $default = Arr::only($update, 'disableOnAttributes');
-            $update = [
-                'minWordSizeForTypos' => null,
-                'disableOnWords'      => null,
-                'disableOnAttributes' => null,
-            ];
-            $current = Arr::only($default, array_keys($update));
-            $updates = ['typoTolerance' => $update];
-            $expected = ['typoTolerance' => ['old' => $current, 'new' => Arr::only($update, 'disableOnAttributes')]];
-            $changes = ($action)(self::INDEX, $updates);
-            $this->assertCount(1, $changes);
-            $this->assertCount(1, $changes['typoTolerance']['old']);
-            $this->assertCount(1, $changes['typoTolerance']['new']);
-            $this->assertSame($expected, $changes);
+        // Grab default settings.
+        $defaults = Helpers::defaultSettings(Helpers::engineVersion());
+        $default = $defaults['typoTolerance'];
 
-            // Attempting to do the same updates should result in zero changes.
-            $changes = ($action)(self::INDEX, $updates);
-            $this->assertCount(0, $changes);
-        });
-    }
+        $update = ['enabled' => false];
+        $current = Arr::only($default, array_keys($update));
+        $updates = ['typoTolerance' => $update];
+        $expected = ['typoTolerance' => ['old' => $current, 'new' => $update]];
+        $changes = $action('testing-synchronizes-index', $updates);
+        expect($changes)->toHaveCount(1);
+        expect($changes['typoTolerance']['old'])->toHaveCount(1);
+        expect($changes['typoTolerance']['new'])->toHaveCount(1);
+        expect($changes)->toBe($expected);
 
-    /**
-     * Test SynchronizesIndex::__invoke() method with pretend.
-     */
-    public function test_with_pretend(): void
-    {
-        $this->withIndex(self::INDEX, function () {
-            $action = $this->app->make(SynchronizesIndex::class);
+        // Attempting to do the same updates should result in zero changes.
+        $changes = $action('testing-synchronizes-index', $updates);
+        expect($changes)->toHaveCount(0);
 
-            $changes = ($action)(self::INDEX, []);
-            $this->assertSame([], $changes);
+        $default = array_replace($default, $update);
+        $update = [
+            'enabled'             => null,
+            'minWordSizeForTypos' => [
+                'oneTypo'  => 2,
+                'twoTypos' => 6,
+            ],
+        ];
+        $current = Arr::only($default, array_keys($update));
+        $updates = ['typoTolerance' => $update];
+        $expected = ['typoTolerance' => ['old' => $current, 'new' => $update]];
+        $changes = $action('testing-synchronizes-index', $updates);
+        expect($changes)->toHaveCount(1);
+        expect($changes['typoTolerance']['old'])->toHaveCount(2);
+        expect($changes['typoTolerance']['new'])->toHaveCount(2);
+        expect($changes)->toBe($expected);
 
-            $defaults = Helpers::defaultSettings(Helpers::engineVersion());
-            $settings = Tools::movieSettings();
+        // Attempting to do the same updates should result in zero changes.
+        $changes = $action('testing-synchronizes-index', $updates);
+        expect($changes)->toHaveCount(0);
 
-            $changes = ($action)(self::INDEX, $settings, true);
-            $this->assertCount(8, $changes);
+        $default = array_replace($default, $update, Arr::only($defaults['typoTolerance'], 'enabled'));
+        $update = [
+            'minWordSizeForTypos' => null,
+            'disableOnWords'      => ['title', 'rank'],
+        ];
+        $current = Arr::only($default, array_keys($update));
+        $updates = ['typoTolerance' => $update];
+        sort($update['disableOnWords']); // List is sorted automatically before update.
+        $expected = ['typoTolerance' => ['old' => $current, 'new' => $update]];
+        $changes = $action('testing-synchronizes-index', $updates);
+        expect($changes)->toHaveCount(1);
+        expect($changes['typoTolerance']['old'])->toHaveCount(2);
+        expect($changes['typoTolerance']['new'])->toHaveCount(2);
+        expect($changes)->toBe($expected);
 
-            foreach ($changes as $key => $value) {
-                $old = $defaults[$key];
-                $new = $settings[$key];
-                $this->assertSame(compact('old', 'new'), $value);
-            }
+        // Attempting to do the same updates should result in zero changes.
+        $changes = $action('testing-synchronizes-index', $updates);
+        expect($changes)->toHaveCount(0);
 
-            $update = [
-                'displayedAttributes'  => null,
-                'distinctAttribute'    => null,
-                'filterableAttributes' => null,
-                'rankingRules'         => null,
-                'searchableAttributes' => null,
-                'sortableAttributes'   => null,
-                'stopWords'            => null,
-                'synonyms'             => null,
-            ];
-            $changes = ($action)(self::INDEX, $update);
-            $this->assertEmpty($changes);
-        });
-    }
-}
+        $default = array_replace($default, $update, Arr::only($defaults['typoTolerance'], 'minWordSizeForTypos'));
+        $update = [
+            'disableOnWords'      => null,
+            'disableOnAttributes' => ['title', 'rank'],
+        ];
+        $current = Arr::only($default, array_keys($update));
+        $updates = ['typoTolerance' => $update];
+        sort($update['disableOnAttributes']); // List is sorted automatically before update.
+        $expected = ['typoTolerance' => ['old' => $current, 'new' => $update]];
+        $changes = $action('testing-synchronizes-index', $updates);
+        expect($changes)->toHaveCount(1);
+        expect($changes['typoTolerance']['old'])->toHaveCount(2);
+        expect($changes['typoTolerance']['new'])->toHaveCount(2);
+        expect($changes)->toBe($expected);
+
+        // Attempting to do the same updates should result in zero changes.
+        $changes = $action('testing-synchronizes-index', $updates);
+        expect($changes)->toHaveCount(0);
+
+        $default = Arr::only($update, 'disableOnAttributes');
+        $update = [
+            'minWordSizeForTypos' => null,
+            'disableOnWords'      => null,
+            'disableOnAttributes' => null,
+        ];
+        $current = Arr::only($default, array_keys($update));
+        $updates = ['typoTolerance' => $update];
+        $expected = ['typoTolerance' => ['old' => $current, 'new' => Arr::only($update, 'disableOnAttributes')]];
+        $changes = $action('testing-synchronizes-index', $updates);
+        expect($changes)->toHaveCount(1);
+        expect($changes['typoTolerance']['old'])->toHaveCount(1);
+        expect($changes['typoTolerance']['new'])->toHaveCount(1);
+        expect($changes)->toBe($expected);
+
+        // Attempting to do the same updates should result in zero changes.
+        $changes = $action('testing-synchronizes-index', $updates);
+        expect($changes)->toHaveCount(0);
+    });
+});
+
+/**
+ * Test SynchronizesIndex::__invoke() method with pretend.
+ */
+test('with pretend', function () {
+    $this->withIndex('testing-synchronizes-index', function () {
+        $action = app()->make(SynchronizesIndex::class);
+
+        $changes = $action('testing-synchronizes-index', []);
+        expect($changes)->toBe([]);
+
+        $defaults = Helpers::defaultSettings(Helpers::engineVersion());
+        $settings = Tools::movieSettings();
+
+        $changes = $action('testing-synchronizes-index', $settings, true);
+        expect($changes)->toHaveCount(8);
+
+        foreach ($changes as $key => $value) {
+            $old = $defaults[$key];
+            $new = $settings[$key];
+            expect($value)->toBe(compact('old', 'new'));
+        }
+
+        $update = [
+            'displayedAttributes'  => null,
+            'distinctAttribute'    => null,
+            'filterableAttributes' => null,
+            'rankingRules'         => null,
+            'searchableAttributes' => null,
+            'sortableAttributes'   => null,
+            'stopWords'            => null,
+            'synonyms'             => null,
+        ];
+        $changes = $action('testing-synchronizes-index', $update);
+        expect($changes)->toBeEmpty();
+    });
+});
