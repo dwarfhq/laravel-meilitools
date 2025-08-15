@@ -19,8 +19,8 @@ trait ExtractsIndexInformation
         return [
             'uid'        => $index->getUid(),
             'primaryKey' => $index->getPrimaryKey(),
-            'createdAt'  => $index->getCreatedAt(),
-            'updatedAt'  => $index->getUpdatedAt(),
+            'createdAt'  => (string) $index->getCreatedAt(),
+            'updatedAt'  => (string) $index->getUpdatedAt(),
         ] + ($stats ? $index->stats() : []);
     }
 }
