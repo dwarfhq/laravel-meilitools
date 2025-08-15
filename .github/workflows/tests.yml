@@ -63,6 +63,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          git config --global --add safe.directory /__w/laravel-meilitools/laravel-meilitools
           composer require "orchestra/testbench:^${{ matrix.testbench }}" --no-interaction --no-update
           composer update --${{ matrix.version }} --prefer-dist --no-interaction
 
