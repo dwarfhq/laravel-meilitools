@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use BadMethodCallException;
 use Dwarf\MeiliTools\Contracts\Actions\DetailsModel;
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesModels;
 use Dwarf\MeiliTools\Helpers;
