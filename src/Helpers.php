@@ -161,7 +161,7 @@ class Helpers
     public static function export($value): string
     {
         if (class_exists(VarExporter::class)) {
-            return VarExporter::export($value, VarExporter::INLINE_NUMERIC_SCALAR_ARRAY);
+            return VarExporter::export($value, VarExporter::INLINE_SCALAR_LIST);
         }
 
         return var_export($value, true);

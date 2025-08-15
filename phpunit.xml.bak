@@ -1,20 +1,32 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <phpunit
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd"
+    backupGlobals="false"
+    backupStaticAttributes="false"
+    beStrictAboutTestsThatDoNotTestAnything="false"
     bootstrap="vendor/autoload.php"
     colors="true"
+    convertDeprecationsToExceptions="true"
+    convertErrorsToExceptions="true"
+    convertNoticesToExceptions="true"
+    convertWarningsToExceptions="true"
+    processIsolation="false"
+    stopOnFailure="false"
 >
+    <coverage processUncoveredFiles="true">
+        <include>
+            <directory suffix=".php">src</directory>
+        </include>
+    </coverage>
     <testsuites>
         <testsuite name="Tests">
             <directory suffix="Test.php">./tests</directory>
         </testsuite>
     </testsuites>
-    <source>
-        <include>
-            <directory suffix=".php">src</directory>
-        </include>
-    </source>
+    <logging>
+        <testdoxText outputFile=".phpunit.result.log" />
+    </logging>
     <php>
         <env name="APP_ENV" value="testing" />
         <env name="APP_KEY" value="AckfSECXIvnK5r28GVIWUAxmbBSjTsmF" />
