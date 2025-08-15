@@ -58,8 +58,6 @@ class TestCase extends BaseTestCase
      *
      * @param string $index   Index name.
      * @param array  $options Index options.
-     *
-     * @return void
      */
     protected function createIndex(string $index, array $options = []): void
     {
@@ -72,8 +70,6 @@ class TestCase extends BaseTestCase
      * Delete index and wait for task completion.
      *
      * @param string $index Index name.
-     *
-     * @return void
      */
     protected function deleteIndex(string $index): void
     {

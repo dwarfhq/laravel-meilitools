@@ -20,10 +20,8 @@ class ValidatesIndexSettingsTest extends TestCase
 {
     /**
      * Test ValidatesIndexSettings::rules() method.
-     *
-     * @return void
      */
-    public function testRules(): void
+    public function test_rules(): void
     {
         $action = $this->app->make(ValidatesIndexSettings::class);
         $version = Helpers::engineVersion() ?: '0.0.0';
@@ -92,10 +90,8 @@ class ValidatesIndexSettingsTest extends TestCase
      * @dataProvider passesProvider
      *
      * @param callable $data Callable with test data.
-     *
-     * @return void
      */
-    public function testPasses(callable $data): void
+    public function test_passes(callable $data): void
     {
         $action = $this->app->make(ValidatesIndexSettings::class);
 
@@ -117,10 +113,8 @@ class ValidatesIndexSettingsTest extends TestCase
      * @dataProvider passesTypoToleranceProvider
      *
      * @param callable $data Callable with test data.
-     *
-     * @return void
      */
-    public function testPassesTypoTolerance(callable $data): void
+    public function test_passes_typo_tolerance(callable $data): void
     {
         // Check if test should be run on this engine version.
         $version = Helpers::engineVersion() ?: '0.0.0';
@@ -146,8 +140,6 @@ class ValidatesIndexSettingsTest extends TestCase
      * Data provider for ValidateStylesAction::passes().
      *
      * Using yield for better overview, and closures so Laravel facades work during tests.
-     *
-     * @return iterable
      */
     public function passesProvider(): iterable
     {
@@ -338,8 +330,6 @@ class ValidatesIndexSettingsTest extends TestCase
      * Data provider for ValidateStylesAction::passes().
      *
      * Using yield for better overview, and closures so Laravel facades work during tests.
-     *
-     * @return iterable
      */
     public function passesTypoToleranceProvider(): iterable
     {

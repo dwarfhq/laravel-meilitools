@@ -28,7 +28,6 @@ class IndexCreate extends Command
     /**
      * Execute the console command.
      *
-     * @param \Dwarf\MeiliTools\Contracts\Actions\CreatesIndex $createIndex
      *
      * @return int
      */

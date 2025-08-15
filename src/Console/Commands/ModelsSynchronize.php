@@ -34,8 +34,6 @@ class ModelsSynchronize extends Command
     /**
      * Execute the console command.
      *
-     * @param \Dwarf\MeiliTools\Contracts\Actions\ListsClasses       $listClasses
-     * @param \Dwarf\MeiliTools\Contracts\Actions\SynchronizesModels $synchronizeModels
      *
      * @return int
      */

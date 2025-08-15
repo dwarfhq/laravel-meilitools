@@ -15,10 +15,8 @@ class ListsClassesTest extends TestCase
 {
     /**
      * Test listing models using absolute and relative paths.
-     *
-     * @return void
      */
-    public function testPathListing(): void
+    public function test_path_listing(): void
     {
         $action = $this->app->make(ListsClasses::class);
 

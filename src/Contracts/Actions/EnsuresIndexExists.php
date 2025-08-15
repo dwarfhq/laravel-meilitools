@@ -14,8 +14,6 @@ interface EnsuresIndexExists
      *
      * @param string $index   Index name.
      * @param array  $options Index options.
-     *
-     * @return void
      */
     public function __invoke(string $index, array $options = []): void;
 }

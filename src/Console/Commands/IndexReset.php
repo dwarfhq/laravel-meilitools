@@ -31,7 +31,6 @@ class IndexReset extends Command
     /**
      * Execute the console command.
      *
-     * @param \Dwarf\MeiliTools\Contracts\Actions\ResetsIndex $resetIndex
      *
      * @return int
      */

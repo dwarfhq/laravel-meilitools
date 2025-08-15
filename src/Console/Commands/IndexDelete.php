@@ -32,7 +32,6 @@ class IndexDelete extends Command
     /**
      * Execute the console command.
      *
-     * @param \Dwarf\MeiliTools\Contracts\Actions\DeletesIndex $deleteIndex
      *
      * @return int
      */

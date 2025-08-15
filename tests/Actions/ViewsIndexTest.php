@@ -25,10 +25,8 @@ class ViewsIndexTest extends TestCase
 
     /**
      * Test using wrong Scout driver.
-     *
-     * @return void
      */
-    public function testMeiliToolsException(): void
+    public function test_meili_tools_exception(): void
     {
         config(['scout.driver' => null]);
 
@@ -40,10 +38,8 @@ class ViewsIndexTest extends TestCase
 
     /**
      * Test getting index information when MeiliSearch isn't running.
-     *
-     * @return void
      */
-    public function testCommunicationException(): void
+    public function test_communication_exception(): void
     {
         config(['scout.meilisearch.host' => 'http://localhost:7777']);
 
@@ -56,10 +52,8 @@ class ViewsIndexTest extends TestCase
 
     /**
      * Test getting index information when it doesn't exist.
-     *
-     * @return void
      */
-    public function testApiException(): void
+    public function test_api_exception(): void
     {
         $this->expectException(ApiException::class);
         $this->expectExceptionMessage('Index `' . self::INDEX . '` not found.');
@@ -70,10 +64,8 @@ class ViewsIndexTest extends TestCase
 
     /**
      * Test ViewsIndex::__invoke() method.
-     *
-     * @return void
      */
-    public function testInvoke(): void
+    public function test_invoke(): void
     {
         $this->withIndex(self::INDEX, function () {
             $action = $this->app->make(ViewsIndex::class);
@@ -91,10 +83,8 @@ class ViewsIndexTest extends TestCase
 
     /**
      * Test ViewsIndex::__invoke() method with stats.
-     *
-     * @return void
      */
-    public function testInvokeWithStats(): void
+    public function test_invoke_with_stats(): void
     {
         $this->withIndex(self::INDEX, function () {
             $action = $this->app->make(ViewsIndex::class);

@@ -22,10 +22,8 @@ class SynchronizesModelTest extends TestCase
 {
     /**
      * Test SynchronizesModel::__invoke() method with invalid model.
-     *
-     * @return void
      */
-    public function testWithInvalidModel(): void
+    public function test_with_invalid_model(): void
     {
         $this->expectException(BadMethodCallException::class);
         $this->expectExceptionMessage('Call to undefined method ' . Movie::class . '::meiliSettings()');
@@ -35,10 +33,8 @@ class SynchronizesModelTest extends TestCase
 
     /**
      * Test SynchronizesModel::__invoke() method with invalid settings.
-     *
-     * @return void
      */
-    public function testWithInvalidSettings(): void
+    public function test_with_invalid_settings(): void
     {
         $version = app()->version();
         $message = 'The distinct attribute field must be a string.';
@@ -57,10 +53,8 @@ class SynchronizesModelTest extends TestCase
 
     /**
      * Test SynchronizesModel::__invoke() method with advanced settings.
-     *
-     * @return void
      */
-    public function testWithAdvancedSettings(): void
+    public function test_with_advanced_settings(): void
     {
         try {
             $defaults = Helpers::defaultSettings(Helpers::engineVersion());
@@ -91,10 +85,8 @@ class SynchronizesModelTest extends TestCase
 
     /**
      * Test SynchronizesModel::__invoke() method with pretend option.
-     *
-     * @return void
      */
-    public function testWithPretend(): void
+    public function test_with_pretend(): void
     {
         try {
             $defaults = Helpers::defaultSettings(Helpers::engineVersion());
@@ -125,10 +117,8 @@ class SynchronizesModelTest extends TestCase
 
     /**
      * Test SynchronizesModel::__invoke() method with soft deletes enabled.
-     *
-     * @return void
      */
-    public function testWithSoftDeletesEnabled(): void
+    public function test_with_soft_deletes_enabled(): void
     {
         config(['scout.soft_delete' => true]);
 

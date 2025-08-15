@@ -20,10 +20,8 @@ class IndexesListTest extends TestCase
 
     /**
      * Test `meili:indexes:list` command with default settings.
-     *
-     * @return void
      */
-    public function testWithDefaultSettings(): void
+    public function test_with_default_settings(): void
     {
         $this->withIndex(self::INDEX, function () {
             // Since data returned from MeiliSearch includes microsecond precision timestamps,
@@ -37,10 +35,8 @@ class IndexesListTest extends TestCase
 
     /**
      * Test `meili:indexes:list` command with stats option.
-     *
-     * @return void
      */
-    public function testWithStats(): void
+    public function test_with_stats(): void
     {
         $this->withIndex(self::INDEX, function () {
             // Since data returned from MeiliSearch includes microsecond precision timestamps,

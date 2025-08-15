@@ -18,8 +18,6 @@ class ListIndexes implements ListsIndexes
 
     /**
      * Scout engine manager.
-     *
-     * @var \Laravel\Scout\EngineManager
      */
     protected EngineManager $manager;
 
@@ -46,6 +44,7 @@ class ListIndexes implements ListsIndexes
         Helpers::throwUnlessMeiliSearch();
 
         $indexes = $this->manager->engine()->getAllIndexes()->getResults();
+
         // Convert iterator objects from contract to array.
         return collect($indexes)
             ->mapWithKeys(fn (Indexes $index) => [$index->getUid() => $this->getIndexData($index, $stats)])

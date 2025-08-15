@@ -13,8 +13,6 @@ trait ExtractsIndexInformation
      *
      * @param \MeiliSearch\Endpoints\Indexes $index Index.
      * @param bool                           $stats Whether to include stats.
-     *
-     * @return array
      */
     protected function getIndexData(Indexes $index, bool $stats = false): array
     {

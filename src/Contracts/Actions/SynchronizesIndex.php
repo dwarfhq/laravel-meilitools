@@ -14,8 +14,6 @@ interface SynchronizesIndex
      *
      * @param string $index    Index name.
      * @param array  $settings Index settings.
-     *
-     * @return array
      */
     public function __invoke(string $index, array $settings): array;
 }

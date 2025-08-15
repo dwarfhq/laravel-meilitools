@@ -17,8 +17,6 @@ class Helpers
 {
     /**
      * Whether Scout is using the MeiliSearch driver.
-     *
-     * @return bool
      */
     public static function usingMeiliSearch(): bool
     {
@@ -29,8 +27,6 @@ class Helpers
      * Throw exception unless Scout is using the MeiliSearch driver.
      *
      * @throws \Dwarf\MeiliTools\Exceptions\MeiliToolsException
-     *
-     * @return void
      */
     public static function throwUnlessMeiliSearch(): void
     {
@@ -45,8 +41,6 @@ class Helpers
      * Default MeiliSearch index settings.
      *
      * @param string|null $version MeiliSearch engine version.
-     *
-     * @return array
      */
     public static function defaultSettings(?string $version = null): array
     {
@@ -94,8 +88,6 @@ class Helpers
      * so we do it the same way to correctly compare data.
      *
      * @param array $settings Settings.
-     *
-     * @return array
      */
     public static function sortSettings(array $settings): array
     {
@@ -147,8 +139,6 @@ class Helpers
 
     /**
      * Get MeiliSearch engine version.
-     *
-     * @return string|null
      */
     public static function engineVersion(): ?string
     {
@@ -167,8 +157,6 @@ class Helpers
      * Export value to a string.
      *
      * @param mixed $value
-     *
-     * @return string
      */
     public static function export($value): string
     {
@@ -183,8 +171,6 @@ class Helpers
      * Convert index data to table array.
      *
      * @param array $data Key / value array.
-     *
-     * @return array
      */
     public static function convertIndexDataToTable(array $data): array
     {
@@ -204,8 +190,6 @@ class Helpers
      * Convert index changes to table array.
      *
      * @param array $changes Key / value array.
-     *
-     * @return array
      */
     public static function convertIndexChangesToTable(array $changes): array
     {
@@ -226,22 +210,19 @@ class Helpers
      * Guess the model namespace using the configured paths.
      *
      * @param string $model Name of the model.
-     *
-     * @return string
      */
     public static function guessModelNamespace(string $model): string
     {
         return collect(config('meilitools.paths'))
             ->map(fn (string $path) => $path . '\\')
-            ->first(fn (string $path) => class_exists($path . $model)) . $model;
+            ->first(fn (string $path) => class_exists($path . $model)) . $model
+        ;
     }
 
     /**
      * Determine if the given model uses soft deletes and soft deletes are enabled for Scout.
      *
      * @param \Illuminate\Database\Eloquent\Model|string $model
-     *
-     * @return bool
      */
     public static function usesSoftDelete($model): bool
     {

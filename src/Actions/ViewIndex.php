@@ -18,8 +18,6 @@ class ViewIndex implements ViewsIndex
 
     /**
      * Scout engine manager.
-     *
-     * @var \Laravel\Scout\EngineManager
      */
     protected EngineManager $manager;
 

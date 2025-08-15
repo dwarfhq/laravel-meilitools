@@ -15,8 +15,6 @@ class SynchronizeModels implements SynchronizesModels
 {
     /**
      * Synchronizes index action.
-     *
-     * @var \Dwarf\MeiliTools\Contracts\Actions\SynchronizesModel
      */
     protected SynchronizesModel $synchronizeModel;
 

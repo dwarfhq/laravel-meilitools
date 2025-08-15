@@ -13,8 +13,6 @@ interface DetailsModel
      * Get extensive model index details.
      *
      * @param string $class Model class.
-     *
-     * @return array
      */
     public function __invoke(string $class): array;
 }

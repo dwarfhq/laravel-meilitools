@@ -20,10 +20,8 @@ class IndexDeleteTest extends TestCase
 
     /**
      * Test `meili:index:delete` command with default settings.
-     *
-     * @return void
      */
-    public function testWithDefaultSettings(): void
+    public function test_with_default_settings(): void
     {
         $this->withIndex(self::INDEX, function () {
             $this->artisan('meili:index:delete')
@@ -42,10 +40,8 @@ class IndexDeleteTest extends TestCase
 
     /**
      * Test `meili:index:delete` command with specified name.
-     *
-     * @return void
      */
-    public function testWithSpecifiedName(): void
+    public function test_with_specified_name(): void
     {
         $this->withIndex(self::INDEX, function () {
             $this->artisan('meili:index:delete', ['index' => self::INDEX])
@@ -62,10 +58,8 @@ class IndexDeleteTest extends TestCase
 
     /**
      * Test `meili:index:delete` command with force option.
-     *
-     * @return void
      */
-    public function testWithForceOption(): void
+    public function test_with_force_option(): void
     {
         $this->withIndex(self::INDEX, function () {
             $this->artisan('meili:index:delete', ['index' => self::INDEX, '--force' => true])

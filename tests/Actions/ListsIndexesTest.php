@@ -24,10 +24,8 @@ class ListsIndexesTest extends TestCase
 
     /**
      * Test using wrong Scout driver.
-     *
-     * @return void
      */
-    public function testMeiliToolsException(): void
+    public function test_meili_tools_exception(): void
     {
         config(['scout.driver' => null]);
 
@@ -39,10 +37,8 @@ class ListsIndexesTest extends TestCase
 
     /**
      * Test getting index list when MeiliSearch isn't running.
-     *
-     * @return void
      */
-    public function testCommunicationException(): void
+    public function test_communication_exception(): void
     {
         config(['scout.meilisearch.host' => 'http://localhost:7777']);
 
@@ -55,10 +51,8 @@ class ListsIndexesTest extends TestCase
 
     /**
      * Test ListsIndexes::__invoke() method.
-     *
-     * @return void
      */
-    public function testInvoke(): void
+    public function test_invoke(): void
     {
         $this->withIndex(self::INDEX, function () {
             $action = $this->app->make(ListsIndexes::class);
@@ -77,10 +71,8 @@ class ListsIndexesTest extends TestCase
 
     /**
      * Test ListsIndexes::__invoke() method with stats.
-     *
-     * @return void
      */
-    public function testInvokeWithStats(): void
+    public function test_invoke_with_stats(): void
     {
         $this->withIndex(self::INDEX, function () {
             $action = $this->app->make(ListsIndexes::class);

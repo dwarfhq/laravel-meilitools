@@ -25,8 +25,6 @@ class MeiliToolsScoutServiceProvider extends ServiceProvider
 {
     /**
      * Actions to bind.
-     *
-     * @var array
      */
     public array $bindings = [
         DetailsModel::class       => DetailModel::class,
@@ -45,8 +43,6 @@ class MeiliToolsScoutServiceProvider extends ServiceProvider
 
     /**
      * Register the application services.
-     *
-     * @return void
      */
     public function register(): void
     {
@@ -55,8 +51,6 @@ class MeiliToolsScoutServiceProvider extends ServiceProvider
 
     /**
      * Bootstrap the application services.
-     *
-     * @return void
      */
     public function boot(): void
     {

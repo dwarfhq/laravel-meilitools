@@ -24,10 +24,8 @@ class IndexDetailsTest extends TestCase
 
     /**
      * Test `meili:index:details` command with default settings.
-     *
-     * @return void
      */
-    public function testWithDefaultSettings(): void
+    public function test_with_default_settings(): void
     {
         $this->withIndex(self::INDEX, function () {
             $values = Helpers::convertIndexDataToTable(Helpers::defaultSettings(Helpers::engineVersion()));
@@ -47,10 +45,8 @@ class IndexDetailsTest extends TestCase
 
     /**
      * Test `meili:index:details` command with advanced settings.
-     *
-     * @return void
      */
-    public function testWithAdvancedSettings(): void
+    public function test_with_advanced_settings(): void
     {
         $this->withIndex(self::INDEX, function () {
             $defaults = Helpers::defaultSettings(Helpers::engineVersion());
