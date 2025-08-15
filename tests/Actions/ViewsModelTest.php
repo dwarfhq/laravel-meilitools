@@ -7,10 +7,6 @@ use Dwarf\MeiliTools\Tests\Models\Movie;
 use Illuminate\Testing\Fluent\AssertableJson;
 
 /**
- * @internal
- */
-
-/**
  * Test ViewsModel::__invoke() method.
  */
 test('invoke', function () {

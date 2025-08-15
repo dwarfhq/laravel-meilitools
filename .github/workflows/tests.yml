@@ -55,6 +55,9 @@ jobs:
           MEILI_MASTER_KEY: MeiliToolsMasterKey
           MEILI_NO_ANALYTICS: "true"
 
+    env:
+      MEILISEARCH_HOST: "http://meilisearch:7700"
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

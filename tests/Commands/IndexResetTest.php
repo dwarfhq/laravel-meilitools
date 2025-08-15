@@ -8,20 +8,16 @@ use Dwarf\MeiliTools\Helpers;
 use Dwarf\MeiliTools\Tests\Tools;
 
 /**
- * @internal
- */
-
-/**
  * Test `meili:index:reset` command with advanced settings.
  */
 test('with advanced settings', function () {
-    $this->withIndex(self::INDEX, function () {
+    $this->withIndex('testing-resets-index', function () {
         $defaults = Helpers::defaultSettings(Helpers::engineVersion());
         $settings = Tools::movieSettings();
 
-        app()->make(SynchronizesIndex::class)(self::INDEX, $settings);
-        $details = app()->make(DetailsIndex::class)(self::INDEX);
-        $this->assertNotSame($defaults, $details);
+        app()->make(SynchronizesIndex::class)('testing-resets-index', $settings);
+        $details = app()->make(DetailsIndex::class)('testing-resets-index');
+        expect($details)->not->toBe($defaults);
         expect($details)->toBe(array_replace($defaults, $settings));
 
         $changes = collect($settings)
@@ -36,18 +32,18 @@ test('with advanced settings', function () {
         ;
         $values = Helpers::convertIndexChangesToTable($changes);
 
-        $this->artisan('meili:index:reset', ['index' => self::INDEX])
+        $this->artisan('meili:index:reset', ['index' => 'testing-resets-index'])
             ->expectsTable(['Setting', 'Old', 'New'], $values)
             ->assertSuccessful()
         ;
 
         $this->artisan('meili:index:reset')
-            ->expectsQuestion('What is the index name?', self::INDEX)
+            ->expectsQuestion('What is the index name?', 'testing-resets-index')
             ->expectsTable(['Setting', 'Old', 'New'], [])
             ->assertSuccessful()
         ;
 
-        $details = app()->make(DetailsIndex::class)(self::INDEX);
+        $details = app()->make(DetailsIndex::class)('testing-resets-index');
         expect($details)->toBe($defaults);
     });
 });
@@ -56,13 +52,13 @@ test('with advanced settings', function () {
  * Test `meili:index:reset` command with pretend option.
  */
 test('with pretend', function () {
-    $this->withIndex(self::INDEX, function () {
+    $this->withIndex('testing-resets-index', function () {
         $defaults = Helpers::defaultSettings(Helpers::engineVersion());
         $settings = Tools::movieSettings();
 
-        app()->make(SynchronizesIndex::class)(self::INDEX, $settings);
-        $details = app()->make(DetailsIndex::class)(self::INDEX);
-        $this->assertNotSame($defaults, $details);
+        app()->make(SynchronizesIndex::class)('testing-resets-index', $settings);
+        $details = app()->make(DetailsIndex::class)('testing-resets-index');
+        expect($details)->not->toBe($defaults);
         expect($details)->toBe(array_replace($defaults, $settings));
 
         $changes = collect($settings)
@@ -77,12 +73,12 @@ test('with pretend', function () {
         ;
         $values = Helpers::convertIndexChangesToTable($changes);
 
-        $this->artisan('meili:index:reset', ['index' => self::INDEX, '--pretend' => true])
+        $this->artisan('meili:index:reset', ['index' => 'testing-resets-index', '--pretend' => true])
             ->expectsTable(['Setting', 'Old', 'New'], $values)
             ->assertSuccessful()
         ;
 
-        $details = app()->make(DetailsIndex::class)(self::INDEX);
-        $this->assertNotSame($defaults, $details);
+        $details = app()->make(DetailsIndex::class)('testing-resets-index');
+        expect($details)->not->toBe($defaults);
     });
 });

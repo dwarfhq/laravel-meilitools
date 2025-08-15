@@ -9,10 +9,6 @@ use Dwarf\MeiliTools\Tests\Models\Movie;
 use Illuminate\Support\Arr;
 
 /**
- * @internal
- */
-
-/**
  * Test `meili:model:details` command with default settings.
  */
 test('with default settings', function () {

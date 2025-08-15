@@ -6,30 +6,21 @@ use Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists;
 use Dwarf\MeiliTools\Exceptions\MeiliToolsException;
 
 /**
- * @internal
- */
-
-/**
  * Test using wrong Scout driver.
  */
 test('meili tools exception', function () {
     config(['scout.driver' => null]);
 
-    $this->expectException(MeiliToolsException::class);
-
-    $action = app()->make(EnsuresIndexExists::class);
-    $details = ($action)(self::INDEX);
-});
+    app()->make(EnsuresIndexExists::class)('testing-ensures-index');
+})->throws(MeiliToolsException::class);
 
 /**
  * Test EnsuresIndexExists::__invoke() method.
- *
- * @doesNotPerformAssertions
  */
 test('invoke', function () {
     try {
-        app()->make(EnsuresIndexExists::class)(self::INDEX);
+        app()->make(EnsuresIndexExists::class)('testing-ensures-index');
     } finally {
-        $this->deleteIndex(self::INDEX);
+        $this->deleteIndex('testing-ensures-index');
     }
-});
+})->throwsNoExceptions();

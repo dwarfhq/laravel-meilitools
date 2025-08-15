@@ -10,10 +10,6 @@ use Dwarf\MeiliTools\Tests\Models\Movie;
 use Illuminate\Support\Arr;
 
 /**
- * @internal
- */
-
-/**
  * Test SynchronizesModels::__invoke() method with advanced settings.
  */
 test('with advanced settings', function () {

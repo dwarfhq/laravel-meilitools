@@ -1,6 +1,8 @@
 <?php
 
-uses(\Dwarf\MeiliTools\Tests\TestCase::class)->in('Actions', 'Commands', 'Models', 'Support');
+use Dwarf\MeiliTools\Tests\TestCase;
+
+uses(TestCase::class)->in('Actions', 'Commands', 'Support');
 
 /*
 |--------------------------------------------------------------------------

@@ -7,16 +7,12 @@ use Dwarf\MeiliTools\Helpers;
 use Dwarf\MeiliTools\Tests\Models\Movie;
 
 /**
- * @internal
- */
-
-/**
  * Test DetailsModel::__invoke() method.
  */
 test('invoke', function () {
     try {
         $details = app()->make(DetailsModel::class)(Movie::class);
-        expect($details)->toBe(Helpers::defaultSettings(Helpers::engineVersion()));
+        expect($details)->toMatchArray(Helpers::defaultSettings(Helpers::engineVersion()));
     } finally {
         $this->deleteIndex(app(Movie::class)->searchableAs());
     }

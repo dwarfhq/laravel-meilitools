@@ -8,10 +8,6 @@ use Dwarf\MeiliTools\Helpers;
 use Dwarf\MeiliTools\Tests\Models\MeiliMovie;
 
 /**
- * @internal
- */
-
-/**
  * Test `meili:model:reset` command with advanced settings.
  */
 test('with advanced settings', function () {
@@ -21,7 +17,7 @@ test('with advanced settings', function () {
 
         app()->make(SynchronizesModel::class)(MeiliMovie::class);
         $details = app()->make(DetailsModel::class)(MeiliMovie::class);
-        $this->assertNotSame($defaults, $details);
+        expect($details)->not->toBe($defaults);
         expect($details)->toBe(array_replace($defaults, $settings));
 
         $changes = collect($settings)
@@ -70,7 +66,7 @@ test('with pretend', function () {
 
         app()->make(SynchronizesModel::class)(MeiliMovie::class);
         $details = app()->make(DetailsModel::class)(MeiliMovie::class);
-        $this->assertNotSame($defaults, $details);
+        expect($details)->not->toBe($defaults);
         expect($details)->toBe(array_replace($defaults, $settings));
 
         $changes = collect($settings)
@@ -91,7 +87,7 @@ test('with pretend', function () {
         ;
 
         $details = app()->make(DetailsModel::class)(MeiliMovie::class);
-        $this->assertNotSame($defaults, $details);
+        expect($details)->not->toBe($defaults);
     } finally {
         $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
     }

@@ -12,37 +12,19 @@ use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
 
 /**
- * @internal
- */
-
-/**
  * Test SynchronizesModel::__invoke() method with invalid model.
  */
 test('with invalid model', function () {
-    $this->expectException(BadMethodCallException::class);
-    $this->expectExceptionMessage('Call to undefined method ' . Movie::class . '::meiliSettings()');
-
     app()->make(SynchronizesModel::class)(Movie::class);
-});
+})->throws(BadMethodCallException::class, 'Call to undefined method ' . Movie::class . '::meiliSettings()');
 
 /**
  * Test SynchronizesModel::__invoke() method with invalid settings.
  */
 test('with invalid settings', function () {
-    $version = app()->version();
-    $message = 'The distinct attribute field must be a string.';
-    if (version_compare($version, '10.0.0', '<')) {
-        $message = 'The distinct attribute must be a string.';
-    }
-    if (version_compare($version, '9.0.0', '<')) {
-        $message = 'The given data was invalid.';
-    }
-    $this->expectException(ValidationException::class);
-    $this->expectExceptionMessage($message);
-
     app()->make(SynchronizesModel::class)(BrokenMovie::class);
     $this->deleteIndex(app(BrokenMovie::class)->searchableAs());
-});
+})->throws(ValidationException::class, 'The distinct attribute field must be a string.');
 
 /**
  * Test SynchronizesModel::__invoke() method with advanced settings.

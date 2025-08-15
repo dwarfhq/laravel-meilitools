@@ -8,20 +8,13 @@ use Illuminate\Testing\Fluent\AssertableJson;
 use MeiliSearch\Exceptions\CommunicationException;
 
 /**
- * @internal
- */
-
-/**
  * Test using wrong Scout driver.
  */
 test('meili tools exception', function () {
     config(['scout.driver' => null]);
 
-    $this->expectException(MeiliToolsException::class);
-
-    $action = app()->make(CreatesIndex::class);
-    $info = ($action)(self::INDEX);
-});
+    app()->make(CreatesIndex::class)('testing-creates-index');
+})->throws(MeiliToolsException::class);
 
 /**
  * Test creating index when MeiliSearch isn't running.
@@ -29,30 +22,25 @@ test('meili tools exception', function () {
 test('communication exception', function () {
     config(['scout.meilisearch.host' => 'http://localhost:7777']);
 
-    $this->expectException(CommunicationException::class);
-    $this->expectExceptionMessage('Failed to connect to localhost port 7777');
-
-    $action = app()->make(CreatesIndex::class);
-    $info = ($action)(self::INDEX);
-});
+    app()->make(CreatesIndex::class)('testing-creates-index');
+})->throws(CommunicationException::class, 'Failed to connect to localhost port 7777');
 
 /**
  * Test CreatesIndex::__invoke() method.
  */
 test('invoke', function () {
     try {
-        $action = app()->make(CreatesIndex::class);
-        $info = ($action)(self::INDEX);
+        $info = app()->make(CreatesIndex::class)('testing-creates-index');
 
         AssertableJson::fromArray($info)
-            ->where('uid', self::INDEX)
+            ->where('uid', 'testing-creates-index')
             ->where('primaryKey', null)
             ->whereType('createdAt', 'string')
             ->whereType('updatedAt', 'string')
             ->interacted()
         ;
     } finally {
-        $this->deleteIndex(self::INDEX);
+        $this->deleteIndex('testing-creates-index');
     }
 });
 
@@ -61,17 +49,16 @@ test('invoke', function () {
  */
 test('invoke with options', function () {
     try {
-        $action = app()->make(CreatesIndex::class);
-        $info = ($action)(self::INDEX, ['primaryKey' => 'id']);
+        $info = app()->make(CreatesIndex::class)('testing-creates-index', ['primaryKey' => 'id']);
 
         AssertableJson::fromArray($info)
-            ->where('uid', self::INDEX)
+            ->where('uid', 'testing-creates-index')
             ->where('primaryKey', 'id')
             ->whereType('createdAt', 'string')
             ->whereType('updatedAt', 'string')
             ->interacted()
         ;
     } finally {
-        $this->deleteIndex(self::INDEX);
+        $this->deleteIndex('testing-creates-index');
     }
 });

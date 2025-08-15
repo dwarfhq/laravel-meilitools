@@ -6,10 +6,6 @@ use Dwarf\MeiliTools\Helpers;
 use Dwarf\MeiliTools\Tests\Models\Movie;
 
 /**
- * @internal
- */
-
-/**
  * Test Helpers::guessModelNamespace() method.
  */
 test('guess model namespace', function () {

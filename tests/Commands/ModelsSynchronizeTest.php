@@ -11,10 +11,6 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Validation\ValidationException;
 
 /**
- * @internal
- */
-
-/**
  * Test `meili:models:synchronize` command.
  */
 test('with advanced settings', function () {
@@ -36,18 +32,13 @@ test('with advanced settings', function () {
         $details = app()->make(DetailsModel::class)(MeiliMovie::class);
         expect($details)->toBe($defaults);
 
-        $version = app()->version();
-        $message = 'The distinct attribute field must be a string.';
-        if (version_compare($version, '10.0.0', '<')) {
-            $message = 'The distinct attribute must be a string.';
-        }
-        if (version_compare($version, '9.0.0', '<')) {
-            $message = 'The given data was invalid.';
-        }
-
         $this->artisan('meili:models:synchronize')
             ->expectsOutput('Processed ' . BrokenMovie::class)
-            ->expectsOutput(sprintf("Exception '%s' with message '%s'", ValidationException::class, $message))
+            ->expectsOutput(sprintf(
+                "Exception '%s' with message '%s'",
+                ValidationException::class,
+                'The distinct attribute field must be a string.'
+            ))
             ->expectsOutput('Processed ' . MeiliMovie::class)
             ->expectsTable(['Setting', 'Old', 'New'], $values)
             ->assertSuccessful()
@@ -87,18 +78,13 @@ test('with pretend', function () {
         $namespace = 'Dwarf\\MeiliTools\\Tests\\Models';
         config(['meilitools.paths' => [$path => $namespace]]);
 
-        $version = app()->version();
-        $message = 'The distinct attribute field must be a string.';
-        if (version_compare($version, '10.0.0', '<')) {
-            $message = 'The distinct attribute must be a string.';
-        }
-        if (version_compare($version, '9.0.0', '<')) {
-            $message = 'The given data was invalid.';
-        }
-
         $this->artisan('meili:models:synchronize', ['--pretend' => true])
             ->expectsOutput('Processed ' . BrokenMovie::class)
-            ->expectsOutput(sprintf("Exception '%s' with message '%s'", ValidationException::class, $message))
+            ->expectsOutput(sprintf(
+                "Exception '%s' with message '%s'",
+                ValidationException::class,
+                'The distinct attribute field must be a string.'
+            ))
             ->expectsOutput('Processed ' . MeiliMovie::class)
             ->expectsTable(['Setting', 'Old', 'New'], $values)
             ->assertSuccessful()

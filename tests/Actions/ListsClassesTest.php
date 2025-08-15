@@ -6,10 +6,6 @@ use Dwarf\MeiliTools\Contracts\Actions\ListsClasses;
 use Dwarf\MeiliTools\Contracts\Indexes\MeiliSettings;
 
 /**
- * @internal
- */
-
-/**
  * Test listing models using absolute and relative paths.
  */
 test('path listing', function () {

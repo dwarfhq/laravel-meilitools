@@ -27,11 +27,8 @@ class IndexCreate extends Command
 
     /**
      * Execute the console command.
-     *
-     *
-     * @return int
      */
-    public function handle(CreatesIndex $createIndex)
+    public function handle(CreatesIndex $createIndex): int
     {
         $createIndex($this->getIndex());
 

@@ -8,10 +8,6 @@ use Dwarf\MeiliTools\Tests\Models\MeiliMovie;
 use Illuminate\Support\Arr;
 
 /**
- * @internal
- */
-
-/**
  * Test `meili:model:synchronize` command with advanced settings.
  */
 test('with advanced settings', function () {

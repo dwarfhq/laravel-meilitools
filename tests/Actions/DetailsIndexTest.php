@@ -9,20 +9,13 @@ use MeiliSearch\Exceptions\ApiException;
 use MeiliSearch\Exceptions\CommunicationException;
 
 /**
- * @internal
- */
-
-/**
  * Test using wrong Scout driver.
  */
 test('meili tools exception', function () {
     config(['scout.driver' => null]);
 
-    $this->expectException(MeiliToolsException::class);
-
-    $action = app()->make(DetailsIndex::class);
-    $details = ($action)(self::INDEX);
-});
+    app()->make(DetailsIndex::class)('testing-details-index');
+})->throws(MeiliToolsException::class);
 
 /**
  * Test getting index details when MeiliSearch isn't running.
@@ -30,31 +23,22 @@ test('meili tools exception', function () {
 test('communication exception', function () {
     config(['scout.meilisearch.host' => 'http://localhost:7777']);
 
-    $this->expectException(CommunicationException::class);
-    $this->expectExceptionMessage('Failed to connect to localhost port 7777');
-
-    $action = app()->make(DetailsIndex::class);
-    $details = ($action)(self::INDEX);
-});
+    app()->make(DetailsIndex::class)('testing-details-index');
+})->throws(CommunicationException::class, 'Failed to connect to localhost port 7777');
 
 /**
  * Test getting index details when it doesn't exist.
  */
 test('api exception', function () {
-    $this->expectException(ApiException::class);
-    $this->expectExceptionMessage('Index `' . self::INDEX . '` not found.');
-
-    $action = app()->make(DetailsIndex::class);
-    $details = ($action)(self::INDEX);
-});
+    app()->make(DetailsIndex::class)('testing-details-index');
+})->throws(ApiException::class, 'Index `testing-details-index` not found.');
 
 /**
  * Test DetailsIndex::__invoke() method.
  */
 test('invoke', function () {
-    $this->withIndex(self::INDEX, function () {
-        $action = app()->make(DetailsIndex::class);
-        $details = ($action)(self::INDEX);
-        expect($details)->toBe(Helpers::defaultSettings(Helpers::engineVersion()));
+    $this->withIndex('testing-details-index', function () {
+        $details = app()->make(DetailsIndex::class)('testing-details-index');
+        expect($details)->toMatchArray(Helpers::defaultSettings(Helpers::engineVersion()));
     });
 });

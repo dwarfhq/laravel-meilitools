@@ -2,25 +2,19 @@
 
 declare(strict_types=1);
 
-
-
-/**
- * @internal
- */
-
 /**
  * Test `meili:index:delete` command with default settings.
  */
 test('with default settings', function () {
-    $this->withIndex(self::INDEX, function () {
+    $this->withIndex('testing-delete-index', function () {
         $this->artisan('meili:index:delete')
-            ->expectsQuestion('What is the index name?', self::INDEX)
+            ->expectsQuestion('What is the index name?', 'testing-delete-index')
             ->expectsConfirmation('Are you sure you want to run this command?', 'no')
             ->assertFailed()
         ;
 
         $this->artisan('meili:index:delete')
-            ->expectsQuestion('What is the index name?', self::INDEX)
+            ->expectsQuestion('What is the index name?', 'testing-delete-index')
             ->expectsConfirmation('Are you sure you want to run this command?', 'yes')
             ->assertSuccessful()
         ;
@@ -31,13 +25,13 @@ test('with default settings', function () {
  * Test `meili:index:delete` command with specified name.
  */
 test('with specified name', function () {
-    $this->withIndex(self::INDEX, function () {
-        $this->artisan('meili:index:delete', ['index' => self::INDEX])
+    $this->withIndex('testing-delete-index', function () {
+        $this->artisan('meili:index:delete', ['index' => 'testing-delete-index'])
             ->expectsConfirmation('Are you sure you want to run this command?', 'no')
             ->assertFailed()
         ;
 
-        $this->artisan('meili:index:delete', ['index' => self::INDEX])
+        $this->artisan('meili:index:delete', ['index' => 'testing-delete-index'])
             ->expectsConfirmation('Are you sure you want to run this command?', 'yes')
             ->assertSuccessful()
         ;
@@ -48,8 +42,8 @@ test('with specified name', function () {
  * Test `meili:index:delete` command with force option.
  */
 test('with force option', function () {
-    $this->withIndex(self::INDEX, function () {
-        $this->artisan('meili:index:delete', ['index' => self::INDEX, '--force' => true])
+    $this->withIndex('testing-delete-index', function () {
+        $this->artisan('meili:index:delete', ['index' => 'testing-delete-index', '--force' => true])
             ->assertSuccessful()
         ;
     });

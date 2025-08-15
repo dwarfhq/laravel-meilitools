@@ -9,20 +9,13 @@ use MeiliSearch\Exceptions\ApiException;
 use MeiliSearch\Exceptions\CommunicationException;
 
 /**
- * @internal
- */
-
-/**
  * Test using wrong Scout driver.
  */
 test('meili tools exception', function () {
     config(['scout.driver' => null]);
 
-    $this->expectException(MeiliToolsException::class);
-
-    $action = app()->make(ViewsIndex::class);
-    $info = ($action)(self::INDEX);
-});
+    app()->make(ViewsIndex::class)('testing-views-index');
+})->throws(MeiliToolsException::class);
 
 /**
  * Test getting index information when MeiliSearch isn't running.
@@ -30,34 +23,25 @@ test('meili tools exception', function () {
 test('communication exception', function () {
     config(['scout.meilisearch.host' => 'http://localhost:7777']);
 
-    $this->expectException(CommunicationException::class);
-    $this->expectExceptionMessage('Failed to connect to localhost port 7777');
-
-    $action = app()->make(ViewsIndex::class);
-    $info = ($action)(self::INDEX);
-});
+    app()->make(ViewsIndex::class)('testing-views-index');
+})->throws(CommunicationException::class, 'Failed to connect to localhost port 7777');
 
 /**
  * Test getting index information when it doesn't exist.
  */
 test('api exception', function () {
-    $this->expectException(ApiException::class);
-    $this->expectExceptionMessage('Index `' . self::INDEX . '` not found.');
-
-    $action = app()->make(ViewsIndex::class);
-    $info = ($action)(self::INDEX);
-});
+    app()->make(ViewsIndex::class)('testing-views-index');
+})->throws(ApiException::class, 'Index `testing-views-index` not found.');
 
 /**
  * Test ViewsIndex::__invoke() method.
  */
 test('invoke', function () {
-    $this->withIndex(self::INDEX, function () {
-        $action = app()->make(ViewsIndex::class);
-        $info = ($action)(self::INDEX);
+    $this->withIndex('testing-views-index', function () {
+        $info = app()->make(ViewsIndex::class)('testing-views-index');
 
         AssertableJson::fromArray($info)
-            ->where('uid', self::INDEX)
+            ->where('uid', 'testing-views-index')
             ->where('primaryKey', null)
             ->whereType('createdAt', 'string')
             ->whereType('updatedAt', 'string')
@@ -70,12 +54,11 @@ test('invoke', function () {
  * Test ViewsIndex::__invoke() method with stats.
  */
 test('invoke with stats', function () {
-    $this->withIndex(self::INDEX, function () {
-        $action = app()->make(ViewsIndex::class);
-        $info = ($action)(self::INDEX, true);
+    $this->withIndex('testing-views-index', function () {
+        $info = app()->make(ViewsIndex::class)('testing-views-index', true);
 
         AssertableJson::fromArray($info)
-            ->where('uid', self::INDEX)
+            ->where('uid', 'testing-views-index')
             ->where('primaryKey', null)
             ->whereType('createdAt', 'string')
             ->whereType('updatedAt', 'string')

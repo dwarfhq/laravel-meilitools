@@ -8,20 +8,14 @@ use Dwarf\MeiliTools\Helpers;
 use Dwarf\MeiliTools\Tests\Tools;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
-use MeiliSearch\MeiliSearch;
-
-/**
- * @internal
- */
 
 /**
  * Test ValidatesIndexSettings::rules() method.
  */
 test('rules', function () {
     $action = app()->make(ValidatesIndexSettings::class);
-    $version = Helpers::engineVersion() ?: '0.0.0';
 
-    $actual = $action->rules($version);
+    $actual = $action->rules(Helpers::engineVersion());
     $expected = [
         'displayedAttributes'    => ['sometimes', 'nullable', 'array', 'min:1'],
         'displayedAttributes.*'  => ['required', 'string'],
@@ -41,49 +35,38 @@ test('rules', function () {
         'synonyms.*.*'           => ['required', 'string'],
         'typoTolerance'          => ['sometimes', 'nullable', app()->make(ArrayAssocRule::class)],
     ];
-
-    // Add actual typo tolerance validation rules for engine version >=0.27.0.
-    if (version_compare($version, '0.27.0', '>=')) {
-        $expected['typoTolerance.enabled'] = ['sometimes', 'nullable', 'boolean'];
-        $expected['typoTolerance.minWordSizeForTypos'] = [
-            'sometimes',
-            'nullable',
-            app()->make(ArrayAssocRule::class),
-        ];
-        $expected['typoTolerance.minWordSizeForTypos.oneTypo'] = [
-            'sometimes',
-            'nullable',
-            'integer',
-            'between:0,255',
-        ];
-        $expected['typoTolerance.minWordSizeForTypos.twoTypos'] = [
-            'sometimes',
-            'nullable',
-            'integer',
-            'between:0,255',
-        ];
-        $expected['typoTolerance.disableOnWords'] = ['sometimes', 'nullable', 'array'];
-        $expected['typoTolerance.disableOnWords.*'] = ['required', 'string'];
-        $expected['typoTolerance.disableOnAttributes'] = ['sometimes', 'nullable', 'array'];
-        $expected['typoTolerance.disableOnAttributes.*'] = ['required', 'string'];
-    }
-
-    // Add faceting and pagination validation rules for engine version >=0.28.0.
-    if (version_compare($version, '0.28.0', '>=')) {
-        $expected['faceting'] = ['sometimes', 'nullable', app()->make(ArrayAssocRule::class)];
-        $expected['faceting.maxValuesPerFacet'] = ['sometimes', 'nullable', 'integer', 'min:0'];
-        $expected['pagination'] = ['sometimes', 'nullable', app()->make(ArrayAssocRule::class)];
-        $expected['pagination.maxTotalHits'] = ['sometimes', 'nullable', 'integer', 'min:0'];
-    }
+    $expected['typoTolerance.enabled'] = ['sometimes', 'nullable', 'boolean'];
+    $expected['typoTolerance.minWordSizeForTypos'] = [
+        'sometimes',
+        'nullable',
+        app()->make(ArrayAssocRule::class),
+    ];
+    $expected['typoTolerance.minWordSizeForTypos.oneTypo'] = [
+        'sometimes',
+        'nullable',
+        'integer',
+        'between:0,255',
+    ];
+    $expected['typoTolerance.minWordSizeForTypos.twoTypos'] = [
+        'sometimes',
+        'nullable',
+        'integer',
+        'between:0,255',
+    ];
+    $expected['typoTolerance.disableOnWords'] = ['sometimes', 'nullable', 'array'];
+    $expected['typoTolerance.disableOnWords.*'] = ['required', 'string'];
+    $expected['typoTolerance.disableOnAttributes'] = ['sometimes', 'nullable', 'array'];
+    $expected['typoTolerance.disableOnAttributes.*'] = ['required', 'string'];
+    $expected['faceting'] = ['sometimes', 'nullable', app()->make(ArrayAssocRule::class)];
+    $expected['faceting.maxValuesPerFacet'] = ['sometimes', 'nullable', 'integer', 'min:0'];
+    $expected['pagination'] = ['sometimes', 'nullable', app()->make(ArrayAssocRule::class)];
+    $expected['pagination.maxTotalHits'] = ['sometimes', 'nullable', 'integer', 'min:0'];
 
     expect($actual)->toEqual($expected);
 });
 
 /**
  * Test ValidatesIndexSettings::passes() method.
- *
- *
- * @param callable $data Callable with test data.
  */
 test('passes', function (callable $data) {
     $action = app()->make(ValidatesIndexSettings::class);
@@ -102,22 +85,13 @@ test('passes', function (callable $data) {
 
 /**
  * Test ValidatesIndexSettings::passes() method with typo tolerance.
- *
- *
- * @param callable $data Callable with test data.
  */
 test('passes typo tolerance', function (callable $data) {
-    // Check if test should be run on this engine version.
-    $version = Helpers::engineVersion() ?: '0.0.0';
-    if (version_compare(MeiliSearch::VERSION, '0.23.2', '<') || version_compare($version, '0.27.0', '<')) {
-        $this->markTestSkipped('Typo tolerance is only available from 0.27.0 and up.');
-    }
-
     $action = app()->make(ValidatesIndexSettings::class);
 
     [$value, $validated, $passes, $messages] = $data();
 
-    $actualPasses = $action->passes($value, $version);
+    $actualPasses = $action->passes($value, Helpers::engineVersion());
     expect($actualPasses)->toBe($passes);
 
     $actualValidated = $action->validated();
@@ -325,8 +299,6 @@ dataset('passesProvider', function () {
 dataset('passesTypoToleranceProvider', function () {
     $field = 'typoTolerance';
     $name = Str::of($field)->headline()->lower();
-
-    $props = ['enabled', 'minWordSizeForTypos', 'disableOnWords', 'disableOnAttributes'];
 
     $settings = [
         'enabled'             => true,

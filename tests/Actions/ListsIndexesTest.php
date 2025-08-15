@@ -8,20 +8,13 @@ use Illuminate\Testing\Fluent\AssertableJson;
 use MeiliSearch\Exceptions\CommunicationException;
 
 /**
- * @internal
- */
-
-/**
  * Test using wrong Scout driver.
  */
 test('meili tools exception', function () {
     config(['scout.driver' => null]);
 
-    $this->expectException(MeiliToolsException::class);
-
-    $action = app()->make(ListsIndexes::class);
-    $list = ($action)();
-});
+    app()->make(ListsIndexes::class)();
+})->throws(MeiliToolsException::class);
 
 /**
  * Test getting index list when MeiliSearch isn't running.
@@ -29,24 +22,19 @@ test('meili tools exception', function () {
 test('communication exception', function () {
     config(['scout.meilisearch.host' => 'http://localhost:7777']);
 
-    $this->expectException(CommunicationException::class);
-    $this->expectExceptionMessage('Failed to connect to localhost port 7777');
-
-    $action = app()->make(ListsIndexes::class);
-    $list = ($action)();
-});
+    app()->make(ListsIndexes::class)();
+})->throws(CommunicationException::class, 'Failed to connect to localhost port 7777');
 
 /**
  * Test ListsIndexes::__invoke() method.
  */
 test('invoke', function () {
-    $this->withIndex(self::INDEX, function () {
-        $action = app()->make(ListsIndexes::class);
-        $list = ($action)();
+    $this->withIndex('testing-indexes-list', function () {
+        $list = app()->make(ListsIndexes::class)();
 
-        $this->assertArrayHasKey(self::INDEX, $list);
-        AssertableJson::fromArray($list[self::INDEX])
-            ->where('uid', self::INDEX)
+        expect($list)->toHaveKey('testing-indexes-list');
+        AssertableJson::fromArray($list['testing-indexes-list'])
+            ->where('uid', 'testing-indexes-list')
             ->where('primaryKey', null)
             ->whereType('createdAt', 'string')
             ->whereType('updatedAt', 'string')
@@ -59,13 +47,12 @@ test('invoke', function () {
  * Test ListsIndexes::__invoke() method with stats.
  */
 test('invoke with stats', function () {
-    $this->withIndex(self::INDEX, function () {
-        $action = app()->make(ListsIndexes::class);
-        $list = ($action)(true);
+    $this->withIndex('testing-indexes-list', function () {
+        $list = app()->make(ListsIndexes::class)(true);
 
-        $this->assertArrayHasKey(self::INDEX, $list);
-        AssertableJson::fromArray($list[self::INDEX])
-            ->where('uid', self::INDEX)
+        expect($list)->toHaveKey('testing-indexes-list');
+        AssertableJson::fromArray($list['testing-indexes-list'])
+            ->where('uid', 'testing-indexes-list')
             ->where('primaryKey', null)
             ->whereType('createdAt', 'string')
             ->whereType('updatedAt', 'string')
