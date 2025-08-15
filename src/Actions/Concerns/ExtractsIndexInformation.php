@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Dwarf\MeiliTools\Actions\Concerns;
 
+use DateTime;
 use Meilisearch\Endpoints\Indexes;
 
 trait ExtractsIndexInformation
@@ -19,8 +20,8 @@ trait ExtractsIndexInformation
         return [
             'uid'        => $index->getUid(),
             'primaryKey' => $index->getPrimaryKey(),
-            'createdAt'  => (string) $index->getCreatedAt(),
-            'updatedAt'  => (string) $index->getUpdatedAt(),
+            'createdAt'  => $index->getCreatedAt()->format(DateTime::RFC3339_EXTENDED),
+            'updatedAt'  => $index->getUpdatedAt()->format(DateTime::RFC3339_EXTENDED),
         ] + ($stats ? $index->stats() : []);
     }
 }
