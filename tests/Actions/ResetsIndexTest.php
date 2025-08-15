@@ -9,7 +9,6 @@ use Dwarf\MeiliTools\Helpers;
 use Dwarf\MeiliTools\Tests\TestCase;
 use Dwarf\MeiliTools\Tests\Tools;
 
-uses(Dwarf\MeiliTools\Tests\TestCase::class);
 
 /**
  * @internal

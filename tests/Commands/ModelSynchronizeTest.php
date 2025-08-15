@@ -8,7 +8,6 @@ use Dwarf\MeiliTools\Tests\Models\MeiliMovie;
 use Dwarf\MeiliTools\Tests\TestCase;
 use Illuminate\Support\Arr;
 
-uses(Dwarf\MeiliTools\Tests\TestCase::class);
 
 /**
  * @internal

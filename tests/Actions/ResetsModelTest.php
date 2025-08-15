@@ -9,7 +9,6 @@ use Dwarf\MeiliTools\Helpers;
 use Dwarf\MeiliTools\Tests\Models\MeiliMovie;
 use Dwarf\MeiliTools\Tests\TestCase;
 
-uses(Dwarf\MeiliTools\Tests\TestCase::class);
 
 /**
  * @internal

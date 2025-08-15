@@ -6,7 +6,6 @@ use Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists;
 use Dwarf\MeiliTools\Exceptions\MeiliToolsException;
 use Dwarf\MeiliTools\Tests\TestCase;
 
-uses(Dwarf\MeiliTools\Tests\TestCase::class);
 
 /**
  * @internal

@@ -9,7 +9,6 @@ use Dwarf\MeiliTools\Tests\TestCase;
 use MeiliSearch\Exceptions\ApiException;
 use MeiliSearch\Exceptions\CommunicationException;
 
-uses(Dwarf\MeiliTools\Tests\TestCase::class);
 
 /**
  * @internal

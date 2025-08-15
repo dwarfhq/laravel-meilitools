@@ -5,7 +5,6 @@ declare(strict_types=1);
 use Dwarf\MeiliTools\Tests\Models\Movie;
 use Dwarf\MeiliTools\Tests\TestCase;
 
-uses(Dwarf\MeiliTools\Tests\TestCase::class);
 
 /**
  * @internal

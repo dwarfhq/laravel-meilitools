@@ -7,7 +7,6 @@ use Dwarf\MeiliTools\Tests\Models\Movie;
 use Dwarf\MeiliTools\Tests\TestCase;
 use Illuminate\Testing\Fluent\AssertableJson;
 
-uses(Dwarf\MeiliTools\Tests\TestCase::class);
 
 /**
  * @internal

@@ -8,7 +8,6 @@ use Dwarf\MeiliTools\Tests\TestCase;
 use Dwarf\MeiliTools\Tests\Tools;
 use Illuminate\Support\Arr;
 
-uses(Dwarf\MeiliTools\Tests\TestCase::class);
 
 /**
  * @internal

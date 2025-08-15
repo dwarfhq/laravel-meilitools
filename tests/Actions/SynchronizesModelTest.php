@@ -12,7 +12,6 @@ use Dwarf\MeiliTools\Tests\TestCase;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
 
-uses(Dwarf\MeiliTools\Tests\TestCase::class);
 
 /**
  * @internal

@@ -8,7 +8,6 @@ use Dwarf\MeiliTools\Tests\TestCase;
 use Illuminate\Testing\Fluent\AssertableJson;
 use MeiliSearch\Exceptions\CommunicationException;
 
-uses(Dwarf\MeiliTools\Tests\TestCase::class);
 
 /**
  * @internal

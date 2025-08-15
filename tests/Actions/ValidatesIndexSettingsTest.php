@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
 use MeiliSearch\MeiliSearch;
 
-uses(Dwarf\MeiliTools\Tests\TestCase::class);
 
 /**
  * @internal

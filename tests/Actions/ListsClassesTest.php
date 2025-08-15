@@ -6,7 +6,6 @@ use Dwarf\MeiliTools\Contracts\Actions\ListsClasses;
 use Dwarf\MeiliTools\Contracts\Indexes\MeiliSettings;
 use Dwarf\MeiliTools\Tests\TestCase;
 
-uses(Dwarf\MeiliTools\Tests\TestCase::class);
 
 /**
  * @internal
