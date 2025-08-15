@@ -47,10 +47,12 @@ jobs:
         ports:
           - 7700:7700
         options: >-
-          --health-cmd="curl --fail http://localhost:7700/health" --health-interval=10s
-          --health-timeout=5s --health-retries=3
+          --health-cmd="curl --fail http://localhost:7700/health"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
         env:
-          MEILI_MASTER_KEY: masterKey
+          MEILI_MASTER_KEY: MeiliToolsMasterKey
           MEILI_NO_ANALYTICS: "true"
 
     steps:
@@ -64,7 +66,7 @@ jobs:
       - name: Install dependencies
         run: |
           git config --global --add safe.directory /__w/laravel-meilitools/laravel-meilitools
-          composer require "orchestra/testbench:^${{ matrix.testbench }}" --no-interaction --no-update
+          composer require --dev "orchestra/testbench:^${{ matrix.testbench }}" --no-interaction --no-update
           composer update --${{ matrix.version }} --prefer-dist --no-interaction
 
       - name: Execute tests
