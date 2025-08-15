@@ -2,9 +2,6 @@
 
 use Dwarf\MeiliTools\Tests\TestCase;
 
-// Only show failed tests.
-pest()->printer()->compact();
-
 uses(TestCase::class)->in('Actions', 'Commands', 'Support');
 
 /*
