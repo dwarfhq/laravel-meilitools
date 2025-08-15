@@ -29,7 +29,6 @@ class IndexDetails extends Command
     /**
      * Execute the console command.
      *
-     * @param \Dwarf\MeiliTools\Contracts\Actions\DetailsIndex $detailIndex
      *
      * @return int
      */

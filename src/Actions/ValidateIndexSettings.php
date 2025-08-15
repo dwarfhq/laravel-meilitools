@@ -18,15 +18,11 @@ class ValidateIndexSettings implements ValidatesIndexSettings
 {
     /**
      * Validated data.
-     *
-     * @var array|null
      */
     protected ?array $validated = null;
 
     /**
      * Validation error messages.
-     *
-     * @var array
      */
     protected array $messages = [];
 
@@ -141,8 +137,6 @@ class ValidateIndexSettings implements ValidatesIndexSettings
 
     /**
      * Custom attribute values for typo tolerance rules.
-     *
-     * @return array
      */
     public function attributes(): array
     {

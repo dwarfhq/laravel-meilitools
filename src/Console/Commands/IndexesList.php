@@ -27,7 +27,6 @@ class IndexesList extends Command
     /**
      * Execute the console command.
      *
-     * @param \Dwarf\MeiliTools\Contracts\Actions\ListsIndexes $listIndexes
      *
      * @return int
      */

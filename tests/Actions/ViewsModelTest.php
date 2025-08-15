@@ -16,10 +16,8 @@ class ViewsModelTest extends TestCase
 {
     /**
      * Test ViewsModel::__invoke() method.
-     *
-     * @return void
      */
-    public function testInvoke(): void
+    public function test_invoke(): void
     {
         $model = app(Movie::class);
         $index = $model->searchableAs();
@@ -42,10 +40,8 @@ class ViewsModelTest extends TestCase
 
     /**
      * Test ViewsModel::__invoke() method with stats.
-     *
-     * @return void
      */
-    public function testInvokeWithStats(): void
+    public function test_invoke_with_stats(): void
     {
         $model = app(Movie::class);
         $index = $model->searchableAs();

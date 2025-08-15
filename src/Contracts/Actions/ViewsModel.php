@@ -13,8 +13,6 @@ interface ViewsModel
      * Get model index information.
      *
      * @param string $class Model class.
-     *
-     * @return array
      */
     public function __invoke(string $class): array;
 }

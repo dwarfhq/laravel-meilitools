@@ -20,10 +20,8 @@ class IndexCreateTest extends TestCase
 
     /**
      * Test `meili:index:create` command with default settings.
-     *
-     * @return void
      */
-    public function testWithDefaultSettings(): void
+    public function test_with_default_settings(): void
     {
         try {
             $this->artisan('meili:index:create')

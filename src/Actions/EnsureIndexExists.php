@@ -16,8 +16,6 @@ class EnsureIndexExists implements EnsuresIndexExists
 {
     /**
      * Scout engine manager.
-     *
-     * @var \Laravel\Scout\EngineManager
      */
     protected EngineManager $manager;
 

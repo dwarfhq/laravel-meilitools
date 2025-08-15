@@ -22,10 +22,8 @@ class EnsuresIndexExistsTest extends TestCase
 
     /**
      * Test using wrong Scout driver.
-     *
-     * @return void
      */
-    public function testMeiliToolsException(): void
+    public function test_meili_tools_exception(): void
     {
         config(['scout.driver' => null]);
 
@@ -39,10 +37,8 @@ class EnsuresIndexExistsTest extends TestCase
      * Test EnsuresIndexExists::__invoke() method.
      *
      * @doesNotPerformAssertions
-     *
-     * @return void
      */
-    public function testInvoke(): void
+    public function test_invoke(): void
     {
         try {
             $this->app->make(EnsuresIndexExists::class)(self::INDEX);

@@ -20,10 +20,8 @@ class ModelsSynchronizeTest extends TestCase
 {
     /**
      * Test `meili:models:synchronize` command.
-     *
-     * @return void
      */
-    public function testWithAdvancedSettings(): void
+    public function test_with_advanced_settings(): void
     {
         try {
             $defaults = Helpers::defaultSettings(Helpers::engineVersion());
@@ -70,10 +68,8 @@ class ModelsSynchronizeTest extends TestCase
 
     /**
      * Test `meili:models:synchronize` command with pretend option.
-     *
-     * @return void
      */
-    public function testWithPretend(): void
+    public function test_with_pretend(): void
     {
         try {
             $defaults = Helpers::defaultSettings(Helpers::engineVersion());
@@ -124,10 +120,8 @@ class ModelsSynchronizeTest extends TestCase
 
     /**
      * Test `meili:models:synchronize` command in production mode.
-     *
-     * @return void
      */
-    public function testInProductionMode(): void
+    public function test_in_production_mode(): void
     {
         App::detectEnvironment(fn () => 'production');
 

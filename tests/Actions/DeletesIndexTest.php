@@ -23,10 +23,8 @@ class DeletesIndexTest extends TestCase
 
     /**
      * Test using wrong Scout driver.
-     *
-     * @return void
      */
-    public function testMeiliToolsException(): void
+    public function test_meili_tools_exception(): void
     {
         config(['scout.driver' => null]);
 
@@ -38,10 +36,8 @@ class DeletesIndexTest extends TestCase
 
     /**
      * Test deleting index when MeiliSearch isn't running.
-     *
-     * @return void
      */
-    public function testCommunicationException(): void
+    public function test_communication_exception(): void
     {
         config(['scout.meilisearch.host' => 'http://localhost:7777']);
 
@@ -54,10 +50,8 @@ class DeletesIndexTest extends TestCase
 
     /**
      * Test deleting index when it doesn't exist.
-     *
-     * @return void
      */
-    public function testIndexMissing(): void
+    public function test_index_missing(): void
     {
         // No errors will be thrown in this case.
         $action = $this->app->make(DeletesIndex::class);
@@ -66,10 +60,8 @@ class DeletesIndexTest extends TestCase
 
     /**
      * Test DeletesIndex::__invoke() method.
-     *
-     * @return void
      */
-    public function testInvoke(): void
+    public function test_invoke(): void
     {
         $this->createIndex(self::INDEX);
         $action = $this->app->make(DeletesIndex::class);

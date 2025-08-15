@@ -25,10 +25,8 @@ class ResetsIndexTest extends TestCase
 
     /**
      * Test ResetsIndex::__invoke() method with movie settings.
-     *
-     * @return void
      */
-    public function testWithMovieSettings(): void
+    public function test_with_movie_settings(): void
     {
         $this->withIndex(self::INDEX, function () {
             $defaults = Helpers::defaultSettings(Helpers::engineVersion());
@@ -55,10 +53,8 @@ class ResetsIndexTest extends TestCase
 
     /**
      * Test ResetsIndex::__invoke() method with pretend.
-     *
-     * @return void
      */
-    public function testWithPretend(): void
+    public function test_with_pretend(): void
     {
         $this->withIndex(self::INDEX, function () {
             $defaults = Helpers::defaultSettings(Helpers::engineVersion());

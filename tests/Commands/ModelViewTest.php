@@ -14,10 +14,8 @@ class ModelViewTest extends TestCase
 {
     /**
      * Test `meili:model:view` command with default settings.
-     *
-     * @return void
      */
-    public function testWithDefaultSettings(): void
+    public function test_with_default_settings(): void
     {
         $index = app(Movie::class)->searchableAs();
 
@@ -46,10 +44,8 @@ class ModelViewTest extends TestCase
 
     /**
      * Test `meili:model:view` command with stats option.
-     *
-     * @return void
      */
-    public function testWithStats(): void
+    public function test_with_stats(): void
     {
         $index = app(Movie::class)->searchableAs();
 

@@ -18,10 +18,8 @@ class ResetsModelTest extends TestCase
 {
     /**
      * Test ResetsModel::__invoke() method with advanced settings.
-     *
-     * @return void
      */
-    public function testWithAdvancedSettings(): void
+    public function test_with_advanced_settings(): void
     {
         try {
             $defaults = Helpers::defaultSettings(Helpers::engineVersion());
@@ -50,10 +48,8 @@ class ResetsModelTest extends TestCase
 
     /**
      * Test ResetsModel::__invoke() method with pretend option.
-     *
-     * @return void
      */
-    public function testWithPretend(): void
+    public function test_with_pretend(): void
     {
         try {
             $defaults = Helpers::defaultSettings(Helpers::engineVersion());

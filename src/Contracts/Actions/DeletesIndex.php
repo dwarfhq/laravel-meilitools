@@ -13,8 +13,6 @@ interface DeletesIndex
      * Delete index.
      *
      * @param string $index Index name.
-     *
-     * @return void
      */
     public function __invoke(string $index): void;
 }

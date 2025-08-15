@@ -15,8 +15,6 @@ class Tools
      * Get movie settings.
      *
      * @param bool $sorted Whether settings should be sorted.
-     *
-     * @return array
      */
     public static function movieSettings(bool $sorted = true): array
     {

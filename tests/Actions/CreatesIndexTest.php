@@ -24,10 +24,8 @@ class CreatesIndexTest extends TestCase
 
     /**
      * Test using wrong Scout driver.
-     *
-     * @return void
      */
-    public function testMeiliToolsException(): void
+    public function test_meili_tools_exception(): void
     {
         config(['scout.driver' => null]);
 
@@ -39,10 +37,8 @@ class CreatesIndexTest extends TestCase
 
     /**
      * Test creating index when MeiliSearch isn't running.
-     *
-     * @return void
      */
-    public function testCommunicationException(): void
+    public function test_communication_exception(): void
     {
         config(['scout.meilisearch.host' => 'http://localhost:7777']);
 
@@ -55,10 +51,8 @@ class CreatesIndexTest extends TestCase
 
     /**
      * Test CreatesIndex::__invoke() method.
-     *
-     * @return void
      */
-    public function testInvoke(): void
+    public function test_invoke(): void
     {
         try {
             $action = $this->app->make(CreatesIndex::class);
@@ -78,10 +72,8 @@ class CreatesIndexTest extends TestCase
 
     /**
      * Test CreatesIndex::__invoke() method with options.
-     *
-     * @return void
      */
-    public function testInvokeWithOptions(): void
+    public function test_invoke_with_options(): void
     {
         try {
             $action = $this->app->make(CreatesIndex::class);

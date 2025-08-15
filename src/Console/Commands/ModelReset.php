@@ -31,7 +31,6 @@ class ModelReset extends Command
     /**
      * Execute the console command.
      *
-     * @param \Dwarf\MeiliTools\Contracts\Actions\ResetsModel $resetModel
      *
      * @return int
      */

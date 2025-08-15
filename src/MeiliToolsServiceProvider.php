@@ -38,8 +38,6 @@ class MeiliToolsServiceProvider extends ServiceProvider
 {
     /**
      * Actions to bind.
-     *
-     * @var array
      */
     public array $bindings = [
         ArrayAssocRule::class         => ArrayAssoc::class,
@@ -64,8 +62,6 @@ class MeiliToolsServiceProvider extends ServiceProvider
 
     /**
      * Register the application services.
-     *
-     * @return void
      */
     public function register(): void
     {
@@ -78,8 +74,6 @@ class MeiliToolsServiceProvider extends ServiceProvider
 
     /**
      * Bootstrap the application services.
-     *
-     * @return void
      */
     public function boot(): void
     {

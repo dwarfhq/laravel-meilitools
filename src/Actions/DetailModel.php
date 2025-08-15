@@ -15,15 +15,11 @@ class DetailModel implements DetailsModel
 {
     /**
      * Details index action.
-     *
-     * @var \Dwarf\MeiliTools\Contracts\Actions\DetailsIndex
      */
     protected DetailsIndex $detailIndex;
 
     /**
      * Ensures index exists action.
-     *
-     * @var \Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists
      */
     protected EnsuresIndexExists $ensureIndexExists;
 

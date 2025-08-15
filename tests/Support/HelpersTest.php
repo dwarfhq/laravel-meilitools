@@ -15,10 +15,8 @@ class HelpersTest extends TestCase
 {
     /**
      * Test Helpers::guessModelNamespace() method.
-     *
-     * @return void
      */
-    public function testGuessModelNamespace(): void
+    public function test_guess_model_namespace(): void
     {
         $this->assertSame(Movie::class, Helpers::guessModelNamespace(Movie::class));
         $this->assertSame(Movie::class, Helpers::guessModelNamespace('Movie'));

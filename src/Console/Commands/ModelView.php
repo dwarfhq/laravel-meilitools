@@ -29,7 +29,6 @@ class ModelView extends Command
     /**
      * Execute the console command.
      *
-     * @param \Dwarf\MeiliTools\Contracts\Actions\ViewsModel $viewModel
      *
      * @return int
      */

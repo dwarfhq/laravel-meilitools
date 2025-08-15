@@ -18,10 +18,8 @@ class ModelDetailsTest extends TestCase
 {
     /**
      * Test `meili:model:details` command with default settings.
-     *
-     * @return void
      */
-    public function testWithDefaultSettings(): void
+    public function test_with_default_settings(): void
     {
         try {
             $values = Helpers::convertIndexDataToTable(Helpers::defaultSettings(Helpers::engineVersion()));
@@ -48,10 +46,8 @@ class ModelDetailsTest extends TestCase
 
     /**
      * Test `meili:model:details` command with advanced settings.
-     *
-     * @return void
      */
-    public function testWithAdvancedSettings(): void
+    public function test_with_advanced_settings(): void
     {
         try {
             $defaults = Helpers::defaultSettings(Helpers::engineVersion());

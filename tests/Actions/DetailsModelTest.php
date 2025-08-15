@@ -16,10 +16,8 @@ class DetailsModelTest extends TestCase
 {
     /**
      * Test DetailsModel::__invoke() method.
-     *
-     * @return void
      */
-    public function testInvoke(): void
+    public function test_invoke(): void
     {
         try {
             $details = $this->app->make(DetailsModel::class)(Movie::class);
