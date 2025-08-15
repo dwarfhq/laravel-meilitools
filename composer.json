@@ -17,18 +17,19 @@
         }
     ],
     "require": {
-        "php": "^7.4|^8.0",
-        "illuminate/validation": "^8.0|^9.0|^10.0",
-        "meilisearch/meilisearch-php": ">=0.24.0 <=0.26.0"
+        "php": "^8.2",
+        "illuminate/validation": "^10.0|^11.0|^12.0",
+        "meilisearch/meilisearch-php": "^1.0.0"
     },
     "require-dev": {
         "brick/varexporter": "^0.3.5",
         "guzzlehttp/guzzle": "^7.4",
         "http-interop/http-factory-guzzle": "^1.2",
-        "illuminate/support": "^8.69|^9.0|^10.0",
-        "laravel/scout": "^9.0",
+        "illuminate/support": "^10.0|^11.0|^12.0",
+        "laravel/pint": "^1.24",
+        "laravel/scout": "^9.0|^10.0",
         "nesbot/carbon": "^2.63",
-        "orchestra/testbench": "^6.26|^7.0|^8.0",
+        "orchestra/testbench": "^8.0|^9.0|^10.0",
         "php-http/discovery": "^1.12",
         "phpunit/phpunit": "^9.4"
     },

@@ -1,5 +1,6 @@
 {
     "preset": "laravel",
+    "cache-file": ".pint.json",
     "rules": {
         "binary_operator_spaces": {
             "operators": {
@@ -9,18 +10,17 @@
         "concat_space": {
             "spacing": "one"
         },
-        "increment_style": {
-            "style": "post"
-        },
-        "Laravel/laravel_phpdoc_alignment": false,
-        "Laravel/laravel_phpdoc_order": false,
-        "Laravel/laravel_phpdoc_separation": false,
         "multiline_whitespace_before_semicolons": {
             "strategy": "new_line_for_chained_calls"
         },
+        "new_with_parentheses": {
+            "anonymous_class": false
+        },
         "not_operator_with_successor_space": false,
-        "ordered_interfaces": true,
-        "ordered_traits": true,
+        "ordered_types": {
+            "null_adjustment": "always_last",
+            "sort_algorithm": "alpha"
+        },
         "phpdoc_align": true,
         "phpdoc_annotation_without_dot": false,
         "phpdoc_order": true,
@@ -29,7 +29,7 @@
             "null_adjustment": "always_last"
         },
         "simplified_null_return": true,
-        "single_trait_insert_per_statement": true,
-        "yoda_style": false
+        "single_line_empty_body": false,
+        "single_trait_insert_per_statement": true
     }
 }
