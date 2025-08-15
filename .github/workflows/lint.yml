@@ -35,7 +35,6 @@ jobs:
         uses: aglipanci/laravel-pint-action@2.6
         with:
           parallel: true
-          useComposer: true
 
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v6
