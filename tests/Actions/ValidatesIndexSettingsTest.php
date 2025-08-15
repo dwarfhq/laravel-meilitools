@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-namespace Dwarf\MeiliTools\Tests\Actions;
-
 use Dwarf\MeiliTools\Contracts\Actions\ValidatesIndexSettings;
 use Dwarf\MeiliTools\Contracts\Rules\ArrayAssocRule;
 use Dwarf\MeiliTools\Helpers;
@@ -13,480 +11,474 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
 use MeiliSearch\MeiliSearch;
 
+uses(Dwarf\MeiliTools\Tests\TestCase::class);
+
 /**
  * @internal
  */
-class ValidatesIndexSettingsTest extends TestCase
-{
-    /**
-     * Test ValidatesIndexSettings::rules() method.
-     */
-    public function test_rules(): void
-    {
-        $action = $this->app->make(ValidatesIndexSettings::class);
-        $version = Helpers::engineVersion() ?: '0.0.0';
 
-        $actual = $action->rules($version);
-        $expected = [
-            'displayedAttributes'    => ['sometimes', 'nullable', 'array', 'min:1'],
-            'displayedAttributes.*'  => ['required', 'string'],
-            'distinctAttribute'      => ['sometimes', 'nullable', 'string'],
-            'filterableAttributes'   => ['sometimes', 'nullable', 'array'],
-            'filterableAttributes.*' => ['required', 'string'],
-            'rankingRules'           => ['sometimes', 'nullable', 'array', 'min:1'],
-            'rankingRules.*'         => ['required', 'string'],
-            'searchableAttributes'   => ['sometimes', 'nullable', 'array', 'min:1'],
-            'searchableAttributes.*' => ['required', 'string'],
-            'sortableAttributes'     => ['sometimes', 'nullable', 'array'],
-            'sortableAttributes.*'   => ['required', 'string'],
-            'stopWords'              => ['sometimes', 'nullable', 'array'],
-            'stopWords.*'            => ['required', 'string'],
-            'synonyms'               => ['sometimes', 'nullable', $this->app->make(ArrayAssocRule::class)],
-            'synonyms.*'             => ['required', 'array'],
-            'synonyms.*.*'           => ['required', 'string'],
-            'typoTolerance'          => ['sometimes', 'nullable', $this->app->make(ArrayAssocRule::class)],
+/**
+ * Test ValidatesIndexSettings::rules() method.
+ */
+test('rules', function () {
+    $action = app()->make(ValidatesIndexSettings::class);
+    $version = Helpers::engineVersion() ?: '0.0.0';
+
+    $actual = $action->rules($version);
+    $expected = [
+        'displayedAttributes'    => ['sometimes', 'nullable', 'array', 'min:1'],
+        'displayedAttributes.*'  => ['required', 'string'],
+        'distinctAttribute'      => ['sometimes', 'nullable', 'string'],
+        'filterableAttributes'   => ['sometimes', 'nullable', 'array'],
+        'filterableAttributes.*' => ['required', 'string'],
+        'rankingRules'           => ['sometimes', 'nullable', 'array', 'min:1'],
+        'rankingRules.*'         => ['required', 'string'],
+        'searchableAttributes'   => ['sometimes', 'nullable', 'array', 'min:1'],
+        'searchableAttributes.*' => ['required', 'string'],
+        'sortableAttributes'     => ['sometimes', 'nullable', 'array'],
+        'sortableAttributes.*'   => ['required', 'string'],
+        'stopWords'              => ['sometimes', 'nullable', 'array'],
+        'stopWords.*'            => ['required', 'string'],
+        'synonyms'               => ['sometimes', 'nullable', app()->make(ArrayAssocRule::class)],
+        'synonyms.*'             => ['required', 'array'],
+        'synonyms.*.*'           => ['required', 'string'],
+        'typoTolerance'          => ['sometimes', 'nullable', app()->make(ArrayAssocRule::class)],
+    ];
+
+    // Add actual typo tolerance validation rules for engine version >=0.27.0.
+    if (version_compare($version, '0.27.0', '>=')) {
+        $expected['typoTolerance.enabled'] = ['sometimes', 'nullable', 'boolean'];
+        $expected['typoTolerance.minWordSizeForTypos'] = [
+            'sometimes',
+            'nullable',
+            app()->make(ArrayAssocRule::class),
         ];
-
-        // Add actual typo tolerance validation rules for engine version >=0.27.0.
-        if (version_compare($version, '0.27.0', '>=')) {
-            $expected['typoTolerance.enabled'] = ['sometimes', 'nullable', 'boolean'];
-            $expected['typoTolerance.minWordSizeForTypos'] = [
-                'sometimes',
-                'nullable',
-                $this->app->make(ArrayAssocRule::class),
-            ];
-            $expected['typoTolerance.minWordSizeForTypos.oneTypo'] = [
-                'sometimes',
-                'nullable',
-                'integer',
-                'between:0,255',
-            ];
-            $expected['typoTolerance.minWordSizeForTypos.twoTypos'] = [
-                'sometimes',
-                'nullable',
-                'integer',
-                'between:0,255',
-            ];
-            $expected['typoTolerance.disableOnWords'] = ['sometimes', 'nullable', 'array'];
-            $expected['typoTolerance.disableOnWords.*'] = ['required', 'string'];
-            $expected['typoTolerance.disableOnAttributes'] = ['sometimes', 'nullable', 'array'];
-            $expected['typoTolerance.disableOnAttributes.*'] = ['required', 'string'];
-        }
-
-        // Add faceting and pagination validation rules for engine version >=0.28.0.
-        if (version_compare($version, '0.28.0', '>=')) {
-            $expected['faceting'] = ['sometimes', 'nullable', $this->app->make(ArrayAssocRule::class)];
-            $expected['faceting.maxValuesPerFacet'] = ['sometimes', 'nullable', 'integer', 'min:0'];
-            $expected['pagination'] = ['sometimes', 'nullable', $this->app->make(ArrayAssocRule::class)];
-            $expected['pagination.maxTotalHits'] = ['sometimes', 'nullable', 'integer', 'min:0'];
-        }
-
-        $this->assertEquals($expected, $actual);
-    }
-
-    /**
-     * Test ValidatesIndexSettings::passes() method.
-     *
-     * @dataProvider passesProvider
-     *
-     * @param callable $data Callable with test data.
-     */
-    public function test_passes(callable $data): void
-    {
-        $action = $this->app->make(ValidatesIndexSettings::class);
-
-        [$value, $validated, $passes, $messages] = $data();
-
-        $actualPasses = $action->passes($value, Helpers::engineVersion());
-        $this->assertSame($passes, $actualPasses);
-
-        $actualValidated = $action->validated();
-        $this->assertSame($validated, $actualValidated);
-
-        $actualMessages = $action->messages();
-        $this->assertSame($messages, $actualMessages);
-    }
-
-    /**
-     * Test ValidatesIndexSettings::passes() method with typo tolerance.
-     *
-     * @dataProvider passesTypoToleranceProvider
-     *
-     * @param callable $data Callable with test data.
-     */
-    public function test_passes_typo_tolerance(callable $data): void
-    {
-        // Check if test should be run on this engine version.
-        $version = Helpers::engineVersion() ?: '0.0.0';
-        if (version_compare(MeiliSearch::VERSION, '0.23.2', '<') || version_compare($version, '0.27.0', '<')) {
-            $this->markTestSkipped('Typo tolerance is only available from 0.27.0 and up.');
-        }
-
-        $action = $this->app->make(ValidatesIndexSettings::class);
-
-        [$value, $validated, $passes, $messages] = $data();
-
-        $actualPasses = $action->passes($value, $version);
-        $this->assertSame($passes, $actualPasses);
-
-        $actualValidated = $action->validated();
-        $this->assertSame($validated, $actualValidated);
-
-        $actualMessages = $action->messages();
-        $this->assertSame($messages, $actualMessages);
-    }
-
-    /**
-     * Data provider for ValidateStylesAction::passes().
-     *
-     * Using yield for better overview, and closures so Laravel facades work during tests.
-     */
-    public function passesProvider(): iterable
-    {
-        $settings = Tools::movieSettings();
-
-        $fields = [
-            'displayedAttributes',
-            'filterableAttributes',
-            'rankingRules',
-            'searchableAttributes',
-            'sortableAttributes',
-            'stopWords',
+        $expected['typoTolerance.minWordSizeForTypos.oneTypo'] = [
+            'sometimes',
+            'nullable',
+            'integer',
+            'between:0,255',
         ];
+        $expected['typoTolerance.minWordSizeForTypos.twoTypos'] = [
+            'sometimes',
+            'nullable',
+            'integer',
+            'between:0,255',
+        ];
+        $expected['typoTolerance.disableOnWords'] = ['sometimes', 'nullable', 'array'];
+        $expected['typoTolerance.disableOnWords.*'] = ['required', 'string'];
+        $expected['typoTolerance.disableOnAttributes'] = ['sometimes', 'nullable', 'array'];
+        $expected['typoTolerance.disableOnAttributes.*'] = ['required', 'string'];
+    }
 
-        // Test successful validation of all fields.
+    // Add faceting and pagination validation rules for engine version >=0.28.0.
+    if (version_compare($version, '0.28.0', '>=')) {
+        $expected['faceting'] = ['sometimes', 'nullable', app()->make(ArrayAssocRule::class)];
+        $expected['faceting.maxValuesPerFacet'] = ['sometimes', 'nullable', 'integer', 'min:0'];
+        $expected['pagination'] = ['sometimes', 'nullable', app()->make(ArrayAssocRule::class)];
+        $expected['pagination.maxTotalHits'] = ['sometimes', 'nullable', 'integer', 'min:0'];
+    }
 
-        yield 'empty array' => [fn () => [[], [], true, []]];
+    $this->assertEquals($expected, $actual);
+});
 
-        foreach ($settings as $field => $value) {
-            $name = Str::of($field)->headline()->lower();
+/**
+ * Test ValidatesIndexSettings::passes() method.
+ *
+ *
+ * @param callable $data Callable with test data.
+ */
+test('passes', function (callable $data) {
+    $action = app()->make(ValidatesIndexSettings::class);
 
-            yield "{$name} valid" => [fn () => [
-                [$field => $settings[$field]],
-                [$field => $settings[$field]],
-                true,
-                [],
-            ]];
+    [$value, $validated, $passes, $messages] = $data();
 
-            yield "{$name} null" => [fn () => [[$field => null], [$field => null], true, []]];
-        }
+    $actualPasses = $action->passes($value, Helpers::engineVersion());
+    $this->assertSame($passes, $actualPasses);
 
-        // Test unsuccessful validation of all fields.
+    $actualValidated = $action->validated();
+    $this->assertSame($validated, $actualValidated);
 
-        foreach ($fields as $field) {
-            $name = Str::of($field)->headline()->lower();
+    $actualMessages = $action->messages();
+    $this->assertSame($messages, $actualMessages);
+})->with('passesProvider');
 
-            yield "{$name} not array" => [fn () => [
-                [$field => 42],
+/**
+ * Test ValidatesIndexSettings::passes() method with typo tolerance.
+ *
+ *
+ * @param callable $data Callable with test data.
+ */
+test('passes typo tolerance', function (callable $data) {
+    // Check if test should be run on this engine version.
+    $version = Helpers::engineVersion() ?: '0.0.0';
+    if (version_compare(MeiliSearch::VERSION, '0.23.2', '<') || version_compare($version, '0.27.0', '<')) {
+        $this->markTestSkipped('Typo tolerance is only available from 0.27.0 and up.');
+    }
+
+    $action = app()->make(ValidatesIndexSettings::class);
+
+    [$value, $validated, $passes, $messages] = $data();
+
+    $actualPasses = $action->passes($value, $version);
+    $this->assertSame($passes, $actualPasses);
+
+    $actualValidated = $action->validated();
+    $this->assertSame($validated, $actualValidated);
+
+    $actualMessages = $action->messages();
+    $this->assertSame($messages, $actualMessages);
+})->with('passesTypoToleranceProvider');
+
+// Datasets
+/**
+ * Data provider for ValidateStylesAction::passes().
+ *
+ * Using yield for better overview, and closures so Laravel facades work during tests.
+ */
+dataset('passesProvider', function () {
+    $settings = Tools::movieSettings();
+
+    $fields = [
+        'displayedAttributes',
+        'filterableAttributes',
+        'rankingRules',
+        'searchableAttributes',
+        'sortableAttributes',
+        'stopWords',
+    ];
+
+    // Test successful validation of all fields.
+
+    yield 'empty array' => [fn () => [[], [], true, []]];
+
+    foreach ($settings as $field => $value) {
+        $name = Str::of($field)->headline()->lower();
+
+        yield "{$name} valid" => [fn () => [
+            [$field => $settings[$field]],
+            [$field => $settings[$field]],
+            true,
+            [],
+        ]];
+
+        yield "{$name} null" => [fn () => [[$field => null], [$field => null], true, []]];
+    }
+
+    // Test unsuccessful validation of all fields.
+
+    foreach ($fields as $field) {
+        $name = Str::of($field)->headline()->lower();
+
+        yield "{$name} not array" => [fn () => [
+            [$field => 42],
+            null,
+            false,
+            [
+                $field => [
+                    __('validation.array', ['attribute' => $name]),
+                ],
+            ],
+        ]];
+
+        if (\in_array($field, ['displayedAttributes', 'rankingRules', 'searchableAttributes'])) {
+            yield "{$name} empty error" => [fn () => [
+                [$field => []],
                 null,
                 false,
                 [
                     $field => [
-                        __('validation.array', ['attribute' => $name]),
-                    ],
-                ],
-            ]];
-
-            if (\in_array($field, ['displayedAttributes', 'rankingRules', 'searchableAttributes'])) {
-                yield "{$name} empty error" => [fn () => [
-                    [$field => []],
-                    null,
-                    false,
-                    [
-                        $field => [
-                            __('validation.min.array', ['attribute' => $name, 'min' => 1]),
-                        ],
-                    ],
-                ]];
-            }
-
-            yield "{$name} required error" => [fn () => [
-                [$field => [null]],
-                null,
-                false,
-                [
-                    $field . '.0' => [
-                        __('validation.required', ['attribute' => $field . '.0']),
-                    ],
-                ],
-            ]];
-
-            yield "{$name} string error" => [fn () => [
-                [$field => [42]],
-                null,
-                false,
-                [
-                    $field . '.0' => [
-                        __('validation.string', ['attribute' => $field . '.0']),
+                        __('validation.min.array', ['attribute' => $name, 'min' => 1]),
                     ],
                 ],
             ]];
         }
 
-        yield 'distinct attribute string error' => [fn () => [
-            ['distinctAttribute' => 42],
+        yield "{$name} required error" => [fn () => [
+            [$field => [null]],
             null,
             false,
             [
-                'distinctAttribute' => [
-                    __('validation.string', ['attribute' => 'distinct attribute']),
+                $field . '.0' => [
+                    __('validation.required', ['attribute' => $field . '.0']),
                 ],
             ],
         ]];
 
-        yield 'synonyms not array nor assoc' => [fn () => [
-            ['synonyms' => 42],
+        yield "{$name} string error" => [fn () => [
+            [$field => [42]],
             null,
             false,
             [
-                'synonyms' => [
-                    Str::replace(':attribute', 'synonyms', App::make(ArrayAssocRule::class)->message()),
-                ],
-            ],
-        ]];
-
-        yield 'synonyms array not assoc' => [fn () => [
-            ['synonyms' => [42]],
-            null,
-            false,
-            [
-                'synonyms' => [
-                    Str::replace(':attribute', 'synonyms', App::make(ArrayAssocRule::class)->message()),
-                ],
-                'synonyms.0' => [
-                    __('validation.array', ['attribute' => 'synonyms.0']),
-                ],
-            ],
-        ]];
-
-        yield 'synonyms foo required error' => [fn () => [
-            ['synonyms' => ['foo' => null]],
-            null,
-            false,
-            [
-                'synonyms.foo' => [
-                    __('validation.required', ['attribute' => 'synonyms.foo']),
-                ],
-            ],
-        ]];
-
-        yield 'synonyms foo array error' => [fn () => [
-            ['synonyms' => ['foo' => 42]],
-            null,
-            false,
-            [
-                'synonyms.foo' => [
-                    __('validation.array', ['attribute' => 'synonyms.foo']),
-                ],
-            ],
-        ]];
-
-        yield 'synonyms foo zero required error' => [fn () => [
-            ['synonyms' => ['foo' => [null]]],
-            null,
-            false,
-            [
-                'synonyms.foo.0' => [
-                    __('validation.required', ['attribute' => 'synonyms.foo.0']),
-                ],
-            ],
-        ]];
-
-        yield 'synonyms foo zero string error' => [fn () => [
-            ['synonyms' => ['foo' => [42]]],
-            null,
-            false,
-            [
-                'synonyms.foo.0' => [
-                    __('validation.string', ['attribute' => 'synonyms.foo.0']),
-                ],
-            ],
-        ]];
-
-        yield 'typo tolerance not array nor assoc' => [fn () => [
-            ['typoTolerance' => 42],
-            null,
-            false,
-            [
-                'typoTolerance' => [
-                    Str::replace(':attribute', 'typo tolerance', App::make(ArrayAssocRule::class)->message()),
-                ],
-            ],
-        ]];
-
-        yield 'typo tolerance array not assoc' => [fn () => [
-            ['typoTolerance' => [42]],
-            null,
-            false,
-            [
-                'typoTolerance' => [
-                    Str::replace(':attribute', 'typo tolerance', App::make(ArrayAssocRule::class)->message()),
+                $field . '.0' => [
+                    __('validation.string', ['attribute' => $field . '.0']),
                 ],
             ],
         ]];
     }
 
-    /**
-     * Data provider for ValidateStylesAction::passes().
-     *
-     * Using yield for better overview, and closures so Laravel facades work during tests.
-     */
-    public function passesTypoToleranceProvider(): iterable
-    {
-        $field = 'typoTolerance';
-        $name = Str::of($field)->headline()->lower();
-
-        $props = ['enabled', 'minWordSizeForTypos', 'disableOnWords', 'disableOnAttributes'];
-
-        $settings = [
-            'enabled'             => true,
-            'minWordSizeForTypos' => [
-                'oneTypo'  => 2,
-                'twoTypos' => 2,
+    yield 'distinct attribute string error' => [fn () => [
+        ['distinctAttribute' => 42],
+        null,
+        false,
+        [
+            'distinctAttribute' => [
+                __('validation.string', ['attribute' => 'distinct attribute']),
             ],
-            'disableOnWords'      => ['foo', 'bar'],
-            'disableOnAttributes' => ['foo', 'bar'],
-        ];
+        ],
+    ]];
 
-        yield "{$name} valid" => [fn () => [[$field => $settings], [$field => $settings], true, []]];
+    yield 'synonyms not array nor assoc' => [fn () => [
+        ['synonyms' => 42],
+        null,
+        false,
+        [
+            'synonyms' => [
+                Str::replace(':attribute', 'synonyms', App::make(ArrayAssocRule::class)->message()),
+            ],
+        ],
+    ]];
 
-        yield "{$name} null" => [fn () => [[$field => null], [$field => null], true, []]];
+    yield 'synonyms array not assoc' => [fn () => [
+        ['synonyms' => [42]],
+        null,
+        false,
+        [
+            'synonyms' => [
+                Str::replace(':attribute', 'synonyms', App::make(ArrayAssocRule::class)->message()),
+            ],
+            'synonyms.0' => [
+                __('validation.array', ['attribute' => 'synonyms.0']),
+            ],
+        ],
+    ]];
 
-        foreach (array_keys($settings) as $prop) {
-            $name = Str::of("{$field}.{$prop}")->headline()->replace('.', ' ')->lower();
+    yield 'synonyms foo required error' => [fn () => [
+        ['synonyms' => ['foo' => null]],
+        null,
+        false,
+        [
+            'synonyms.foo' => [
+                __('validation.required', ['attribute' => 'synonyms.foo']),
+            ],
+        ],
+    ]];
 
-            yield "{$name} null" => [fn () => [
-                [$field => [$prop => null]],
-                [$field => [$prop => null]],
-                true,
-                [],
-            ]];
+    yield 'synonyms foo array error' => [fn () => [
+        ['synonyms' => ['foo' => 42]],
+        null,
+        false,
+        [
+            'synonyms.foo' => [
+                __('validation.array', ['attribute' => 'synonyms.foo']),
+            ],
+        ],
+    ]];
 
-            if ($prop === 'minWordSizeForTypos') {
-                foreach (['oneTypo', 'twoTypos'] as $size) {
-                    $name = Str::of("{$field}.{$prop}.{$size}")->headline()->replace('.', ' ')->lower();
+    yield 'synonyms foo zero required error' => [fn () => [
+        ['synonyms' => ['foo' => [null]]],
+        null,
+        false,
+        [
+            'synonyms.foo.0' => [
+                __('validation.required', ['attribute' => 'synonyms.foo.0']),
+            ],
+        ],
+    ]];
 
-                    yield "{$name} null" => [fn () => [
-                        [$field => [$prop => [$size => null]]],
-                        [$field => [$prop => [$size => null]]],
-                        true,
-                        [],
-                    ]];
-                }
-            }
-        }
+    yield 'synonyms foo zero string error' => [fn () => [
+        ['synonyms' => ['foo' => [42]]],
+        null,
+        false,
+        [
+            'synonyms.foo.0' => [
+                __('validation.string', ['attribute' => 'synonyms.foo.0']),
+            ],
+        ],
+    ]];
 
-        $prop = 'enabled';
+    yield 'typo tolerance not array nor assoc' => [fn () => [
+        ['typoTolerance' => 42],
+        null,
+        false,
+        [
+            'typoTolerance' => [
+                Str::replace(':attribute', 'typo tolerance', App::make(ArrayAssocRule::class)->message()),
+            ],
+        ],
+    ]];
+
+    yield 'typo tolerance array not assoc' => [fn () => [
+        ['typoTolerance' => [42]],
+        null,
+        false,
+        [
+            'typoTolerance' => [
+                Str::replace(':attribute', 'typo tolerance', App::make(ArrayAssocRule::class)->message()),
+            ],
+        ],
+    ]];
+});
+
+/**
+ * Data provider for ValidateStylesAction::passes().
+ *
+ * Using yield for better overview, and closures so Laravel facades work during tests.
+ */
+dataset('passesTypoToleranceProvider', function () {
+    $field = 'typoTolerance';
+    $name = Str::of($field)->headline()->lower();
+
+    $props = ['enabled', 'minWordSizeForTypos', 'disableOnWords', 'disableOnAttributes'];
+
+    $settings = [
+        'enabled'             => true,
+        'minWordSizeForTypos' => [
+            'oneTypo'  => 2,
+            'twoTypos' => 2,
+        ],
+        'disableOnWords'      => ['foo', 'bar'],
+        'disableOnAttributes' => ['foo', 'bar'],
+    ];
+
+    yield "{$name} valid" => [fn () => [[$field => $settings], [$field => $settings], true, []]];
+
+    yield "{$name} null" => [fn () => [[$field => null], [$field => null], true, []]];
+
+    foreach (array_keys($settings) as $prop) {
         $name = Str::of("{$field}.{$prop}")->headline()->replace('.', ' ')->lower();
 
-        yield "{$name} boolean error" => [fn () => [
-            [$field => ['enabled' => 42]],
+        yield "{$name} null" => [fn () => [
+            [$field => [$prop => null]],
+            [$field => [$prop => null]],
+            true,
+            [],
+        ]];
+
+        if ($prop === 'minWordSizeForTypos') {
+            foreach (['oneTypo', 'twoTypos'] as $size) {
+                $name = Str::of("{$field}.{$prop}.{$size}")->headline()->replace('.', ' ')->lower();
+
+                yield "{$name} null" => [fn () => [
+                    [$field => [$prop => [$size => null]]],
+                    [$field => [$prop => [$size => null]]],
+                    true,
+                    [],
+                ]];
+            }
+        }
+    }
+
+    $prop = 'enabled';
+    $name = Str::of("{$field}.{$prop}")->headline()->replace('.', ' ')->lower();
+
+    yield "{$name} boolean error" => [fn () => [
+        [$field => ['enabled' => 42]],
+        null,
+        false,
+        [
+            "{$field}.{$prop}" => [
+                __('validation.boolean', ['attribute' => $name]),
+            ],
+        ],
+    ]];
+
+    $prop = 'minWordSizeForTypos';
+    $name = Str::of("{$field}.{$prop}")->headline()->replace('.', ' ')->lower();
+
+    yield "{$name} not array nor assoc" => [fn () => [
+        [$field => [$prop => 42]],
+        null,
+        false,
+        [
+            "{$field}.{$prop}" => [
+                Str::replace(':attribute', $name, App::make(ArrayAssocRule::class)->message()),
+            ],
+        ],
+    ]];
+
+    yield "{$name} array not assoc" => [fn () => [
+        [$field => [$prop => [42]]],
+        null,
+        false,
+        [
+            "{$field}.{$prop}" => [
+                Str::replace(':attribute', $name, App::make(ArrayAssocRule::class)->message()),
+            ],
+        ],
+    ]];
+
+    foreach (['oneTypo', 'twoTypos'] as $size) {
+        $name = Str::of("{$field}.{$prop}.{$size}")->headline()->replace('.', ' ')->lower();
+
+        yield "{$name} integer error" => [fn () => [
+            [$field => [$prop => [$size => 'foo']]],
             null,
             false,
             [
-                "{$field}.{$prop}" => [
-                    __('validation.boolean', ['attribute' => $name]),
+                "{$field}.{$prop}.{$size}" => [
+                    __('validation.integer', ['attribute' => $name]),
                 ],
             ],
         ]];
 
-        $prop = 'minWordSizeForTypos';
+        yield "{$name} between error low" => [fn () => [
+            [$field => [$prop => [$size => -1]]],
+            null,
+            false,
+            [
+                "{$field}.{$prop}.{$size}" => [
+                    __('validation.between.numeric', ['attribute' => $name, 'min' => 0, 'max' => 255]),
+                ],
+            ],
+        ]];
+
+        yield "{$name} between error high" => [fn () => [
+            [$field => [$prop => [$size => 300]]],
+            null,
+            false,
+            [
+                "{$field}.{$prop}.{$size}" => [
+                    __('validation.between.numeric', ['attribute' => $name, 'min' => 0, 'max' => 255]),
+                ],
+            ],
+        ]];
+    }
+
+    foreach (['disableOnWords', 'disableOnAttributes'] as $prop) {
         $name = Str::of("{$field}.{$prop}")->headline()->replace('.', ' ')->lower();
 
-        yield "{$name} not array nor assoc" => [fn () => [
+        yield "{$name} not array" => [fn () => [
             [$field => [$prop => 42]],
             null,
             false,
             [
                 "{$field}.{$prop}" => [
-                    Str::replace(':attribute', $name, App::make(ArrayAssocRule::class)->message()),
+                    __('validation.array', ['attribute' => $name]),
                 ],
             ],
         ]];
 
-        yield "{$name} array not assoc" => [fn () => [
+        yield "{$name} required error" => [fn () => [
+            [$field => [$prop => [null]]],
+            null,
+            false,
+            [
+                "{$field}.{$prop}.0" => [
+                    __('validation.required', ['attribute' => "{$field}.{$prop}.0"]),
+                ],
+            ],
+        ]];
+
+        yield "{$name} string error" => [fn () => [
             [$field => [$prop => [42]]],
             null,
             false,
             [
-                "{$field}.{$prop}" => [
-                    Str::replace(':attribute', $name, App::make(ArrayAssocRule::class)->message()),
+                "{$field}.{$prop}.0" => [
+                    __('validation.string', ['attribute' => "{$field}.{$prop}.0"]),
                 ],
             ],
         ]];
-
-        foreach (['oneTypo', 'twoTypos'] as $size) {
-            $name = Str::of("{$field}.{$prop}.{$size}")->headline()->replace('.', ' ')->lower();
-
-            yield "{$name} integer error" => [fn () => [
-                [$field => [$prop => [$size => 'foo']]],
-                null,
-                false,
-                [
-                    "{$field}.{$prop}.{$size}" => [
-                        __('validation.integer', ['attribute' => $name]),
-                    ],
-                ],
-            ]];
-
-            yield "{$name} between error low" => [fn () => [
-                [$field => [$prop => [$size => -1]]],
-                null,
-                false,
-                [
-                    "{$field}.{$prop}.{$size}" => [
-                        __('validation.between.numeric', ['attribute' => $name, 'min' => 0, 'max' => 255]),
-                    ],
-                ],
-            ]];
-
-            yield "{$name} between error high" => [fn () => [
-                [$field => [$prop => [$size => 300]]],
-                null,
-                false,
-                [
-                    "{$field}.{$prop}.{$size}" => [
-                        __('validation.between.numeric', ['attribute' => $name, 'min' => 0, 'max' => 255]),
-                    ],
-                ],
-            ]];
-        }
-
-        foreach (['disableOnWords', 'disableOnAttributes'] as $prop) {
-            $name = Str::of("{$field}.{$prop}")->headline()->replace('.', ' ')->lower();
-
-            yield "{$name} not array" => [fn () => [
-                [$field => [$prop => 42]],
-                null,
-                false,
-                [
-                    "{$field}.{$prop}" => [
-                        __('validation.array', ['attribute' => $name]),
-                    ],
-                ],
-            ]];
-
-            yield "{$name} required error" => [fn () => [
-                [$field => [$prop => [null]]],
-                null,
-                false,
-                [
-                    "{$field}.{$prop}.0" => [
-                        __('validation.required', ['attribute' => "{$field}.{$prop}.0"]),
-                    ],
-                ],
-            ]];
-
-            yield "{$name} string error" => [fn () => [
-                [$field => [$prop => [42]]],
-                null,
-                false,
-                [
-                    "{$field}.{$prop}.0" => [
-                        __('validation.string', ['attribute' => "{$field}.{$prop}.0"]),
-                    ],
-                ],
-            ]];
-        }
     }
-}
+});

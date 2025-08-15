@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-namespace Dwarf\MeiliTools\Tests\Actions;
-
 use Dwarf\MeiliTools\Contracts\Actions\ViewsIndex;
 use Dwarf\MeiliTools\Exceptions\MeiliToolsException;
 use Dwarf\MeiliTools\Tests\TestCase;
@@ -11,95 +9,83 @@ use Illuminate\Testing\Fluent\AssertableJson;
 use MeiliSearch\Exceptions\ApiException;
 use MeiliSearch\Exceptions\CommunicationException;
 
+uses(Dwarf\MeiliTools\Tests\TestCase::class);
+
 /**
  * @internal
  */
-class ViewsIndexTest extends TestCase
-{
-    /**
-     * Test index.
-     *
-     * @var string
-     */
-    private const INDEX = 'testing-views-index';
 
-    /**
-     * Test using wrong Scout driver.
-     */
-    public function test_meili_tools_exception(): void
-    {
-        config(['scout.driver' => null]);
+/**
+ * Test using wrong Scout driver.
+ */
+test('meili tools exception', function () {
+    config(['scout.driver' => null]);
 
-        $this->expectException(MeiliToolsException::class);
+    $this->expectException(MeiliToolsException::class);
 
-        $action = $this->app->make(ViewsIndex::class);
+    $action = app()->make(ViewsIndex::class);
+    $info = ($action)(self::INDEX);
+});
+
+/**
+ * Test getting index information when MeiliSearch isn't running.
+ */
+test('communication exception', function () {
+    config(['scout.meilisearch.host' => 'http://localhost:7777']);
+
+    $this->expectException(CommunicationException::class);
+    $this->expectExceptionMessage('Failed to connect to localhost port 7777');
+
+    $action = app()->make(ViewsIndex::class);
+    $info = ($action)(self::INDEX);
+});
+
+/**
+ * Test getting index information when it doesn't exist.
+ */
+test('api exception', function () {
+    $this->expectException(ApiException::class);
+    $this->expectExceptionMessage('Index `' . self::INDEX . '` not found.');
+
+    $action = app()->make(ViewsIndex::class);
+    $info = ($action)(self::INDEX);
+});
+
+/**
+ * Test ViewsIndex::__invoke() method.
+ */
+test('invoke', function () {
+    $this->withIndex(self::INDEX, function () {
+        $action = app()->make(ViewsIndex::class);
         $info = ($action)(self::INDEX);
-    }
 
-    /**
-     * Test getting index information when MeiliSearch isn't running.
-     */
-    public function test_communication_exception(): void
-    {
-        config(['scout.meilisearch.host' => 'http://localhost:7777']);
+        AssertableJson::fromArray($info)
+            ->where('uid', self::INDEX)
+            ->where('primaryKey', null)
+            ->whereType('createdAt', 'string')
+            ->whereType('updatedAt', 'string')
+            ->interacted()
+        ;
+    });
+});
 
-        $this->expectException(CommunicationException::class);
-        $this->expectExceptionMessage('Failed to connect to localhost port 7777');
+/**
+ * Test ViewsIndex::__invoke() method with stats.
+ */
+test('invoke with stats', function () {
+    $this->withIndex(self::INDEX, function () {
+        $action = app()->make(ViewsIndex::class);
+        $info = ($action)(self::INDEX, true);
 
-        $action = $this->app->make(ViewsIndex::class);
-        $info = ($action)(self::INDEX);
-    }
-
-    /**
-     * Test getting index information when it doesn't exist.
-     */
-    public function test_api_exception(): void
-    {
-        $this->expectException(ApiException::class);
-        $this->expectExceptionMessage('Index `' . self::INDEX . '` not found.');
-
-        $action = $this->app->make(ViewsIndex::class);
-        $info = ($action)(self::INDEX);
-    }
-
-    /**
-     * Test ViewsIndex::__invoke() method.
-     */
-    public function test_invoke(): void
-    {
-        $this->withIndex(self::INDEX, function () {
-            $action = $this->app->make(ViewsIndex::class);
-            $info = ($action)(self::INDEX);
-
-            AssertableJson::fromArray($info)
-                ->where('uid', self::INDEX)
-                ->where('primaryKey', null)
-                ->whereType('createdAt', 'string')
-                ->whereType('updatedAt', 'string')
-                ->interacted()
-            ;
-        });
-    }
-
-    /**
-     * Test ViewsIndex::__invoke() method with stats.
-     */
-    public function test_invoke_with_stats(): void
-    {
-        $this->withIndex(self::INDEX, function () {
-            $action = $this->app->make(ViewsIndex::class);
-            $info = ($action)(self::INDEX, true);
-
-            AssertableJson::fromArray($info)
-                ->where('uid', self::INDEX)
-                ->where('primaryKey', null)
-                ->whereType('createdAt', 'string')
-                ->whereType('updatedAt', 'string')
-                ->where('numberOfDocuments', 0)
-                ->where('isIndexing', false)
-                ->etc()
-                ->interacted()
-            ;
-        });
-    }
-}
+        AssertableJson::fromArray($info)
+            ->where('uid', self::INDEX)
+            ->where('primaryKey', null)
+            ->whereType('createdAt', 'string')
+            ->whereType('updatedAt', 'string')
+            ->where('numberOfDocuments', 0)
+            ->where('isIndexing', false)
+            ->etc()
+            ->interacted()
+        ;
+    });
+});

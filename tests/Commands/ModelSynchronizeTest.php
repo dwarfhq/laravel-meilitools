@@ -2,88 +2,84 @@
 
 declare(strict_types=1);
 
-namespace Dwarf\MeiliTools\Tests\Commands;
-
 use Dwarf\MeiliTools\Contracts\Actions\DetailsModel;
 use Dwarf\MeiliTools\Helpers;
 use Dwarf\MeiliTools\Tests\Models\MeiliMovie;
 use Dwarf\MeiliTools\Tests\TestCase;
 use Illuminate\Support\Arr;
 
+uses(Dwarf\MeiliTools\Tests\TestCase::class);
+
 /**
  * @internal
  */
-class ModelSynchronizeTest extends TestCase
-{
-    /**
-     * Test `meili:model:synchronize` command with advanced settings.
-     */
-    public function test_with_advanced_settings(): void
-    {
-        try {
-            $defaults = Helpers::defaultSettings(Helpers::engineVersion());
-            $settings = app(MeiliMovie::class)->meiliSettings();
-            $changes = collect($settings)
-                ->mapWithKeys(function ($value, $key) use ($defaults) {
-                    $old = $defaults[$key];
-                    $new = $value;
 
-                    return [$key => $old === $new ? false : compact('old', 'new')];
-                })
-                ->filter()
-                ->all()
-            ;
+/**
+ * Test `meili:model:synchronize` command with advanced settings.
+ */
+test('with advanced settings', function () {
+    try {
+        $defaults = Helpers::defaultSettings(Helpers::engineVersion());
+        $settings = app(MeiliMovie::class)->meiliSettings();
+        $changes = collect($settings)
+            ->mapWithKeys(function ($value, $key) use ($defaults) {
+                $old = $defaults[$key];
+                $new = $value;
 
-            $details = $this->app->make(DetailsModel::class)(MeiliMovie::class);
-            $this->assertSame($defaults, $details);
+                return [$key => $old === $new ? false : compact('old', 'new')];
+            })
+            ->filter()
+            ->all()
+        ;
 
-            $values = Helpers::convertIndexChangesToTable($changes);
+        $details = app()->make(DetailsModel::class)(MeiliMovie::class);
+        $this->assertSame($defaults, $details);
 
-            $this->artisan('meili:model:synchronize', ['model' => MeiliMovie::class])
-                ->expectsTable(['Setting', 'Old', 'New'], $values)
-                ->assertSuccessful()
-            ;
+        $values = Helpers::convertIndexChangesToTable($changes);
 
-            $details = $this->app->make(DetailsModel::class)(MeiliMovie::class);
-            $this->assertSame($settings, Arr::except($details, ['faceting', 'pagination', 'typoTolerance']));
-        } finally {
-            $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
-        }
+        $this->artisan('meili:model:synchronize', ['model' => MeiliMovie::class])
+            ->expectsTable(['Setting', 'Old', 'New'], $values)
+            ->assertSuccessful()
+        ;
+
+        $details = app()->make(DetailsModel::class)(MeiliMovie::class);
+        $this->assertSame($settings, Arr::except($details, ['faceting', 'pagination', 'typoTolerance']));
+    } finally {
+        $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
     }
+});
 
-    /**
-     * Test `meili:model:synchronize` command with pretend option.
-     */
-    public function test_with_pretend(): void
-    {
-        try {
-            $defaults = Helpers::defaultSettings(Helpers::engineVersion());
-            $settings = app(MeiliMovie::class)->meiliSettings();
-            $changes = collect($settings)
-                ->mapWithKeys(function ($value, $key) use ($defaults) {
-                    $old = $defaults[$key];
-                    $new = $value;
+/**
+ * Test `meili:model:synchronize` command with pretend option.
+ */
+test('with pretend', function () {
+    try {
+        $defaults = Helpers::defaultSettings(Helpers::engineVersion());
+        $settings = app(MeiliMovie::class)->meiliSettings();
+        $changes = collect($settings)
+            ->mapWithKeys(function ($value, $key) use ($defaults) {
+                $old = $defaults[$key];
+                $new = $value;
 
-                    return [$key => $old === $new ? false : compact('old', 'new')];
-                })
-                ->filter()
-                ->all()
-            ;
+                return [$key => $old === $new ? false : compact('old', 'new')];
+            })
+            ->filter()
+            ->all()
+        ;
 
-            $details = $this->app->make(DetailsModel::class)(MeiliMovie::class);
-            $this->assertSame($defaults, $details);
+        $details = app()->make(DetailsModel::class)(MeiliMovie::class);
+        $this->assertSame($defaults, $details);
 
-            $values = Helpers::convertIndexChangesToTable($changes);
+        $values = Helpers::convertIndexChangesToTable($changes);
 
-            $this->artisan('meili:model:synchronize', ['model' => MeiliMovie::class, '--pretend' => true])
-                ->expectsTable(['Setting', 'Old', 'New'], $values)
-                ->assertSuccessful()
-            ;
+        $this->artisan('meili:model:synchronize', ['model' => MeiliMovie::class, '--pretend' => true])
+            ->expectsTable(['Setting', 'Old', 'New'], $values)
+            ->assertSuccessful()
+        ;
 
-            $details = $this->app->make(DetailsModel::class)(MeiliMovie::class);
-            $this->assertSame($defaults, $details);
-        } finally {
-            $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
-        }
+        $details = app()->make(DetailsModel::class)(MeiliMovie::class);
+        $this->assertSame($defaults, $details);
+    } finally {
+        $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
     }
-}
+});

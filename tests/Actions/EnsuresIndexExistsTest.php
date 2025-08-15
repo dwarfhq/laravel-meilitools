@@ -2,48 +2,37 @@
 
 declare(strict_types=1);
 
-namespace Dwarf\MeiliTools\Tests\Actions;
-
 use Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists;
 use Dwarf\MeiliTools\Exceptions\MeiliToolsException;
 use Dwarf\MeiliTools\Tests\TestCase;
 
+uses(Dwarf\MeiliTools\Tests\TestCase::class);
+
 /**
  * @internal
  */
-class EnsuresIndexExistsTest extends TestCase
-{
-    /**
-     * Test index.
-     *
-     * @var string
-     */
-    private const INDEX = 'testing-ensures-index';
 
-    /**
-     * Test using wrong Scout driver.
-     */
-    public function test_meili_tools_exception(): void
-    {
-        config(['scout.driver' => null]);
+/**
+ * Test using wrong Scout driver.
+ */
+test('meili tools exception', function () {
+    config(['scout.driver' => null]);
 
-        $this->expectException(MeiliToolsException::class);
+    $this->expectException(MeiliToolsException::class);
 
-        $action = $this->app->make(EnsuresIndexExists::class);
-        $details = ($action)(self::INDEX);
+    $action = app()->make(EnsuresIndexExists::class);
+    $details = ($action)(self::INDEX);
+});
+
+/**
+ * Test EnsuresIndexExists::__invoke() method.
+ *
+ * @doesNotPerformAssertions
+ */
+test('invoke', function () {
+    try {
+        app()->make(EnsuresIndexExists::class)(self::INDEX);
+    } finally {
+        $this->deleteIndex(self::INDEX);
     }
-
-    /**
-     * Test EnsuresIndexExists::__invoke() method.
-     *
-     * @doesNotPerformAssertions
-     */
-    public function test_invoke(): void
-    {
-        try {
-            $this->app->make(EnsuresIndexExists::class)(self::INDEX);
-        } finally {
-            $this->deleteIndex(self::INDEX);
-        }
-    }
-}
+});

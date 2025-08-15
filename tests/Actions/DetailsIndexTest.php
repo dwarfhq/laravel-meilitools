@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-namespace Dwarf\MeiliTools\Tests\Actions;
-
 use Dwarf\MeiliTools\Contracts\Actions\DetailsIndex;
 use Dwarf\MeiliTools\Exceptions\MeiliToolsException;
 use Dwarf\MeiliTools\Helpers;
@@ -11,66 +9,55 @@ use Dwarf\MeiliTools\Tests\TestCase;
 use MeiliSearch\Exceptions\ApiException;
 use MeiliSearch\Exceptions\CommunicationException;
 
+uses(Dwarf\MeiliTools\Tests\TestCase::class);
+
 /**
  * @internal
  */
-class DetailsIndexTest extends TestCase
-{
-    /**
-     * Test index.
-     *
-     * @var string
-     */
-    private const INDEX = 'testing-details-index';
 
-    /**
-     * Test using wrong Scout driver.
-     */
-    public function test_meili_tools_exception(): void
-    {
-        config(['scout.driver' => null]);
+/**
+ * Test using wrong Scout driver.
+ */
+test('meili tools exception', function () {
+    config(['scout.driver' => null]);
 
-        $this->expectException(MeiliToolsException::class);
+    $this->expectException(MeiliToolsException::class);
 
-        $action = $this->app->make(DetailsIndex::class);
+    $action = app()->make(DetailsIndex::class);
+    $details = ($action)(self::INDEX);
+});
+
+/**
+ * Test getting index details when MeiliSearch isn't running.
+ */
+test('communication exception', function () {
+    config(['scout.meilisearch.host' => 'http://localhost:7777']);
+
+    $this->expectException(CommunicationException::class);
+    $this->expectExceptionMessage('Failed to connect to localhost port 7777');
+
+    $action = app()->make(DetailsIndex::class);
+    $details = ($action)(self::INDEX);
+});
+
+/**
+ * Test getting index details when it doesn't exist.
+ */
+test('api exception', function () {
+    $this->expectException(ApiException::class);
+    $this->expectExceptionMessage('Index `' . self::INDEX . '` not found.');
+
+    $action = app()->make(DetailsIndex::class);
+    $details = ($action)(self::INDEX);
+});
+
+/**
+ * Test DetailsIndex::__invoke() method.
+ */
+test('invoke', function () {
+    $this->withIndex(self::INDEX, function () {
+        $action = app()->make(DetailsIndex::class);
         $details = ($action)(self::INDEX);
-    }
-
-    /**
-     * Test getting index details when MeiliSearch isn't running.
-     */
-    public function test_communication_exception(): void
-    {
-        config(['scout.meilisearch.host' => 'http://localhost:7777']);
-
-        $this->expectException(CommunicationException::class);
-        $this->expectExceptionMessage('Failed to connect to localhost port 7777');
-
-        $action = $this->app->make(DetailsIndex::class);
-        $details = ($action)(self::INDEX);
-    }
-
-    /**
-     * Test getting index details when it doesn't exist.
-     */
-    public function test_api_exception(): void
-    {
-        $this->expectException(ApiException::class);
-        $this->expectExceptionMessage('Index `' . self::INDEX . '` not found.');
-
-        $action = $this->app->make(DetailsIndex::class);
-        $details = ($action)(self::INDEX);
-    }
-
-    /**
-     * Test DetailsIndex::__invoke() method.
-     */
-    public function test_invoke(): void
-    {
-        $this->withIndex(self::INDEX, function () {
-            $action = $this->app->make(DetailsIndex::class);
-            $details = ($action)(self::INDEX);
-            $this->assertSame(Helpers::defaultSettings(Helpers::engineVersion()), $details);
-        });
-    }
-}
+        $this->assertSame(Helpers::defaultSettings(Helpers::engineVersion()), $details);
+    });
+});
