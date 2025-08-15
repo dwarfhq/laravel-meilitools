@@ -26,13 +26,13 @@ class IndexDeleteTest extends TestCase
         $this->withIndex(self::INDEX, function () {
             $this->artisan('meili:index:delete')
                 ->expectsQuestion('What is the index name?', self::INDEX)
-                ->expectsConfirmation('Do you really wish to run this command?', 'no')
+                ->expectsConfirmation('Are you sure you want to run this command?', 'no')
                 ->assertFailed()
             ;
 
             $this->artisan('meili:index:delete')
                 ->expectsQuestion('What is the index name?', self::INDEX)
-                ->expectsConfirmation('Do you really wish to run this command?', 'yes')
+                ->expectsConfirmation('Are you sure you want to run this command?', 'yes')
                 ->assertSuccessful()
             ;
         });
@@ -45,12 +45,12 @@ class IndexDeleteTest extends TestCase
     {
         $this->withIndex(self::INDEX, function () {
             $this->artisan('meili:index:delete', ['index' => self::INDEX])
-                ->expectsConfirmation('Do you really wish to run this command?', 'no')
+                ->expectsConfirmation('Are you sure you want to run this command?', 'no')
                 ->assertFailed()
             ;
 
             $this->artisan('meili:index:delete', ['index' => self::INDEX])
-                ->expectsConfirmation('Do you really wish to run this command?', 'yes')
+                ->expectsConfirmation('Are you sure you want to run this command?', 'yes')
                 ->assertSuccessful()
             ;
         });

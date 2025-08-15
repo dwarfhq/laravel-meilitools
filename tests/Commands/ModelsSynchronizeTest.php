@@ -127,7 +127,7 @@ class ModelsSynchronizeTest extends TestCase
 
         try {
             $this->artisan('meili:models:synchronize')
-                ->expectsConfirmation('Do you really wish to run this command?', 'no')
+                ->expectsConfirmation('Are you sure you want to run this command?', 'no')
                 ->assertFailed()
             ;
 
@@ -136,7 +136,7 @@ class ModelsSynchronizeTest extends TestCase
             ;
 
             $this->artisan('meili:models:synchronize')
-                ->expectsConfirmation('Do you really wish to run this command?', 'yes')
+                ->expectsConfirmation('Are you sure you want to run this command?', 'yes')
                 ->assertSuccessful()
             ;
         } finally {
