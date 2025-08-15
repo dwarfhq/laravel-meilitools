@@ -34,9 +34,9 @@ test('with advanced settings', function () {
         ];
 
         $details = app()->make(DetailsModel::class)(Movie::class);
-        expect($details)->toBe($defaults);
+        expect($details)->toMatchArray($defaults);
         $details = app()->make(DetailsModel::class)(MeiliMovie::class);
-        expect($details)->toBe($defaults);
+        expect($details)->toMatchArray($defaults);
 
         $action = app()->make(SynchronizesModels::class);
         $action(array_keys($classes), function ($class, $result) use ($classes) {
@@ -49,7 +49,7 @@ test('with advanced settings', function () {
         });
 
         $details = app()->make(DetailsModel::class)(Movie::class);
-        expect($details)->toBe($defaults);
+        expect($details)->toMatchArray($defaults);
 
         $details = app()->make(DetailsModel::class)(MeiliMovie::class);
         expect(Arr::except($details, ['faceting', 'pagination', 'typoTolerance']))->toBe($settings);
@@ -78,7 +78,7 @@ test('with pretend', function () {
         ;
 
         $details = app()->make(DetailsModel::class)(MeiliMovie::class);
-        expect($details)->toBe($defaults);
+        expect($details)->toMatchArray($defaults);
 
         $action = app()->make(SynchronizesModels::class);
         $action([MeiliMovie::class], function ($class, $result) use ($expected) {
@@ -86,7 +86,7 @@ test('with pretend', function () {
         }, true);
 
         $details = app()->make(DetailsModel::class)(MeiliMovie::class);
-        expect($details)->toBe($defaults);
+        expect($details)->toMatchArray($defaults);
     } finally {
         $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
     }

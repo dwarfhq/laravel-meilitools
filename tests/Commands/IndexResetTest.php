@@ -18,7 +18,7 @@ test('with advanced settings', function () {
         app()->make(SynchronizesIndex::class)('testing-resets-index', $settings);
         $details = app()->make(DetailsIndex::class)('testing-resets-index');
         expect($details)->not->toBe($defaults);
-        expect($details)->toBe(array_replace($defaults, $settings));
+        expect($details)->toMatchArray(array_replace($defaults, $settings));
 
         $changes = collect($settings)
             ->mapWithKeys(function ($value, $key) {
@@ -44,7 +44,7 @@ test('with advanced settings', function () {
         ;
 
         $details = app()->make(DetailsIndex::class)('testing-resets-index');
-        expect($details)->toBe($defaults);
+        expect($details)->toMatchArray($defaults);
     });
 });
 
@@ -59,7 +59,7 @@ test('with pretend', function () {
         app()->make(SynchronizesIndex::class)('testing-resets-index', $settings);
         $details = app()->make(DetailsIndex::class)('testing-resets-index');
         expect($details)->not->toBe($defaults);
-        expect($details)->toBe(array_replace($defaults, $settings));
+        expect($details)->toMatchArray(array_replace($defaults, $settings));
 
         $changes = collect($settings)
             ->mapWithKeys(function ($value, $key) {

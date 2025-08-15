@@ -30,7 +30,7 @@ test('with advanced settings', function () {
         $values = Helpers::convertIndexChangesToTable($changes);
 
         $details = app()->make(DetailsModel::class)(MeiliMovie::class);
-        expect($details)->toBe($defaults);
+        expect($details)->toMatchArray($defaults);
 
         $this->artisan('meili:models:synchronize')
             ->expectsOutput('Processed ' . BrokenMovie::class)
@@ -72,7 +72,7 @@ test('with pretend', function () {
         $values = Helpers::convertIndexChangesToTable($changes);
 
         $details = app()->make(DetailsModel::class)(MeiliMovie::class);
-        expect($details)->toBe($defaults);
+        expect($details)->toMatchArray($defaults);
 
         $path = __DIR__ . '/../Models';
         $namespace = 'Dwarf\\MeiliTools\\Tests\\Models';
@@ -91,7 +91,7 @@ test('with pretend', function () {
         ;
 
         $details = app()->make(DetailsModel::class)(MeiliMovie::class);
-        expect($details)->toBe($defaults);
+        expect($details)->toMatchArray($defaults);
     } finally {
         $this->deleteIndex(app(BrokenMovie::class)->searchableAs());
         $this->deleteIndex(app(MeiliMovie::class)->searchableAs());

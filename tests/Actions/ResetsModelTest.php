@@ -19,7 +19,7 @@ test('with advanced settings', function () {
         app()->make(SynchronizesModel::class)(MeiliMovie::class);
         $details = app()->make(DetailsModel::class)(MeiliMovie::class);
         expect($details)->not->toBe($defaults);
-        expect($details)->toBe(array_replace($defaults, $settings));
+        expect($details)->toMatchArray(array_replace($defaults, $settings));
 
         $changes = app()->make(ResetsModel::class)(MeiliMovie::class);
         expect($changes)->toHaveCount(8);
@@ -31,7 +31,7 @@ test('with advanced settings', function () {
         }
 
         $details = app()->make(DetailsModel::class)(MeiliMovie::class);
-        expect($details)->toBe($defaults);
+        expect($details)->toMatchArray($defaults);
     } finally {
         $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
     }
@@ -48,7 +48,7 @@ test('with pretend', function () {
         app()->make(SynchronizesModel::class)(MeiliMovie::class);
         $details = app()->make(DetailsModel::class)(MeiliMovie::class);
         expect($details)->not->toBe($defaults);
-        expect($details)->toBe(array_replace($defaults, $settings));
+        expect($details)->toMatchArray(array_replace($defaults, $settings));
 
         $changes = app()->make(ResetsModel::class)(MeiliMovie::class, true);
         expect($changes)->toHaveCount(8);

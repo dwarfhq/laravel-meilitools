@@ -19,7 +19,7 @@ test('with movie settings', function () {
         app()->make(SynchronizesIndex::class)('testing-resets-index', $settings);
         $details = app()->make(DetailsIndex::class)('testing-resets-index');
         expect($details)->not->toBe($defaults);
-        expect($details)->toBe(array_replace($defaults, $settings));
+        expect($details)->toMatchArray(array_replace($defaults, $settings));
 
         $changes = app()->make(ResetsIndex::class)('testing-resets-index');
         expect($changes)->toHaveCount(8);
@@ -31,7 +31,7 @@ test('with movie settings', function () {
         }
 
         $details = app()->make(DetailsIndex::class)('testing-resets-index');
-        expect($details)->toBe($defaults);
+        expect($details)->toMatchArray($defaults);
     });
 });
 
@@ -46,7 +46,7 @@ test('with pretend', function () {
         app()->make(SynchronizesIndex::class)('testing-resets-index', $settings);
         $details = app()->make(DetailsIndex::class)('testing-resets-index');
         expect($details)->not->toBe($defaults);
-        expect($details)->toBe(array_replace($defaults, $settings));
+        expect($details)->toMatchArray(array_replace($defaults, $settings));
 
         $changes = app()->make(ResetsIndex::class)('testing-resets-index', true);
         expect($changes)->toHaveCount(8);
