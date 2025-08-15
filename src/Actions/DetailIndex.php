@@ -7,7 +7,7 @@ namespace Dwarf\MeiliTools\Actions;
 use Dwarf\MeiliTools\Contracts\Actions\DetailsIndex;
 use Dwarf\MeiliTools\Helpers;
 use Laravel\Scout\EngineManager;
-use MeiliSearch\Contracts\Data;
+use Meilisearch\Contracts\Data;
 
 /**
  * Detail index.

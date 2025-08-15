@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Laravel\Scout\EngineManager;
-use MeiliSearch\MeiliSearch;
+use Meilisearch\MeiliSearch;
 use Throwable;
 
 class Helpers
@@ -33,7 +33,7 @@ class Helpers
         throw_unless(
             self::usingMeiliSearch(),
             MeiliToolsException::class,
-            'Scout must be using the MeiliSearch driver'
+            'Scout must be using the MeiliSearch driver',
         );
     }
 
@@ -115,9 +115,9 @@ class Helpers
                                 'disableOnWords'      => null,
                                 'disableOnAttributes' => null,
                             ],
-                            array_keys($value)
+                            array_keys($value),
                         ),
-                        $value
+                        $value,
                     );
                     if (isset($value['minWordSizeForTypos'])) {
                         ksort($value['minWordSizeForTypos']);
@@ -176,10 +176,7 @@ class Helpers
     {
         return collect($data)
             ->map(function ($value, $key) {
-                return [
-                    (string) Str::of($key)->snake()->replace('_', ' ')->title(),
-                    self::export($value),
-                ];
+                return [(string) Str::of($key)->snake()->replace('_', ' ')->title(), self::export($value)];
             })
             ->values()
             ->all()

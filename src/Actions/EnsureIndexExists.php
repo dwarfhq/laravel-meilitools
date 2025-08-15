@@ -7,7 +7,7 @@ namespace Dwarf\MeiliTools\Actions;
 use Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists;
 use Dwarf\MeiliTools\Helpers;
 use Laravel\Scout\EngineManager;
-use MeiliSearch\Exceptions\ApiException;
+use Meilisearch\Exceptions\ApiException;
 
 /**
  * Ensure index exists.

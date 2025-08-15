@@ -2,6 +2,7 @@
 /tests/_reports
 /composer.lock
 /.idea
+/.zed
 /.phpunit.result.*
 /.pint.json
 .DS_*

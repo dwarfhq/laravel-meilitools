@@ -7,7 +7,7 @@ namespace Dwarf\MeiliTools\Actions;
 use Dwarf\MeiliTools\Contracts\Actions\ListsIndexes;
 use Dwarf\MeiliTools\Helpers;
 use Laravel\Scout\EngineManager;
-use MeiliSearch\Endpoints\Indexes;
+use Meilisearch\Endpoints\Indexes;
 
 /**
  * List indexes.
@@ -43,7 +43,7 @@ class ListIndexes implements ListsIndexes
     {
         Helpers::throwUnlessMeiliSearch();
 
-        $indexes = $this->manager->engine()->getAllIndexes()->getResults();
+        $indexes = $this->manager->engine()->getIndexes()->getResults();
 
         // Convert iterator objects from contract to array.
         return collect($indexes)

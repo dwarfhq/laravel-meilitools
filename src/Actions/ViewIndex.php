@@ -7,7 +7,7 @@ namespace Dwarf\MeiliTools\Actions;
 use Dwarf\MeiliTools\Contracts\Actions\ViewsIndex;
 use Dwarf\MeiliTools\Helpers;
 use Laravel\Scout\EngineManager;
-use MeiliSearch\Endpoints\Indexes;
+use Meilisearch\Endpoints\Indexes;
 
 /**
  * List indexes.
