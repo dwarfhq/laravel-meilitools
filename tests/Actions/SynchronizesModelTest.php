@@ -8,10 +8,8 @@ use Dwarf\MeiliTools\Helpers;
 use Dwarf\MeiliTools\Tests\Models\BrokenMovie;
 use Dwarf\MeiliTools\Tests\Models\MeiliMovie;
 use Dwarf\MeiliTools\Tests\Models\Movie;
-use Dwarf\MeiliTools\Tests\TestCase;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
-
 
 /**
  * @internal

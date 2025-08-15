@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 use Dwarf\MeiliTools\Contracts\Actions\CreatesIndex;
 use Dwarf\MeiliTools\Exceptions\MeiliToolsException;
-use Dwarf\MeiliTools\Tests\TestCase;
 use Illuminate\Testing\Fluent\AssertableJson;
 use MeiliSearch\Exceptions\CommunicationException;
-
 
 /**
  * @internal

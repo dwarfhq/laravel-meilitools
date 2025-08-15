@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 use Dwarf\MeiliTools\Contracts\Actions\ViewsIndex;
 use Dwarf\MeiliTools\Exceptions\MeiliToolsException;
-use Dwarf\MeiliTools\Tests\TestCase;
 use Illuminate\Testing\Fluent\AssertableJson;
 use MeiliSearch\Exceptions\ApiException;
 use MeiliSearch\Exceptions\CommunicationException;
-
 
 /**
  * @internal

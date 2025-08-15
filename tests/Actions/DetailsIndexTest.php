@@ -5,10 +5,8 @@ declare(strict_types=1);
 use Dwarf\MeiliTools\Contracts\Actions\DetailsIndex;
 use Dwarf\MeiliTools\Exceptions\MeiliToolsException;
 use Dwarf\MeiliTools\Helpers;
-use Dwarf\MeiliTools\Tests\TestCase;
 use MeiliSearch\Exceptions\ApiException;
 use MeiliSearch\Exceptions\CommunicationException;
-
 
 /**
  * @internal

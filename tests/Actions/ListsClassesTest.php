@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 use Dwarf\MeiliTools\Contracts\Actions\ListsClasses;
 use Dwarf\MeiliTools\Contracts\Indexes\MeiliSettings;
-use Dwarf\MeiliTools\Tests\TestCase;
-
 
 /**
  * @internal

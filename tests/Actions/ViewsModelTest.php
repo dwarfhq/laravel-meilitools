@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 use Dwarf\MeiliTools\Contracts\Actions\ViewsModel;
 use Dwarf\MeiliTools\Tests\Models\Movie;
-use Dwarf\MeiliTools\Tests\TestCase;
 use Illuminate\Testing\Fluent\AssertableJson;
-
 
 /**
  * @internal

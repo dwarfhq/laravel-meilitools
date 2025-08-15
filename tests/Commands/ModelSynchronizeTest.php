@@ -5,9 +5,7 @@ declare(strict_types=1);
 use Dwarf\MeiliTools\Contracts\Actions\DetailsModel;
 use Dwarf\MeiliTools\Helpers;
 use Dwarf\MeiliTools\Tests\Models\MeiliMovie;
-use Dwarf\MeiliTools\Tests\TestCase;
 use Illuminate\Support\Arr;
-
 
 /**
  * @internal

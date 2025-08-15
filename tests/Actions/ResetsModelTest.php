@@ -7,8 +7,6 @@ use Dwarf\MeiliTools\Contracts\Actions\ResetsModel;
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesModel;
 use Dwarf\MeiliTools\Helpers;
 use Dwarf\MeiliTools\Tests\Models\MeiliMovie;
-use Dwarf\MeiliTools\Tests\TestCase;
-
 
 /**
  * @internal

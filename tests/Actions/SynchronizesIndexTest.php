@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesIndex;
 use Dwarf\MeiliTools\Helpers;
-use Dwarf\MeiliTools\Tests\TestCase;
 use Dwarf\MeiliTools\Tests\Tools;
 use Illuminate\Support\Arr;
-
 
 /**
  * @internal

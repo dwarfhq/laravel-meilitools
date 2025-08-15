@@ -5,12 +5,10 @@ declare(strict_types=1);
 use Dwarf\MeiliTools\Contracts\Actions\ValidatesIndexSettings;
 use Dwarf\MeiliTools\Contracts\Rules\ArrayAssocRule;
 use Dwarf\MeiliTools\Helpers;
-use Dwarf\MeiliTools\Tests\TestCase;
 use Dwarf\MeiliTools\Tests\Tools;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
 use MeiliSearch\MeiliSearch;
-
 
 /**
  * @internal

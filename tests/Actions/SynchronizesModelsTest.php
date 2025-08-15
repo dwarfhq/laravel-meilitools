@@ -7,9 +7,7 @@ use Dwarf\MeiliTools\Contracts\Actions\SynchronizesModels;
 use Dwarf\MeiliTools\Helpers;
 use Dwarf\MeiliTools\Tests\Models\MeiliMovie;
 use Dwarf\MeiliTools\Tests\Models\Movie;
-use Dwarf\MeiliTools\Tests\TestCase;
 use Illuminate\Support\Arr;
-
 
 /**
  * @internal

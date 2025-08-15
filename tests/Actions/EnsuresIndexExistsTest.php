@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 use Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists;
 use Dwarf\MeiliTools\Exceptions\MeiliToolsException;
-use Dwarf\MeiliTools\Tests\TestCase;
-
 
 /**
  * @internal

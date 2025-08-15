@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 use Dwarf\MeiliTools\Contracts\Actions\DeletesIndex;
 use Dwarf\MeiliTools\Exceptions\MeiliToolsException;
-use Dwarf\MeiliTools\Tests\TestCase;
 use MeiliSearch\Exceptions\CommunicationException;
-
 
 /**
  * @internal
