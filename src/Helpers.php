@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Laravel\Scout\EngineManager;
-use Meilisearch\MeiliSearch;
 use Throwable;
 
 class Helpers
@@ -45,20 +44,29 @@ class Helpers
     public static function defaultSettings(?string $version = null): array
     {
         $settings = [
-            'displayedAttributes'  => ['*'],
-            'distinctAttribute'    => null,
+            'dictionary'          => [],
+            'displayedAttributes' => ['*'],
+            'distinctAttribute'   => null,
+            'embedders'           => [],
+            'facetSearch'         => true,
+            'faceting'            => [
+                'maxValuesPerFacet' => 100,
+                'sortFacetValuesBy' => ['*' => 'alpha'],
+            ],
             'filterableAttributes' => [],
+            'localizedAttributes'  => null,
+            'nonSeparatorTokens'   => [],
+            'pagination'           => ['maxTotalHits' => 1000],
+            'prefixSearch'         => 'indexingTime',
+            'proximityPrecision'   => 'byWord',
             'rankingRules'         => ['words', 'typo', 'proximity', 'attribute', 'sort', 'exactness'],
+            'searchCutoffMs'       => null,
             'searchableAttributes' => ['*'],
+            'separatorTokens'      => [],
             'sortableAttributes'   => [],
             'stopWords'            => [],
             'synonyms'             => [],
-            'typoTolerance'        => [],
-        ];
-
-        // Add actual typo tolerance defaults for engine version >=0.27.0.
-        if ($version && version_compare($version, '0.27.0', '>=')) {
-            $settings['typoTolerance'] = [
+            'typoTolerance'        => [
                 'enabled'             => true,
                 'minWordSizeForTypos' => [
                     'oneTypo'  => 5,
@@ -66,14 +74,9 @@ class Helpers
                 ],
                 'disableOnWords'      => [],
                 'disableOnAttributes' => [],
-            ];
-        }
-
-        // Add faceting and pagination defaults for version >=0.28.0.
-        if ($version && version_compare($version, '0.28.0', '>=')) {
-            $settings['faceting'] = ['maxValuesPerFacet' => 100];
-            $settings['pagination'] = ['maxTotalHits' => 1000];
-        }
+                'disableOnNumbers'    => false,
+            ],
+        ];
 
         // Sort settings by key.
         ksort($settings);

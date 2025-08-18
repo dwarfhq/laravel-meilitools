@@ -45,7 +45,7 @@ test('with advanced settings', function () {
         ;
 
         $details = app()->make(DetailsModel::class)(MeiliMovie::class);
-        expect(Arr::except($details, ['faceting', 'pagination', 'typoTolerance']))->toBe($settings);
+        expect(Arr::except($details, ['faceting', 'pagination', 'typoTolerance']))->toMatchArray($settings);
     } finally {
         $this->deleteIndex(app(BrokenMovie::class)->searchableAs());
         $this->deleteIndex(app(MeiliMovie::class)->searchableAs());

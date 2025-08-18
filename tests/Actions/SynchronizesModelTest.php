@@ -51,7 +51,7 @@ test('with advanced settings', function () {
         expect($changes)->toBe($expected);
 
         $details = app()->make(DetailsModel::class)(MeiliMovie::class);
-        expect(Arr::except($details, ['faceting', 'pagination', 'typoTolerance']))->toBe($settings);
+        expect(Arr::except($details, ['faceting', 'pagination', 'typoTolerance']))->toMatchArray($settings);
     } finally {
         $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
     }
@@ -117,7 +117,7 @@ test('with soft deletes enabled', function () {
         expect($changes)->toBe($expected);
 
         $details = app()->make(DetailsModel::class)(MeiliMovie::class);
-        expect(Arr::except($details, ['faceting', 'pagination', 'typoTolerance']))->toBe($settings);
+        expect(Arr::except($details, ['faceting', 'pagination', 'typoTolerance']))->toMatchArray($settings);
     } finally {
         $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
     }

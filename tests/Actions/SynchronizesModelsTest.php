@@ -52,7 +52,7 @@ test('with advanced settings', function () {
         expect($details)->toMatchArray($defaults);
 
         $details = app()->make(DetailsModel::class)(MeiliMovie::class);
-        expect(Arr::except($details, ['faceting', 'pagination', 'typoTolerance']))->toBe($settings);
+        expect(Arr::except($details, ['faceting', 'pagination', 'typoTolerance']))->toMatchArray($settings);
     } finally {
         $this->deleteIndex(app(Movie::class)->searchableAs());
         $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
