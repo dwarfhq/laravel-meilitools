@@ -31,7 +31,7 @@ jobs:
           - version: prefer-stable
             meilisearch: latest
           - version: prefer-lowest
-            meilisearch: v1.6.0
+            meilisearch: v1.0.0
 
     runs-on: ubuntu-latest
 

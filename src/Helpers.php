@@ -44,25 +44,16 @@ class Helpers
     public static function defaultSettings(?string $version = null): array
     {
         $settings = [
-            'dictionary'          => [],
             'displayedAttributes' => ['*'],
             'distinctAttribute'   => null,
-            'embedders'           => [],
-            'facetSearch'         => true,
             'faceting'            => [
                 'maxValuesPerFacet' => 100,
                 'sortFacetValuesBy' => ['*' => 'alpha'],
             ],
             'filterableAttributes' => [],
-            'localizedAttributes'  => null,
-            'nonSeparatorTokens'   => [],
             'pagination'           => ['maxTotalHits' => 1000],
-            'prefixSearch'         => 'indexingTime',
-            'proximityPrecision'   => 'byWord',
             'rankingRules'         => ['words', 'typo', 'proximity', 'attribute', 'sort', 'exactness'],
-            'searchCutoffMs'       => null,
             'searchableAttributes' => ['*'],
-            'separatorTokens'      => [],
             'sortableAttributes'   => [],
             'stopWords'            => [],
             'synonyms'             => [],
@@ -74,9 +65,13 @@ class Helpers
                 ],
                 'disableOnWords'      => [],
                 'disableOnAttributes' => [],
-                'disableOnNumbers'    => false,
             ],
         ];
+
+        // Add actual typo tolerance defaults for engine version >=1.15.0.
+        if ($version && version_compare($version, '1.15.0', '>=')) {
+            $settings['typoTolerance']['disableOnNumbers'] = false;
+        }
 
         // Sort settings by key.
         ksort($settings);

@@ -44,7 +44,7 @@ test('with advanced settings', function () {
         $settings = app(MeiliMovie::class)->meiliSettings();
 
         $changes = app()->make(SynchronizesModel::class)(MeiliMovie::class);
-        $this->assertNotEmpty($changes);
+        expect($changes)->not->toBeEmpty();
 
         $values = Helpers::convertIndexDataToTable(
             Helpers::sortSettings($settings + Arr::only($defaults, ['faceting', 'pagination', 'typoTolerance']))

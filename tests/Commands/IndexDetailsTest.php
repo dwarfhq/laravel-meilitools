@@ -36,7 +36,7 @@ test('with advanced settings', function () {
         $settings = Tools::movieSettings();
 
         $changes = app()->make(SynchronizesIndex::class)('testing-details-index', $settings);
-        $this->assertNotEmpty($changes);
+        expect($changes)->not->toBeEmpty();
 
         $values = Helpers::convertIndexDataToTable(
             Helpers::sortSettings($settings + Arr::only($defaults, ['faceting', 'pagination', 'typoTolerance']))
