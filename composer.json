@@ -19,7 +19,7 @@
     "require": {
         "php": "^8.2",
         "illuminate/validation": "^10.0|^11.0|^12.0",
-        "meilisearch/meilisearch-php": "^1.0.0"
+        "meilisearch/meilisearch-php": "^1.4.0"
     },
     "require-dev": {
         "brick/varexporter": "^0.3.8|^0.4.0|^0.5.0|^0.6.0",
