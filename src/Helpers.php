@@ -67,9 +67,13 @@ class Helpers
             ],
         ];
 
-        // Add actual typo tolerance defaults for engine version >=1.15.0.
-        if ($version && version_compare($version, '1.15.0', '>=')) {
+        // Additional settings for engine version >=1.3.0.
+        if ($version && version_compare($version, '1.3.0', '>=')) {
             $settings['faceting']['sortFacetValuesBy'] = ['*' => 'alpha'];
+        }
+
+        // Additional settings for engine version >=1.15.0.
+        if ($version && version_compare($version, '1.15.0', '>=')) {
             $settings['typoTolerance']['disableOnNumbers'] = false;
         }
 
