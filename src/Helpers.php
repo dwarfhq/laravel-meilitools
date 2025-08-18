@@ -48,7 +48,6 @@ class Helpers
             'distinctAttribute'   => null,
             'faceting'            => [
                 'maxValuesPerFacet' => 100,
-                'sortFacetValuesBy' => ['*' => 'alpha'],
             ],
             'filterableAttributes' => [],
             'pagination'           => ['maxTotalHits' => 1000],
@@ -70,6 +69,7 @@ class Helpers
 
         // Add actual typo tolerance defaults for engine version >=1.15.0.
         if ($version && version_compare($version, '1.15.0', '>=')) {
+            $settings['faceting']['sortFacetValuesBy'] = ['*' => 'alpha'];
             $settings['typoTolerance']['disableOnNumbers'] = false;
         }
 
