@@ -17,8 +17,6 @@ class CreateIndex implements CreatesIndex
 
     /**
      * Scout engine manager.
-     *
-     * @var \Laravel\Scout\EngineManager
      */
     protected EngineManager $manager;
 

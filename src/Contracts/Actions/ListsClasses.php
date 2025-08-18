@@ -15,8 +15,6 @@ interface ListsClasses
      * @param string        $path      Path to scan for models.
      * @param string        $namespace Namespace matching the models.
      * @param callable|null $filter    Optional callback filter.
-     *
-     * @return array
      */
     public function __invoke(string $path, string $namespace, ?callable $filter = null): array;
 }

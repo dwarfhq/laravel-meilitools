@@ -14,8 +14,6 @@ interface CreatesIndex
      *
      * @param string $index   Index name.
      * @param array  $options Index options.
-     *
-     * @return array
      */
     public function __invoke(string $index, array $options = []): array;
 }

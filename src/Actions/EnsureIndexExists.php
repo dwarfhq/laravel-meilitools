@@ -7,7 +7,7 @@ namespace Dwarf\MeiliTools\Actions;
 use Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists;
 use Dwarf\MeiliTools\Helpers;
 use Laravel\Scout\EngineManager;
-use MeiliSearch\Exceptions\ApiException;
+use Meilisearch\Exceptions\ApiException;
 
 /**
  * Ensure index exists.
@@ -16,8 +16,6 @@ class EnsureIndexExists implements EnsuresIndexExists
 {
     /**
      * Scout engine manager.
-     *
-     * @var \Laravel\Scout\EngineManager
      */
     protected EngineManager $manager;
 

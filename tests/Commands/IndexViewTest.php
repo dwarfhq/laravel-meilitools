@@ -2,59 +2,36 @@
 
 declare(strict_types=1);
 
-namespace Dwarf\MeiliTools\Tests\Commands;
+/**
+ * Test `meili:index:view` command with default settings.
+ */
+test('with default settings', function () {
+    $this->withIndex('testing-index-view', function () {
+        // Since data returned from MeiliSearch includes microsecond precision timestamps,
+        // it's impossible to validate the exact console output.
+        $this->artisan('meili:index:view')
+            ->expectsQuestion('What is the index name?', 'testing-index-view')
+            ->expectsOutputToContain('testing-index-view')
+            ->assertSuccessful()
+        ;
 
-use Dwarf\MeiliTools\Tests\TestCase;
+        $this->artisan('meili:index:view', ['index' => 'testing-index-view'])
+            ->expectsOutputToContain('testing-index-view')
+            ->assertSuccessful()
+        ;
+    });
+});
 
 /**
- * @internal
+ * Test `meili:index:view` command with stats option.
  */
-class IndexViewTest extends TestCase
-{
-    /**
-     * Test index.
-     *
-     * @var string
-     */
-    private const INDEX = 'testing-index-view';
-
-    /**
-     * Test `meili:index:view` command with default settings.
-     *
-     * @return void
-     */
-    public function testWithDefaultSettings(): void
-    {
-        $this->withIndex(self::INDEX, function () {
-            // Since data returned from MeiliSearch includes microsecond precision timestamps,
-            // it's impossible to validate the exact console output.
-            $this->artisan('meili:index:view')
-                ->expectsQuestion('What is the index name?', self::INDEX)
-                // ->expectsOutputToContain(self::INDEX) - Laravel 9 only.
-                ->assertSuccessful()
-            ;
-
-            $this->artisan('meili:index:view', ['index' => self::INDEX])
-                // ->expectsOutputToContain(self::INDEX) - Laravel 9 only.
-                ->assertSuccessful()
-            ;
-        });
-    }
-
-    /**
-     * Test `meili:index:view` command with stats option.
-     *
-     * @return void
-     */
-    public function testWithStats(): void
-    {
-        $this->withIndex(self::INDEX, function () {
-            // Since data returned from MeiliSearch includes microsecond precision timestamps,
-            // it's impossible to validate the exact console output.
-            $this->artisan('meili:index:view', ['index' => self::INDEX, '--stats' => true])
-                // ->expectsOutputToContain(self::INDEX) - Laravel 9 only.
-                ->assertSuccessful()
-            ;
-        });
-    }
-}
+test('with stats', function () {
+    $this->withIndex('testing-index-view', function () {
+        // Since data returned from MeiliSearch includes microsecond precision timestamps,
+        // it's impossible to validate the exact console output.
+        $this->artisan('meili:index:view', ['index' => 'testing-index-view', '--stats' => true])
+            ->expectsOutputToContain('testing-index-view')
+            ->assertSuccessful()
+        ;
+    });
+});

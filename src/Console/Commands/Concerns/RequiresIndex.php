@@ -8,8 +8,6 @@ trait RequiresIndex
 {
     /**
      * Get index name.
-     *
-     * @return string
      */
     protected function getIndex(): string
     {

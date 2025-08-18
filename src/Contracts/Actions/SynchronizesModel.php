@@ -13,8 +13,6 @@ interface SynchronizesModel
      * Synchronizes model index settings.
      *
      * @param string $class Model class.
-     *
-     * @return array
      */
     public function __invoke(string $class): array;
 }

@@ -30,12 +30,8 @@ class IndexReset extends Command
 
     /**
      * Execute the console command.
-     *
-     * @param \Dwarf\MeiliTools\Contracts\Actions\ResetsIndex $resetIndex
-     *
-     * @return int
      */
-    public function handle(ResetsIndex $resetIndex)
+    public function handle(ResetsIndex $resetIndex): int
     {
         $changes = $resetIndex($this->getIndex(), $this->option('pretend'));
         $values = Helpers::convertIndexChangesToTable($changes);

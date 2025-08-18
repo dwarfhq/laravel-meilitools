@@ -28,12 +28,8 @@ class ModelView extends Command
 
     /**
      * Execute the console command.
-     *
-     * @param \Dwarf\MeiliTools\Contracts\Actions\ViewsModel $viewModel
-     *
-     * @return int
      */
-    public function handle(ViewsModel $viewModel)
+    public function handle(ViewsModel $viewModel): int
     {
         $info = $viewModel($this->getModel(), $this->option('stats'));
         $values = Helpers::convertIndexDataToTable($info);

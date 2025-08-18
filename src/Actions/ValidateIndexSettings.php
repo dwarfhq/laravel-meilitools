@@ -9,7 +9,7 @@ use Dwarf\MeiliTools\Contracts\Rules\ArrayAssocRule;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-use MeiliSearch\MeiliSearch;
+use Meilisearch\MeiliSearch;
 
 /**
  * Validates index settings.
@@ -18,15 +18,11 @@ class ValidateIndexSettings implements ValidatesIndexSettings
 {
     /**
      * Validated data.
-     *
-     * @var array|null
      */
     protected ?array $validated = null;
 
     /**
      * Validation error messages.
-     *
-     * @var array
      */
     protected array $messages = [];
 
@@ -110,12 +106,7 @@ class ValidateIndexSettings implements ValidatesIndexSettings
         if ($version && version_compare($version, '0.27.0', '>=')) {
             $rules['typoTolerance.enabled'] = ['sometimes', 'nullable', 'boolean'];
             $rules['typoTolerance.minWordSizeForTypos'] = ['sometimes', 'nullable', App::make(ArrayAssocRule::class)];
-            $rules['typoTolerance.minWordSizeForTypos.oneTypo'] = [
-                'sometimes',
-                'nullable',
-                'integer',
-                'between:0,255',
-            ];
+            $rules['typoTolerance.minWordSizeForTypos.oneTypo'] = ['sometimes', 'nullable', 'integer', 'between:0,255'];
             $rules['typoTolerance.minWordSizeForTypos.twoTypos'] = [
                 'sometimes',
                 'nullable',
@@ -141,8 +132,6 @@ class ValidateIndexSettings implements ValidatesIndexSettings
 
     /**
      * Custom attribute values for typo tolerance rules.
-     *
-     * @return array
      */
     public function attributes(): array
     {

@@ -16,15 +16,11 @@ class SynchronizeModel implements SynchronizesModel
 {
     /**
      * Synchronizes index action.
-     *
-     * @var \Dwarf\MeiliTools\Contracts\Actions\SynchronizesIndex
      */
     protected SynchronizesIndex $synchronizeIndex;
 
     /**
      * Ensures index exists action.
-     *
-     * @var \Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists
      */
     protected EnsuresIndexExists $ensureIndexExists;
 

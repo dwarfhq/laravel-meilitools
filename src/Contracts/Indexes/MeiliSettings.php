@@ -59,8 +59,6 @@ interface MeiliSettings
      *     ],
      * ];
      * </code>
-     *
-     * @return array
      */
     public function meiliSettings(): array;
 }

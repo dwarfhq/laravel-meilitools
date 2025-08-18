@@ -10,8 +10,6 @@ trait RequiresModel
 {
     /**
      * Get model class.
-     *
-     * @return string
      */
     protected function getModel(): string
     {

@@ -11,8 +11,6 @@ interface ListsIndexes
 {
     /**
      * Get a list of all indexes.
-     *
-     * @return array
      */
     public function __invoke(): array;
 }

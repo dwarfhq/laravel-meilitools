@@ -2,26 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Dwarf\MeiliTools\Tests\Support;
-
 use Dwarf\MeiliTools\Helpers;
 use Dwarf\MeiliTools\Tests\Models\Movie;
-use Dwarf\MeiliTools\Tests\TestCase;
 
 /**
- * @internal
+ * Test Helpers::guessModelNamespace() method.
  */
-class HelpersTest extends TestCase
-{
-    /**
-     * Test Helpers::guessModelNamespace() method.
-     *
-     * @return void
-     */
-    public function testGuessModelNamespace(): void
-    {
-        $this->assertSame(Movie::class, Helpers::guessModelNamespace(Movie::class));
-        $this->assertSame(Movie::class, Helpers::guessModelNamespace('Movie'));
-        $this->assertSame('Fake', Helpers::guessModelNamespace('Fake'));
-    }
-}
+test('guess model namespace', function () {
+    expect(Helpers::guessModelNamespace(Movie::class))->toBe(Movie::class);
+    expect(Helpers::guessModelNamespace('Movie'))->toBe(Movie::class);
+    expect(Helpers::guessModelNamespace('Fake'))->toBe('Fake');
+});

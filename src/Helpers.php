@@ -10,15 +10,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Laravel\Scout\EngineManager;
-use MeiliSearch\MeiliSearch;
 use Throwable;
 
 class Helpers
 {
     /**
      * Whether Scout is using the MeiliSearch driver.
-     *
-     * @return bool
      */
     public static function usingMeiliSearch(): bool
     {
@@ -29,15 +26,13 @@ class Helpers
      * Throw exception unless Scout is using the MeiliSearch driver.
      *
      * @throws \Dwarf\MeiliTools\Exceptions\MeiliToolsException
-     *
-     * @return void
      */
     public static function throwUnlessMeiliSearch(): void
     {
         throw_unless(
             self::usingMeiliSearch(),
             MeiliToolsException::class,
-            'Scout must be using the MeiliSearch driver'
+            'Scout must be using the MeiliSearch driver',
         );
     }
 
@@ -45,26 +40,23 @@ class Helpers
      * Default MeiliSearch index settings.
      *
      * @param string|null $version MeiliSearch engine version.
-     *
-     * @return array
      */
     public static function defaultSettings(?string $version = null): array
     {
         $settings = [
-            'displayedAttributes'  => ['*'],
-            'distinctAttribute'    => null,
+            'displayedAttributes' => ['*'],
+            'distinctAttribute'   => null,
+            'faceting'            => [
+                'maxValuesPerFacet' => 100,
+            ],
             'filterableAttributes' => [],
+            'pagination'           => ['maxTotalHits' => 1000],
             'rankingRules'         => ['words', 'typo', 'proximity', 'attribute', 'sort', 'exactness'],
             'searchableAttributes' => ['*'],
             'sortableAttributes'   => [],
             'stopWords'            => [],
             'synonyms'             => [],
-            'typoTolerance'        => [],
-        ];
-
-        // Add actual typo tolerance defaults for engine version >=0.27.0.
-        if ($version && version_compare($version, '0.27.0', '>=')) {
-            $settings['typoTolerance'] = [
+            'typoTolerance'        => [
                 'enabled'             => true,
                 'minWordSizeForTypos' => [
                     'oneTypo'  => 5,
@@ -72,13 +64,17 @@ class Helpers
                 ],
                 'disableOnWords'      => [],
                 'disableOnAttributes' => [],
-            ];
+            ],
+        ];
+
+        // Additional settings for engine version >=1.3.0.
+        if ($version && version_compare($version, '1.3.0', '>=')) {
+            $settings['faceting']['sortFacetValuesBy'] = ['*' => 'alpha'];
         }
 
-        // Add faceting and pagination defaults for version >=0.28.0.
-        if ($version && version_compare($version, '0.28.0', '>=')) {
-            $settings['faceting'] = ['maxValuesPerFacet' => 100];
-            $settings['pagination'] = ['maxTotalHits' => 1000];
+        // Additional settings for engine version >=1.15.0.
+        if ($version && version_compare($version, '1.15.0', '>=')) {
+            $settings['typoTolerance']['disableOnNumbers'] = false;
         }
 
         // Sort settings by key.
@@ -94,8 +90,6 @@ class Helpers
      * so we do it the same way to correctly compare data.
      *
      * @param array $settings Settings.
-     *
-     * @return array
      */
     public static function sortSettings(array $settings): array
     {
@@ -123,9 +117,9 @@ class Helpers
                                 'disableOnWords'      => null,
                                 'disableOnAttributes' => null,
                             ],
-                            array_keys($value)
+                            array_keys($value),
                         ),
-                        $value
+                        $value,
                     );
                     if (isset($value['minWordSizeForTypos'])) {
                         ksort($value['minWordSizeForTypos']);
@@ -147,8 +141,6 @@ class Helpers
 
     /**
      * Get MeiliSearch engine version.
-     *
-     * @return string|null
      */
     public static function engineVersion(): ?string
     {
@@ -167,13 +159,11 @@ class Helpers
      * Export value to a string.
      *
      * @param mixed $value
-     *
-     * @return string
      */
     public static function export($value): string
     {
         if (class_exists(VarExporter::class)) {
-            return VarExporter::export($value, VarExporter::INLINE_NUMERIC_SCALAR_ARRAY);
+            return VarExporter::export($value, VarExporter::INLINE_SCALAR_LIST);
         }
 
         return var_export($value, true);
@@ -183,17 +173,12 @@ class Helpers
      * Convert index data to table array.
      *
      * @param array $data Key / value array.
-     *
-     * @return array
      */
     public static function convertIndexDataToTable(array $data): array
     {
         return collect($data)
             ->map(function ($value, $key) {
-                return [
-                    (string) Str::of($key)->snake()->replace('_', ' ')->title(),
-                    self::export($value),
-                ];
+                return [(string) Str::of($key)->snake()->replace('_', ' ')->title(), self::export($value)];
             })
             ->values()
             ->all()
@@ -204,8 +189,6 @@ class Helpers
      * Convert index changes to table array.
      *
      * @param array $changes Key / value array.
-     *
-     * @return array
      */
     public static function convertIndexChangesToTable(array $changes): array
     {
@@ -226,22 +209,19 @@ class Helpers
      * Guess the model namespace using the configured paths.
      *
      * @param string $model Name of the model.
-     *
-     * @return string
      */
     public static function guessModelNamespace(string $model): string
     {
         return collect(config('meilitools.paths'))
             ->map(fn (string $path) => $path . '\\')
-            ->first(fn (string $path) => class_exists($path . $model)) . $model;
+            ->first(fn (string $path) => class_exists($path . $model)) . $model
+        ;
     }
 
     /**
      * Determine if the given model uses soft deletes and soft deletes are enabled for Scout.
      *
      * @param \Illuminate\Database\Eloquent\Model|string $model
-     *
-     * @return bool
      */
     public static function usesSoftDelete($model): bool
     {

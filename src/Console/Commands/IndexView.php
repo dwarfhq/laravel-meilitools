@@ -28,12 +28,8 @@ class IndexView extends Command
 
     /**
      * Execute the console command.
-     *
-     * @param \Dwarf\MeiliTools\Contracts\Actions\ViewsIndex $viewIndex
-     *
-     * @return int
      */
-    public function handle(ViewsIndex $viewIndex)
+    public function handle(ViewsIndex $viewIndex): int
     {
         $info = $viewIndex($this->getIndex(), $this->option('stats'));
         $values = Helpers::convertIndexDataToTable($info);

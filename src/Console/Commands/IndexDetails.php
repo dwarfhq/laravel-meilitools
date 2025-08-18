@@ -28,12 +28,8 @@ class IndexDetails extends Command
 
     /**
      * Execute the console command.
-     *
-     * @param \Dwarf\MeiliTools\Contracts\Actions\DetailsIndex $detailIndex
-     *
-     * @return int
      */
-    public function handle(DetailsIndex $detailIndex)
+    public function handle(DetailsIndex $detailIndex): int
     {
         $details = $detailIndex($this->getIndex());
         $values = Helpers::convertIndexDataToTable($details);

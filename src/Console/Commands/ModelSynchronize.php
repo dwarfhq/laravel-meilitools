@@ -30,12 +30,8 @@ class ModelSynchronize extends Command
 
     /**
      * Execute the console command.
-     *
-     * @param \Dwarf\MeiliTools\Contracts\Actions\SynchronizesModel $synchronizeModel
-     *
-     * @return int
      */
-    public function handle(SynchronizesModel $synchronizeModel)
+    public function handle(SynchronizesModel $synchronizeModel): int
     {
         $changes = $synchronizeModel($this->getModel(), $this->option('pretend'));
         $values = Helpers::convertIndexChangesToTable($changes);

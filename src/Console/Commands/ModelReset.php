@@ -30,12 +30,8 @@ class ModelReset extends Command
 
     /**
      * Execute the console command.
-     *
-     * @param \Dwarf\MeiliTools\Contracts\Actions\ResetsModel $resetModel
-     *
-     * @return int
      */
-    public function handle(ResetsModel $resetModel)
+    public function handle(ResetsModel $resetModel): int
     {
         $changes = $resetModel($this->getModel(), $this->option('pretend'));
         $values = Helpers::convertIndexChangesToTable($changes);

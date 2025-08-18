@@ -20,13 +20,14 @@ The purpose of this package is to ease the configuration of indexes for MeiliSea
 - [License](#license)
 
 ## Compatibility
-| Engine  | 0.1.x | 0.2.x | 0.3.x |
-|---------|-------|-------|-------|
-| v0.26.x |   X   |   X   |       |
-| v0.27.x |   X   |   X   |       |
-| v0.28.x |       |       |   X   |
-| v0.29.x |       |       |   X   |
-| v0.30.x |       |       |   X   |
+| Engine  | 0.1.x | 0.2.x | 0.3.x | 0.4.x |
+|---------|-------|-------|-------|-------|
+| v0.26.x |   X   |   X   |       |       |
+| v0.27.x |   X   |   X   |       |       |
+| v0.28.x |       |       |   X   |       |
+| v0.29.x |       |       |   X   |       |
+| v0.30.x |       |       |   X   |       |
+| v1.x.x  |       |       |       |   X   |
 
 ## Installation
 Install this package via Composer:
@@ -159,7 +160,6 @@ $ composer test
 To run tests with code coverage, please make sure that `phpdbg` exists and is executable.
 ```bash
 $ composer test:coverage
-$ open tests/_reports/index.html
 ```
 
 ## Career

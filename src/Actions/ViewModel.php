@@ -15,15 +15,11 @@ class ViewModel implements ViewsModel
 {
     /**
      * Views index action.
-     *
-     * @var \Dwarf\MeiliTools\Contracts\Actions\ViewsIndex
      */
     protected ViewsIndex $viewIndex;
 
     /**
      * Ensures index exists action.
-     *
-     * @var \Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists
      */
     protected EnsuresIndexExists $ensureIndexExists;
 

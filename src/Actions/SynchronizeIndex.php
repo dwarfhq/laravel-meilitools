@@ -18,22 +18,16 @@ class SynchronizeIndex implements SynchronizesIndex
 {
     /**
      * Scout engine manager.
-     *
-     * @var \Laravel\Scout\EngineManager
      */
     protected EngineManager $manager;
 
     /**
      * Details index action.
-     *
-     * @var \Dwarf\MeiliTools\Contracts\Actions\DetailsIndex
      */
     protected DetailsIndex $detailIndex;
 
     /**
      * Validates index settings action.
-     *
-     * @var \Dwarf\MeiliTools\Contracts\Actions\ValidatesIndexSettings
      */
     protected ValidatesIndexSettings $validateSettings;
 
@@ -130,8 +124,6 @@ class SynchronizeIndex implements SynchronizesIndex
      * @param mixed $value
      * @param mixed $detail
      * @param mixed $default
-     *
-     * @return bool
      */
     protected function filter($value, $detail, $default): bool
     {

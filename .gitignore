@@ -1,7 +1,8 @@
 /vendor
 /tests/_reports
-/.idea
 /composer.lock
-/.phpunit.result.cache
-/.phpunit.result.log
+/.idea
+/.zed
+/.phpunit.result.*
+/.pint.json
 .DS_*

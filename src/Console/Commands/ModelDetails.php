@@ -28,12 +28,8 @@ class ModelDetails extends Command
 
     /**
      * Execute the console command.
-     *
-     * @param \Dwarf\MeiliTools\Contracts\Actions\DetailsModel $detailModel
-     *
-     * @return int
      */
-    public function handle(DetailsModel $detailModel)
+    public function handle(DetailsModel $detailModel): int
     {
         $details = $detailModel($this->getModel());
         $values = Helpers::convertIndexDataToTable($details);

@@ -2,71 +2,49 @@
 
 declare(strict_types=1);
 
-namespace Dwarf\MeiliTools\Tests\Commands;
-
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesIndex;
 use Dwarf\MeiliTools\Helpers;
-use Dwarf\MeiliTools\Tests\TestCase;
 use Dwarf\MeiliTools\Tests\Tools;
 use Illuminate\Support\Arr;
 
 /**
- * @internal
+ * Test `meili:index:details` command with default settings.
  */
-class IndexDetailsTest extends TestCase
-{
-    /**
-     * Test index.
-     *
-     * @var string
-     */
-    private const INDEX = 'testing-details-index';
+test('with default settings', function () {
+    $this->withIndex('testing-details-index', function () {
+        $values = Helpers::convertIndexDataToTable(Helpers::defaultSettings(Helpers::engineVersion()));
 
-    /**
-     * Test `meili:index:details` command with default settings.
-     *
-     * @return void
-     */
-    public function testWithDefaultSettings(): void
-    {
-        $this->withIndex(self::INDEX, function () {
-            $values = Helpers::convertIndexDataToTable(Helpers::defaultSettings(Helpers::engineVersion()));
+        $this->artisan('meili:index:details')
+            ->expectsQuestion('What is the index name?', 'testing-details-index')
+            ->expectsTable(['Setting', 'Value'], $values)
+            ->assertSuccessful()
+        ;
 
-            $this->artisan('meili:index:details')
-                ->expectsQuestion('What is the index name?', self::INDEX)
-                ->expectsTable(['Setting', 'Value'], $values)
-                ->assertSuccessful()
-            ;
+        $this->artisan('meili:index:details', ['index' => 'testing-details-index'])
+            ->expectsTable(['Setting', 'Value'], $values)
+            ->assertSuccessful()
+        ;
+    });
+});
 
-            $this->artisan('meili:index:details', ['index' => self::INDEX])
-                ->expectsTable(['Setting', 'Value'], $values)
-                ->assertSuccessful()
-            ;
-        });
-    }
+/**
+ * Test `meili:index:details` command with advanced settings.
+ */
+test('with advanced settings', function () {
+    $this->withIndex('testing-details-index', function () {
+        $defaults = Helpers::defaultSettings(Helpers::engineVersion());
+        $settings = Tools::movieSettings();
 
-    /**
-     * Test `meili:index:details` command with advanced settings.
-     *
-     * @return void
-     */
-    public function testWithAdvancedSettings(): void
-    {
-        $this->withIndex(self::INDEX, function () {
-            $defaults = Helpers::defaultSettings(Helpers::engineVersion());
-            $settings = Tools::movieSettings();
+        $changes = app()->make(SynchronizesIndex::class)('testing-details-index', $settings);
+        expect($changes)->not->toBeEmpty();
 
-            $changes = $this->app->make(SynchronizesIndex::class)(self::INDEX, $settings);
-            $this->assertNotEmpty($changes);
+        $values = Helpers::convertIndexDataToTable(
+            Helpers::sortSettings($settings + Arr::only($defaults, ['faceting', 'pagination', 'typoTolerance']))
+        );
 
-            $values = Helpers::convertIndexDataToTable(
-                Helpers::sortSettings($settings + Arr::only($defaults, ['faceting', 'pagination', 'typoTolerance']))
-            );
-
-            $this->artisan('meili:index:details', ['index' => self::INDEX])
-                ->expectsTable(['Setting', 'Value'], $values)
-                ->assertSuccessful()
-            ;
-        });
-    }
-}
+        $this->artisan('meili:index:details', ['index' => 'testing-details-index'])
+            ->expectsTable(['Setting', 'Value'], $values)
+            ->assertSuccessful()
+        ;
+    });
+});

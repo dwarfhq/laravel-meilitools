@@ -16,15 +16,11 @@ class ResetIndex implements ResetsIndex
 {
     /**
      * Scout engine manager.
-     *
-     * @var \Laravel\Scout\EngineManager
      */
     protected EngineManager $manager;
 
     /**
      * Synchronizes index action.
-     *
-     * @var \Dwarf\MeiliTools\Contracts\Actions\SynchronizesIndex
      */
     protected SynchronizesIndex $synchronizeIndex;
 
