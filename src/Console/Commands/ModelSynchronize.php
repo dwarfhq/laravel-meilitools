@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Dwarf\MeiliTools\Console\Commands;
 
+use Dwarf\MeiliTools\Console\Commands\Concerns\RequiresModel;
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesModel;
 use Dwarf\MeiliTools\Helpers;
 use Illuminate\Console\Command;
 
 class ModelSynchronize extends Command
 {
-    use Concerns\RequiresModel;
+    use RequiresModel;
 
     /**
      * The name and signature of the console command.
@@ -33,7 +34,7 @@ class ModelSynchronize extends Command
      */
     public function handle(SynchronizesModel $synchronizeModel): int
     {
-        $changes = $synchronizeModel($this->getModel(), $this->option('pretend'));
+        $changes = $synchronizeModel($this->getModel(), (bool) $this->option('pretend'));
         $values = Helpers::convertIndexChangesToTable($changes);
 
         $this->table(['Setting', 'Old', 'New'], $values);

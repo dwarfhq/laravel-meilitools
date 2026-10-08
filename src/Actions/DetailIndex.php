@@ -5,47 +5,38 @@ declare(strict_types=1);
 namespace Dwarf\MeiliTools\Actions;
 
 use Dwarf\MeiliTools\Contracts\Actions\DetailsIndex;
+use Dwarf\MeiliTools\Exceptions\MeiliToolsException;
 use Dwarf\MeiliTools\Helpers;
-use Laravel\Scout\EngineManager;
+use Meilisearch\Client;
 use Meilisearch\Contracts\Data;
+use Meilisearch\Exceptions\ApiException;
+use Meilisearch\Exceptions\CommunicationException;
 
 /**
  * Detail index.
  */
 class DetailIndex implements DetailsIndex
 {
-    /**
-     * Scout engine manager.
-     */
-    protected EngineManager $manager;
-
-    /**
-     * Constructor.
-     *
-     * @param \Laravel\Scout\EngineManager $manager Scout engine manager.
-     */
-    public function __construct(EngineManager $manager)
+    public function __construct(protected Client $client)
     {
-        $this->manager = $manager;
     }
 
     /**
      * {@inheritDoc}
      *
-     * @throws \Dwarf\MeiliTools\Exceptions\MeiliToolsException When not using the MeiliSearch Scout driver.
-     * @throws \MeiliSearch\Exceptions\CommunicationException   When connection to MeiliSearch fails.
-     * @throws \MeiliSearch\Exceptions\ApiException             When index is not found.
+     * @throws MeiliToolsException    When not using the MeiliSearch Scout driver.
+     * @throws CommunicationException When connection to MeiliSearch fails.
+     * @throws ApiException           When index is not found.
      */
     public function __invoke(string $index): array
     {
         Helpers::throwUnlessMeiliSearch();
 
-        $details = $this->manager->engine()->index($index)->getSettings();
-        // Convert iterator objects from contract to array.
-        $details = array_map(function ($value) {
-            return $value instanceof Data ? $value->getIterator()->getArrayCopy() : $value;
-        }, $details);
-        // Sort keys for consistency.
+        // The SDK wraps some settings in iterable data objects.
+        $details = array_map(
+            fn (mixed $value): mixed => $value instanceof Data ? $value->getIterator()->getArrayCopy() : $value,
+            $this->client->index($index)->getSettings(),
+        );
         ksort($details);
 
         return $details;

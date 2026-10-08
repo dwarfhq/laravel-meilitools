@@ -10,9 +10,9 @@ namespace Dwarf\MeiliTools\Contracts\Actions;
 interface DetailsIndex
 {
     /**
-     * Get extensive index details.
+     * Get index settings.
      *
-     * @param string $index Index name.
+     * @return array<string, mixed>
      */
     public function __invoke(string $index): array;
 }

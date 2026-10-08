@@ -6,30 +6,23 @@ use Dwarf\MeiliTools\Contracts\Actions\DetailsModel;
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesModel;
 use Dwarf\MeiliTools\Helpers;
 use Dwarf\MeiliTools\Tests\Models\MeiliMovie;
+use Dwarf\MeiliTools\Tests\Tools;
 
 /**
  * Test `meili:model:reset` command with advanced settings.
  */
-test('with advanced settings', function () {
+test('with advanced settings', function (): void {
     try {
-        $defaults = Helpers::defaultSettings(Helpers::engineVersion());
-        $settings = app(MeiliMovie::class)->meiliSettings();
+        $defaults = Helpers::defaultSettings();
+        $settings = resolve(MeiliMovie::class)->meiliSettings();
 
-        app()->make(SynchronizesModel::class)(MeiliMovie::class);
-        $details = app()->make(DetailsModel::class)(MeiliMovie::class);
-        expect($details)->not->toBe($defaults);
-        expect($details)->toMatchArray(array_replace($defaults, $settings));
-
-        $changes = collect($settings)
-            ->mapWithKeys(function ($value, $key) {
-                $old = $value;
-                $new = null;
-
-                return [$key => $old === $new ? false : compact('old', 'new')];
-            })
-            ->filter()
-            ->all()
+        resolve(SynchronizesModel::class)(MeiliMovie::class);
+        $details = resolve(DetailsModel::class)(MeiliMovie::class);
+        expect($details)->not->toBe($defaults)
+            ->toMatchArray(array_replace($defaults, $settings))
         ;
+
+        $changes = Tools::changes($settings, array_fill_keys(array_keys($settings), null));
         $values = Helpers::convertIndexChangesToTable($changes);
 
         $this->artisan('meili:model:reset', ['model' => MeiliMovie::class])
@@ -49,36 +42,28 @@ test('with advanced settings', function () {
             ->assertSuccessful()
         ;
 
-        $details = app()->make(DetailsModel::class)(MeiliMovie::class);
+        $details = resolve(DetailsModel::class)(MeiliMovie::class);
         expect($details)->toMatchArray($defaults);
     } finally {
-        $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
+        $this->deleteIndex(resolve(MeiliMovie::class)->searchableAs());
     }
 });
 
 /**
  * Test `meili:model:reset` command with pretend option.
  */
-test('with pretend', function () {
+test('with pretend', function (): void {
     try {
-        $defaults = Helpers::defaultSettings(Helpers::engineVersion());
-        $settings = app(MeiliMovie::class)->meiliSettings();
+        $defaults = Helpers::defaultSettings();
+        $settings = resolve(MeiliMovie::class)->meiliSettings();
 
-        app()->make(SynchronizesModel::class)(MeiliMovie::class);
-        $details = app()->make(DetailsModel::class)(MeiliMovie::class);
-        expect($details)->not->toBe($defaults);
-        expect($details)->toMatchArray(array_replace($defaults, $settings));
-
-        $changes = collect($settings)
-            ->mapWithKeys(function ($value, $key) {
-                $old = $value;
-                $new = null;
-
-                return [$key => $old === $new ? false : compact('old', 'new')];
-            })
-            ->filter()
-            ->all()
+        resolve(SynchronizesModel::class)(MeiliMovie::class);
+        $details = resolve(DetailsModel::class)(MeiliMovie::class);
+        expect($details)->not->toBe($defaults)
+            ->toMatchArray(array_replace($defaults, $settings))
         ;
+
+        $changes = Tools::changes($settings, array_fill_keys(array_keys($settings), null));
         $values = Helpers::convertIndexChangesToTable($changes);
 
         $this->artisan('meili:model:reset', ['model' => MeiliMovie::class, '--pretend' => true])
@@ -86,9 +71,9 @@ test('with pretend', function () {
             ->assertSuccessful()
         ;
 
-        $details = app()->make(DetailsModel::class)(MeiliMovie::class);
+        $details = resolve(DetailsModel::class)(MeiliMovie::class);
         expect($details)->not->toBe($defaults);
     } finally {
-        $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
+        $this->deleteIndex(resolve(MeiliMovie::class)->searchableAs());
     }
 });

@@ -10,26 +10,18 @@ use Dwarf\MeiliTools\Tests\Tools;
 /**
  * Test `meili:index:reset` command with advanced settings.
  */
-test('with advanced settings', function () {
-    $this->withIndex('testing-resets-index', function () {
-        $defaults = Helpers::defaultSettings(Helpers::engineVersion());
+test('with advanced settings', function (): void {
+    $this->withIndex('testing-resets-index', function (): void {
+        $defaults = Helpers::defaultSettings();
         $settings = Tools::movieSettings();
 
-        app()->make(SynchronizesIndex::class)('testing-resets-index', $settings);
-        $details = app()->make(DetailsIndex::class)('testing-resets-index');
-        expect($details)->not->toBe($defaults);
-        expect($details)->toMatchArray(array_replace($defaults, $settings));
-
-        $changes = collect($settings)
-            ->mapWithKeys(function ($value, $key) {
-                $old = $value;
-                $new = null;
-
-                return [$key => $old === $new ? false : compact('old', 'new')];
-            })
-            ->filter()
-            ->all()
+        resolve(SynchronizesIndex::class)('testing-resets-index', $settings);
+        $details = resolve(DetailsIndex::class)('testing-resets-index');
+        expect($details)->not->toBe($defaults)
+            ->toMatchArray(array_replace($defaults, $settings))
         ;
+
+        $changes = Tools::changes($settings, array_fill_keys(array_keys($settings), null));
         $values = Helpers::convertIndexChangesToTable($changes);
 
         $this->artisan('meili:index:reset', ['index' => 'testing-resets-index'])
@@ -43,7 +35,7 @@ test('with advanced settings', function () {
             ->assertSuccessful()
         ;
 
-        $details = app()->make(DetailsIndex::class)('testing-resets-index');
+        $details = resolve(DetailsIndex::class)('testing-resets-index');
         expect($details)->toMatchArray($defaults);
     });
 });
@@ -51,26 +43,18 @@ test('with advanced settings', function () {
 /**
  * Test `meili:index:reset` command with pretend option.
  */
-test('with pretend', function () {
-    $this->withIndex('testing-resets-index', function () {
-        $defaults = Helpers::defaultSettings(Helpers::engineVersion());
+test('with pretend', function (): void {
+    $this->withIndex('testing-resets-index', function (): void {
+        $defaults = Helpers::defaultSettings();
         $settings = Tools::movieSettings();
 
-        app()->make(SynchronizesIndex::class)('testing-resets-index', $settings);
-        $details = app()->make(DetailsIndex::class)('testing-resets-index');
-        expect($details)->not->toBe($defaults);
-        expect($details)->toMatchArray(array_replace($defaults, $settings));
-
-        $changes = collect($settings)
-            ->mapWithKeys(function ($value, $key) {
-                $old = $value;
-                $new = null;
-
-                return [$key => $old === $new ? false : compact('old', 'new')];
-            })
-            ->filter()
-            ->all()
+        resolve(SynchronizesIndex::class)('testing-resets-index', $settings);
+        $details = resolve(DetailsIndex::class)('testing-resets-index');
+        expect($details)->not->toBe($defaults)
+            ->toMatchArray(array_replace($defaults, $settings))
         ;
+
+        $changes = Tools::changes($settings, array_fill_keys(array_keys($settings), null));
         $values = Helpers::convertIndexChangesToTable($changes);
 
         $this->artisan('meili:index:reset', ['index' => 'testing-resets-index', '--pretend' => true])
@@ -78,7 +62,7 @@ test('with pretend', function () {
             ->assertSuccessful()
         ;
 
-        $details = app()->make(DetailsIndex::class)('testing-resets-index');
+        $details = resolve(DetailsIndex::class)('testing-resets-index');
         expect($details)->not->toBe($defaults);
     });
 });

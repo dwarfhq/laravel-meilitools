@@ -10,10 +10,11 @@ namespace Dwarf\MeiliTools\Contracts\Actions;
 interface CreatesIndex
 {
     /**
-     * Create index.
+     * Create a new index.
      *
-     * @param string $index   Index name.
-     * @param array  $options Index options.
+     * @param array<string, mixed> $options
+     *
+     * @return array<string, mixed> Index information.
      */
     public function __invoke(string $index, array $options = []): array;
 }

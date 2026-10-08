@@ -4,301 +4,379 @@ declare(strict_types=1);
 
 use Dwarf\MeiliTools\Contracts\Actions\ValidatesIndexSettings;
 use Dwarf\MeiliTools\Contracts\Rules\ArrayAssocRule;
-use Dwarf\MeiliTools\Helpers;
+use Dwarf\MeiliTools\Rules\ArrayAssoc;
 use Dwarf\MeiliTools\Tests\Tools;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
+
+/**
+ * Get the associative array validation message for an attribute.
+ */
+function assocMessage(string $attribute): string
+{
+    return Str::replace(':attribute', $attribute, ArrayAssoc::MESSAGE);
+}
+
+/**
+ * Get the readable attribute name of a field.
+ */
+function attributeName(string $field): string
+{
+    return Str::of($field)->headline()->replace('.', ' ')->lower()->toString();
+}
 
 /**
  * Test ValidatesIndexSettings::rules() method.
  */
-test('rules', function () {
-    $action = app()->make(ValidatesIndexSettings::class);
+test('rules', function (): void {
+    $assoc = resolve(ArrayAssocRule::class);
+    $list = ['sometimes', 'nullable', 'list'];
+    $string = ['required', 'string'];
 
-    $actual = $action->rules(Helpers::engineVersion());
     $expected = [
-        'displayedAttributes'    => ['sometimes', 'nullable', 'array', 'min:1'],
-        'displayedAttributes.*'  => ['required', 'string'],
-        'distinctAttribute'      => ['sometimes', 'nullable', 'string'],
-        'filterableAttributes'   => ['sometimes', 'nullable', 'array'],
-        'filterableAttributes.*' => ['required', 'string'],
-        'rankingRules'           => ['sometimes', 'nullable', 'array', 'min:1'],
-        'rankingRules.*'         => ['required', 'string'],
-        'searchableAttributes'   => ['sometimes', 'nullable', 'array', 'min:1'],
-        'searchableAttributes.*' => ['required', 'string'],
-        'sortableAttributes'     => ['sometimes', 'nullable', 'array'],
-        'sortableAttributes.*'   => ['required', 'string'],
-        'stopWords'              => ['sometimes', 'nullable', 'array'],
-        'stopWords.*'            => ['required', 'string'],
-        'synonyms'               => ['sometimes', 'nullable', app()->make(ArrayAssocRule::class)],
-        'synonyms.*'             => ['required', 'array'],
-        'synonyms.*.*'           => ['required', 'string'],
-        'typoTolerance'          => ['sometimes', 'nullable', app()->make(ArrayAssocRule::class)],
+        'dictionary'                                => $list,
+        'dictionary.*'                              => $string,
+        'displayedAttributes'                       => [...$list, 'min:1'],
+        'displayedAttributes.*'                     => $string,
+        'distinctAttribute'                         => ['sometimes', 'nullable', 'string'],
+        'facetSearch'                               => ['sometimes', 'nullable', 'boolean:strict'],
+        'faceting'                                  => ['sometimes', 'nullable', $assoc],
+        'faceting.maxValuesPerFacet'                => ['sometimes', 'nullable', 'integer:strict', 'min:0'],
+        'faceting.sortFacetValuesBy'                => ['sometimes', 'nullable', $assoc],
+        'faceting.sortFacetValuesBy.*'              => ['required', Rule::in(['alpha', 'count'])],
+        'filterableAttributes'                      => $list,
+        'filterableAttributes.*'                    => $string,
+        'localizedAttributes'                       => $list,
+        'localizedAttributes.*'                     => ['required', $assoc],
+        'localizedAttributes.*.attributePatterns'   => ['required', 'list', 'min:1'],
+        'localizedAttributes.*.attributePatterns.*' => $string,
+        'localizedAttributes.*.locales'             => ['present', 'list'],
+        'localizedAttributes.*.locales.*'           => $string,
+        'nonSeparatorTokens'                        => $list,
+        'nonSeparatorTokens.*'                      => $string,
+        'pagination'                                => ['sometimes', 'nullable', $assoc],
+        'pagination.maxTotalHits'                   => ['sometimes', 'nullable', 'integer:strict', 'min:0'],
+        'prefixSearch'                              => [
+            'sometimes',
+            'nullable',
+            Rule::in(['indexingTime', 'disabled']),
+        ],
+        'proximityPrecision' => [
+            'sometimes',
+            'nullable',
+            Rule::in(['byWord', 'byAttribute']),
+        ],
+        'rankingRules'                               => [...$list, 'min:1'],
+        'rankingRules.*'                             => $string,
+        'searchCutoffMs'                             => ['sometimes', 'nullable', 'integer:strict', 'min:0'],
+        'searchableAttributes'                       => [...$list, 'min:1'],
+        'searchableAttributes.*'                     => $string,
+        'separatorTokens'                            => $list,
+        'separatorTokens.*'                          => $string,
+        'sortableAttributes'                         => $list,
+        'sortableAttributes.*'                       => $string,
+        'stopWords'                                  => $list,
+        'stopWords.*'                                => $string,
+        'synonyms'                                   => ['sometimes', 'nullable', $assoc],
+        'synonyms.*'                                 => ['required', 'list'],
+        'synonyms.*.*'                               => $string,
+        'typoTolerance'                              => ['sometimes', 'nullable', $assoc],
+        'typoTolerance.enabled'                      => ['sometimes', 'nullable', 'boolean:strict'],
+        'typoTolerance.minWordSizeForTypos'          => ['sometimes', 'nullable', $assoc],
+        'typoTolerance.minWordSizeForTypos.oneTypo'  => ['sometimes', 'nullable', 'integer:strict', 'between:0,255'],
+        'typoTolerance.minWordSizeForTypos.twoTypos' => ['sometimes', 'nullable', 'integer:strict', 'between:0,255'],
+        'typoTolerance.disableOnWords'               => $list,
+        'typoTolerance.disableOnWords.*'             => $string,
+        'typoTolerance.disableOnAttributes'          => $list,
+        'typoTolerance.disableOnAttributes.*'        => $string,
+        'typoTolerance.disableOnNumbers'             => ['sometimes', 'nullable', 'boolean:strict'],
     ];
-    $expected['typoTolerance.enabled'] = ['sometimes', 'nullable', 'boolean'];
-    $expected['typoTolerance.minWordSizeForTypos'] = [
-        'sometimes',
-        'nullable',
-        app()->make(ArrayAssocRule::class),
-    ];
-    $expected['typoTolerance.minWordSizeForTypos.oneTypo'] = [
-        'sometimes',
-        'nullable',
-        'integer',
-        'between:0,255',
-    ];
-    $expected['typoTolerance.minWordSizeForTypos.twoTypos'] = [
-        'sometimes',
-        'nullable',
-        'integer',
-        'between:0,255',
-    ];
-    $expected['typoTolerance.disableOnWords'] = ['sometimes', 'nullable', 'array'];
-    $expected['typoTolerance.disableOnWords.*'] = ['required', 'string'];
-    $expected['typoTolerance.disableOnAttributes'] = ['sometimes', 'nullable', 'array'];
-    $expected['typoTolerance.disableOnAttributes.*'] = ['required', 'string'];
-    $expected['faceting'] = ['sometimes', 'nullable', app()->make(ArrayAssocRule::class)];
-    $expected['faceting.maxValuesPerFacet'] = ['sometimes', 'nullable', 'integer', 'min:0'];
-    $expected['pagination'] = ['sometimes', 'nullable', app()->make(ArrayAssocRule::class)];
-    $expected['pagination.maxTotalHits'] = ['sometimes', 'nullable', 'integer', 'min:0'];
 
-    expect($actual)->toEqual($expected);
+    expect(resolve(ValidatesIndexSettings::class)->rules())->toEqual($expected);
 });
 
 /**
  * Test ValidatesIndexSettings::passes() method.
  */
-test('passes', function (callable $data) {
-    $action = app()->make(ValidatesIndexSettings::class);
+test('passes', function (callable $data): void {
+    $action = resolve(ValidatesIndexSettings::class);
 
     [$value, $validated, $passes, $messages] = $data();
 
-    $actualPasses = $action->passes($value, Helpers::engineVersion());
-    expect($actualPasses)->toBe($passes);
-
-    $actualValidated = $action->validated();
-    expect($actualValidated)->toBe($validated);
-
-    $actualMessages = $action->messages();
-    expect($actualMessages)->toBe($messages);
+    expect($action->passes($value))->toBe($passes)
+        ->and($action->validated())->toBe($validated)
+        ->and($action->messages())->toBe($messages)
+    ;
 })->with('passesProvider');
 
 /**
  * Test ValidatesIndexSettings::passes() method with typo tolerance.
  */
-test('passes typo tolerance', function (callable $data) {
-    $action = app()->make(ValidatesIndexSettings::class);
+test('passes typo tolerance', function (callable $data): void {
+    $action = resolve(ValidatesIndexSettings::class);
 
     [$value, $validated, $passes, $messages] = $data();
 
-    $actualPasses = $action->passes($value, Helpers::engineVersion());
-    expect($actualPasses)->toBe($passes);
-
-    $actualValidated = $action->validated();
-    expect($actualValidated)->toBe($validated);
-
-    $actualMessages = $action->messages();
-    expect($actualMessages)->toBe($messages);
+    expect($action->passes($value))->toBe($passes)
+        ->and($action->validated())->toBe($validated)
+        ->and($action->messages())->toBe($messages)
+    ;
 })->with('passesTypoToleranceProvider');
 
-// Datasets
 /**
- * Data provider for ValidateStylesAction::passes().
+ * Test ValidatesIndexSettings::validate() method.
+ */
+test('validate', function (): void {
+    $action = resolve(ValidatesIndexSettings::class);
+
+    expect($action->validate(Tools::advancedSettings()))->toEqual(Tools::advancedSettings())
+        ->and(fn () => $action->validate(['distinctAttribute' => 42]))->toThrow(ValidationException::class)
+    ;
+});
+
+/**
+ * Data provider for ValidatesIndexSettings::passes().
  *
  * Using yield for better overview, and closures so Laravel facades work during tests.
  */
 dataset('passesProvider', function () {
-    $settings = Tools::movieSettings();
+    $settings = Tools::movieSettings() + Tools::advancedSettings();
 
-    $fields = [
+    $lists = [
+        'dictionary',
         'displayedAttributes',
         'filterableAttributes',
+        'nonSeparatorTokens',
         'rankingRules',
         'searchableAttributes',
+        'separatorTokens',
         'sortableAttributes',
         'stopWords',
     ];
 
-    // Test successful validation of all fields.
-
-    yield 'empty array' => [fn () => [[], [], true, []]];
+    yield 'empty array' => [fn (): array => [[], [], true, []]];
 
     foreach ($settings as $field => $value) {
-        $name = Str::of($field)->headline()->lower();
+        $name = attributeName($field);
 
-        yield "{$name} valid" => [fn () => [
-            [$field => $settings[$field]],
-            [$field => $settings[$field]],
-            true,
-            [],
-        ]];
+        yield "{$name} valid" => [fn (): array => [[$field => $value], [$field => $value], true, []]];
 
-        yield "{$name} null" => [fn () => [[$field => null], [$field => null], true, []]];
+        yield "{$name} null" => [fn (): array => [[$field => null], [$field => null], true, []]];
     }
 
-    // Test unsuccessful validation of all fields.
+    foreach ($lists as $field) {
+        $name = attributeName($field);
 
-    foreach ($fields as $field) {
-        $name = Str::of($field)->headline()->lower();
-
-        yield "{$name} not array" => [fn () => [
+        yield "{$name} not list" => [fn (): array => [
             [$field => 42],
             null,
             false,
-            [
-                $field => [
-                    __('validation.array', ['attribute' => $name]),
-                ],
-            ],
+            [$field => [__('validation.list', ['attribute' => $name])]],
         ]];
 
-        if (\in_array($field, ['displayedAttributes', 'rankingRules', 'searchableAttributes'])) {
-            yield "{$name} empty error" => [fn () => [
+        yield "{$name} assoc not list" => [fn (): array => [
+            [$field => ['foo' => 'bar']],
+            null,
+            false,
+            [$field => [__('validation.list', ['attribute' => $name])]],
+        ]];
+
+        if (in_array($field, ['displayedAttributes', 'rankingRules', 'searchableAttributes'], true)) {
+            yield "{$name} empty error" => [fn (): array => [
                 [$field => []],
                 null,
                 false,
-                [
-                    $field => [
-                        __('validation.min.array', ['attribute' => $name, 'min' => 1]),
-                    ],
-                ],
+                [$field => [__('validation.min.array', ['attribute' => $name, 'min' => 1])]],
             ]];
         }
 
-        yield "{$name} required error" => [fn () => [
+        yield "{$name} required error" => [fn (): array => [
             [$field => [null]],
             null,
             false,
-            [
-                $field . '.0' => [
-                    __('validation.required', ['attribute' => $field . '.0']),
-                ],
-            ],
+            [$field . '.0' => [__('validation.required', ['attribute' => $field . '.0'])]],
         ]];
 
-        yield "{$name} string error" => [fn () => [
+        yield "{$name} string error" => [fn (): array => [
             [$field => [42]],
             null,
             false,
-            [
-                $field . '.0' => [
-                    __('validation.string', ['attribute' => $field . '.0']),
-                ],
-            ],
+            [$field . '.0' => [__('validation.string', ['attribute' => $field . '.0'])]],
         ]];
     }
 
-    yield 'distinct attribute string error' => [fn () => [
+    yield 'distinct attribute string error' => [fn (): array => [
         ['distinctAttribute' => 42],
         null,
         false,
-        [
-            'distinctAttribute' => [
-                __('validation.string', ['attribute' => 'distinct attribute']),
-            ],
-        ],
+        ['distinctAttribute' => [__('validation.string', ['attribute' => 'distinct attribute'])]],
     ]];
 
-    yield 'synonyms not array nor assoc' => [fn () => [
-        ['synonyms' => 42],
+    yield 'facet search boolean error' => [fn (): array => [
+        ['facetSearch' => 1],
+        null,
+        false,
+        ['facetSearch' => [__('validation.boolean', ['attribute' => 'facet search'])]],
+    ]];
+
+    yield 'search cutoff ms integer error' => [fn (): array => [
+        ['searchCutoffMs' => '150'],
+        null,
+        false,
+        ['searchCutoffMs' => [__('validation.integer', ['attribute' => 'search cutoff ms'])]],
+    ]];
+
+    yield 'search cutoff ms min error' => [fn (): array => [
+        ['searchCutoffMs' => -1],
+        null,
+        false,
+        ['searchCutoffMs' => [__('validation.min.numeric', ['attribute' => 'search cutoff ms', 'min' => 0])]],
+    ]];
+
+    yield 'prefix search in error' => [fn (): array => [
+        ['prefixSearch' => 'foo'],
+        null,
+        false,
+        ['prefixSearch' => [__('validation.in', ['attribute' => 'prefix search'])]],
+    ]];
+
+    yield 'proximity precision in error' => [fn (): array => [
+        ['proximityPrecision' => 'foo'],
+        null,
+        false,
+        ['proximityPrecision' => [__('validation.in', ['attribute' => 'proximity precision'])]],
+    ]];
+
+    foreach (['faceting', 'pagination', 'synonyms', 'typoTolerance'] as $field) {
+        $name = attributeName($field);
+
+        yield "{$name} not array nor assoc" => [fn (): array => [
+            [$field => 42],
+            null,
+            false,
+            [$field => [assocMessage($name)]],
+        ]];
+    }
+
+    yield 'faceting max values per facet integer error' => [fn (): array => [
+        ['faceting' => ['maxValuesPerFacet' => '10']],
+        null,
+        false,
+        ['faceting.maxValuesPerFacet' => [__('validation.integer', ['attribute' => 'faceting max values per facet'])]],
+    ]];
+
+    yield 'faceting sort facet values by not assoc' => [fn (): array => [
+        ['faceting' => ['sortFacetValuesBy' => ['count']]],
+        null,
+        false,
+        ['faceting.sortFacetValuesBy' => [assocMessage('faceting sort facet values by')]],
+    ]];
+
+    yield 'faceting sort facet values by in error' => [fn (): array => [
+        ['faceting' => ['sortFacetValuesBy' => ['*' => 'foo']]],
+        null,
+        false,
+        ['faceting.sortFacetValuesBy.*' => [__('validation.in', ['attribute' => 'faceting.sortFacetValuesBy.*'])]],
+    ]];
+
+    yield 'pagination max total hits integer error' => [fn (): array => [
+        ['pagination' => ['maxTotalHits' => 'foo']],
+        null,
+        false,
+        ['pagination.maxTotalHits' => [__('validation.integer', ['attribute' => 'pagination max total hits'])]],
+    ]];
+
+    yield 'localized attributes rule not assoc' => [fn (): array => [
+        ['localizedAttributes' => [['foo']]],
         null,
         false,
         [
-            'synonyms' => [
-                Str::replace(':attribute', 'synonyms', App::make(ArrayAssocRule::class)->message()),
+            'localizedAttributes.0'                   => [assocMessage('localizedAttributes.0')],
+            'localizedAttributes.0.attributePatterns' => [
+                __('validation.required', ['attribute' => 'localizedAttributes.0.attributePatterns']),
+            ],
+            'localizedAttributes.0.locales' => [
+                __('validation.present', ['attribute' => 'localizedAttributes.0.locales']),
             ],
         ],
     ]];
 
-    yield 'synonyms array not assoc' => [fn () => [
+    yield 'localized attributes missing fields' => [fn (): array => [
+        ['localizedAttributes' => [['attributePatterns' => []]]],
+        null,
+        false,
+        [
+            'localizedAttributes.0.attributePatterns' => [
+                __('validation.required', ['attribute' => 'localizedAttributes.0.attributePatterns']),
+            ],
+            'localizedAttributes.0.locales' => [
+                __('validation.present', ['attribute' => 'localizedAttributes.0.locales']),
+            ],
+        ],
+    ]];
+
+    yield 'localized attributes empty locales' => [fn (): array => [
+        ['localizedAttributes' => [['attributePatterns' => ['*'], 'locales' => []]]],
+        ['localizedAttributes' => [['attributePatterns' => ['*'], 'locales' => []]]],
+        true,
+        [],
+    ]];
+
+    yield 'synonyms array not assoc' => [fn (): array => [
         ['synonyms' => [42]],
         null,
         false,
         [
-            'synonyms' => [
-                Str::replace(':attribute', 'synonyms', App::make(ArrayAssocRule::class)->message()),
-            ],
-            'synonyms.0' => [
-                __('validation.array', ['attribute' => 'synonyms.0']),
-            ],
+            'synonyms'   => [assocMessage('synonyms')],
+            'synonyms.0' => [__('validation.list', ['attribute' => 'synonyms.0'])],
         ],
     ]];
 
-    yield 'synonyms foo required error' => [fn () => [
+    yield 'synonyms foo required error' => [fn (): array => [
         ['synonyms' => ['foo' => null]],
         null,
         false,
-        [
-            'synonyms.foo' => [
-                __('validation.required', ['attribute' => 'synonyms.foo']),
-            ],
-        ],
+        ['synonyms.foo' => [__('validation.required', ['attribute' => 'synonyms.foo'])]],
     ]];
 
-    yield 'synonyms foo array error' => [fn () => [
+    yield 'synonyms foo list error' => [fn (): array => [
         ['synonyms' => ['foo' => 42]],
         null,
         false,
-        [
-            'synonyms.foo' => [
-                __('validation.array', ['attribute' => 'synonyms.foo']),
-            ],
-        ],
+        ['synonyms.foo' => [__('validation.list', ['attribute' => 'synonyms.foo'])]],
     ]];
 
-    yield 'synonyms foo zero required error' => [fn () => [
+    yield 'synonyms foo zero required error' => [fn (): array => [
         ['synonyms' => ['foo' => [null]]],
         null,
         false,
-        [
-            'synonyms.foo.0' => [
-                __('validation.required', ['attribute' => 'synonyms.foo.0']),
-            ],
-        ],
+        ['synonyms.foo.0' => [__('validation.required', ['attribute' => 'synonyms.foo.0'])]],
     ]];
 
-    yield 'synonyms foo zero string error' => [fn () => [
+    yield 'synonyms foo zero string error' => [fn (): array => [
         ['synonyms' => ['foo' => [42]]],
         null,
         false,
-        [
-            'synonyms.foo.0' => [
-                __('validation.string', ['attribute' => 'synonyms.foo.0']),
-            ],
-        ],
+        ['synonyms.foo.0' => [__('validation.string', ['attribute' => 'synonyms.foo.0'])]],
     ]];
 
-    yield 'typo tolerance not array nor assoc' => [fn () => [
-        ['typoTolerance' => 42],
-        null,
-        false,
-        [
-            'typoTolerance' => [
-                Str::replace(':attribute', 'typo tolerance', App::make(ArrayAssocRule::class)->message()),
-            ],
-        ],
-    ]];
-
-    yield 'typo tolerance array not assoc' => [fn () => [
+    yield 'typo tolerance array not assoc' => [fn (): array => [
         ['typoTolerance' => [42]],
         null,
         false,
-        [
-            'typoTolerance' => [
-                Str::replace(':attribute', 'typo tolerance', App::make(ArrayAssocRule::class)->message()),
-            ],
-        ],
+        ['typoTolerance' => [assocMessage('typo tolerance')]],
     ]];
 });
 
 /**
- * Data provider for ValidateStylesAction::passes().
+ * Data provider for ValidatesIndexSettings::passes() with typo tolerance.
  *
  * Using yield for better overview, and closures so Laravel facades work during tests.
  */
 dataset('passesTypoToleranceProvider', function () {
     $field = 'typoTolerance';
-    $name = Str::of($field)->headline()->lower();
+    $name = attributeName($field);
 
     $settings = [
         'enabled'             => true,
@@ -308,16 +386,17 @@ dataset('passesTypoToleranceProvider', function () {
         ],
         'disableOnWords'      => ['foo', 'bar'],
         'disableOnAttributes' => ['foo', 'bar'],
+        'disableOnNumbers'    => true,
     ];
 
-    yield "{$name} valid" => [fn () => [[$field => $settings], [$field => $settings], true, []]];
+    yield "{$name} valid" => [fn (): array => [[$field => $settings], [$field => $settings], true, []]];
 
-    yield "{$name} null" => [fn () => [[$field => null], [$field => null], true, []]];
+    yield "{$name} null" => [fn (): array => [[$field => null], [$field => null], true, []]];
 
     foreach (array_keys($settings) as $prop) {
-        $name = Str::of("{$field}.{$prop}")->headline()->replace('.', ' ')->lower();
+        $name = attributeName("{$field}.{$prop}");
 
-        yield "{$name} null" => [fn () => [
+        yield "{$name} null" => [fn (): array => [
             [$field => [$prop => null]],
             [$field => [$prop => null]],
             true,
@@ -326,9 +405,9 @@ dataset('passesTypoToleranceProvider', function () {
 
         if ($prop === 'minWordSizeForTypos') {
             foreach (['oneTypo', 'twoTypos'] as $size) {
-                $name = Str::of("{$field}.{$prop}.{$size}")->headline()->replace('.', ' ')->lower();
+                $name = attributeName("{$field}.{$prop}.{$size}");
 
-                yield "{$name} null" => [fn () => [
+                yield "{$name} null" => [fn (): array => [
                     [$field => [$prop => [$size => null]]],
                     [$field => [$prop => [$size => null]]],
                     true,
@@ -338,116 +417,89 @@ dataset('passesTypoToleranceProvider', function () {
         }
     }
 
-    $prop = 'enabled';
-    $name = Str::of("{$field}.{$prop}")->headline()->replace('.', ' ')->lower();
+    foreach (['enabled', 'disableOnNumbers'] as $prop) {
+        $name = attributeName("{$field}.{$prop}");
 
-    yield "{$name} boolean error" => [fn () => [
-        [$field => ['enabled' => 42]],
-        null,
-        false,
-        [
-            "{$field}.{$prop}" => [
-                __('validation.boolean', ['attribute' => $name]),
-            ],
-        ],
-    ]];
+        foreach ([42, 1, '1'] as $value) {
+            yield "{$name} boolean error " . var_export($value, true) => [fn (): array => [
+                [$field => [$prop => $value]],
+                null,
+                false,
+                ["{$field}.{$prop}" => [__('validation.boolean', ['attribute' => $name])]],
+            ]];
+        }
+    }
 
     $prop = 'minWordSizeForTypos';
-    $name = Str::of("{$field}.{$prop}")->headline()->replace('.', ' ')->lower();
+    $name = attributeName("{$field}.{$prop}");
 
-    yield "{$name} not array nor assoc" => [fn () => [
+    yield "{$name} not array nor assoc" => [fn (): array => [
         [$field => [$prop => 42]],
         null,
         false,
-        [
-            "{$field}.{$prop}" => [
-                Str::replace(':attribute', $name, App::make(ArrayAssocRule::class)->message()),
-            ],
-        ],
+        ["{$field}.{$prop}" => [assocMessage($name)]],
     ]];
 
-    yield "{$name} array not assoc" => [fn () => [
+    yield "{$name} array not assoc" => [fn (): array => [
         [$field => [$prop => [42]]],
         null,
         false,
-        [
-            "{$field}.{$prop}" => [
-                Str::replace(':attribute', $name, App::make(ArrayAssocRule::class)->message()),
-            ],
-        ],
+        ["{$field}.{$prop}" => [assocMessage($name)]],
     ]];
 
     foreach (['oneTypo', 'twoTypos'] as $size) {
-        $name = Str::of("{$field}.{$prop}.{$size}")->headline()->replace('.', ' ')->lower();
+        $name = attributeName("{$field}.{$prop}.{$size}");
 
-        yield "{$name} integer error" => [fn () => [
-            [$field => [$prop => [$size => 'foo']]],
-            null,
-            false,
-            [
-                "{$field}.{$prop}.{$size}" => [
-                    __('validation.integer', ['attribute' => $name]),
-                ],
-            ],
-        ]];
+        foreach (['foo', '4'] as $value) {
+            yield "{$name} integer error {$value}" => [fn (): array => [
+                [$field => [$prop => [$size => $value]]],
+                null,
+                false,
+                ["{$field}.{$prop}.{$size}" => [__('validation.integer', ['attribute' => $name])]],
+            ]];
+        }
 
-        yield "{$name} between error low" => [fn () => [
+        yield "{$name} between error low" => [fn (): array => [
             [$field => [$prop => [$size => -1]]],
             null,
             false,
-            [
-                "{$field}.{$prop}.{$size}" => [
-                    __('validation.between.numeric', ['attribute' => $name, 'min' => 0, 'max' => 255]),
-                ],
-            ],
+            ["{$field}.{$prop}.{$size}" => [
+                __('validation.between.numeric', ['attribute' => $name, 'min' => 0, 'max' => 255]),
+            ]],
         ]];
 
-        yield "{$name} between error high" => [fn () => [
+        yield "{$name} between error high" => [fn (): array => [
             [$field => [$prop => [$size => 300]]],
             null,
             false,
-            [
-                "{$field}.{$prop}.{$size}" => [
-                    __('validation.between.numeric', ['attribute' => $name, 'min' => 0, 'max' => 255]),
-                ],
-            ],
+            ["{$field}.{$prop}.{$size}" => [
+                __('validation.between.numeric', ['attribute' => $name, 'min' => 0, 'max' => 255]),
+            ]],
         ]];
     }
 
     foreach (['disableOnWords', 'disableOnAttributes'] as $prop) {
-        $name = Str::of("{$field}.{$prop}")->headline()->replace('.', ' ')->lower();
+        $name = attributeName("{$field}.{$prop}");
 
-        yield "{$name} not array" => [fn () => [
+        yield "{$name} not list" => [fn (): array => [
             [$field => [$prop => 42]],
             null,
             false,
-            [
-                "{$field}.{$prop}" => [
-                    __('validation.array', ['attribute' => $name]),
-                ],
-            ],
+            ["{$field}.{$prop}" => [__('validation.list', ['attribute' => $name])]],
         ]];
 
-        yield "{$name} required error" => [fn () => [
+        yield "{$name} required error" => [fn (): array => [
             [$field => [$prop => [null]]],
             null,
             false,
-            [
-                "{$field}.{$prop}.0" => [
-                    __('validation.required', ['attribute' => "{$field}.{$prop}.0"]),
-                ],
-            ],
+            ["{$field}.{$prop}.0" => [__('validation.required', ['attribute' => "{$field}.{$prop}.0"])]],
         ]];
 
-        yield "{$name} string error" => [fn () => [
+        yield "{$name} string error" => [fn (): array => [
             [$field => [$prop => [42]]],
             null,
             false,
-            [
-                "{$field}.{$prop}.0" => [
-                    __('validation.string', ['attribute' => "{$field}.{$prop}.0"]),
-                ],
-            ],
+            ["{$field}.{$prop}.0" => [__('validation.string', ['attribute' => "{$field}.{$prop}.0"])]],
         ]];
     }
 });

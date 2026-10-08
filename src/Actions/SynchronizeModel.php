@@ -4,66 +4,40 @@ declare(strict_types=1);
 
 namespace Dwarf\MeiliTools\Actions;
 
+use Dwarf\MeiliTools\Actions\Concerns\EnsuresModelIndex;
 use Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists;
+use Dwarf\MeiliTools\Contracts\Actions\ResolvesModelSettings;
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesIndex;
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesModel;
-use Dwarf\MeiliTools\Helpers;
+use Dwarf\MeiliTools\Exceptions\MeiliToolsException;
+use Illuminate\Validation\ValidationException;
+use Meilisearch\Exceptions\CommunicationException;
 
 /**
  * Synchronize model index.
  */
 class SynchronizeModel implements SynchronizesModel
 {
-    /**
-     * Synchronizes index action.
-     */
-    protected SynchronizesIndex $synchronizeIndex;
+    use EnsuresModelIndex;
 
-    /**
-     * Ensures index exists action.
-     */
-    protected EnsuresIndexExists $ensureIndexExists;
-
-    /**
-     * Constructor.
-     *
-     * @param \Dwarf\MeiliTools\Contracts\Actions\SynchronizesIndex  $synchronizeIndex  Synchronize action.
-     * @param \Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists $ensureIndexExists Action ensuring index exists.
-     */
-    public function __construct(SynchronizesIndex $synchronizeIndex, EnsuresIndexExists $ensureIndexExists)
-    {
-        $this->synchronizeIndex = $synchronizeIndex;
-        $this->ensureIndexExists = $ensureIndexExists;
+    public function __construct(
+        protected SynchronizesIndex $synchronizeIndex,
+        protected EnsuresIndexExists $ensureIndexExists,
+        protected ResolvesModelSettings $resolveSettings,
+    ) {
     }
 
     /**
      * {@inheritDoc}
      *
-     * @param bool $pretend Whether to pretend running the action.
-     *
-     * @uses \Dwarf\MeiliTools\Contracts\Actions\SynchronizesIndex
-     * @uses \Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists
-     *
-     * @throws \Illuminate\Validation\ValidationException       On validation failure.
-     * @throws \Dwarf\MeiliTools\Exceptions\MeiliToolsException When not using the MeiliSearch Scout driver.
-     * @throws \MeiliSearch\Exceptions\CommunicationException   When connection to MeiliSearch fails.
+     * @throws ValidationException    On validation failure.
+     * @throws MeiliToolsException    When not using the MeiliSearch Scout driver or the engine is unsupported.
+     * @throws CommunicationException When connection to MeiliSearch fails.
      */
     public function __invoke(string $class, bool $pretend = false): array
     {
-        $model = app($class);
-        $index = $model->searchableAs();
-        $primaryKey = $model->getKeyName();
-        $settings = $model->meiliSettings();
-        // Automatically prepend '__soft_deleted' as filter.
-        if (Helpers::usesSoftDelete($class)) {
-            $settings['filterableAttributes'] = collect($settings['filterableAttributes'] ?? [])
-                ->prepend('__soft_deleted')
-                ->unique()
-                ->all()
-            ;
-        }
-
-        ($this->ensureIndexExists)($index, compact('primaryKey'));
+        $settings = ($this->resolveSettings)($class);
+        $index = $this->ensureModelIndex($class);
 
         return ($this->synchronizeIndex)($index, $settings, $pretend);
     }

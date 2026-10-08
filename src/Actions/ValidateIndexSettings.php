@@ -6,10 +6,11 @@ namespace Dwarf\MeiliTools\Actions;
 
 use Dwarf\MeiliTools\Contracts\Actions\ValidatesIndexSettings;
 use Dwarf\MeiliTools\Contracts\Rules\ArrayAssocRule;
-use Illuminate\Support\Facades\App;
+use Illuminate\Contracts\Validation\Validator as ValidatorContract;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-use Meilisearch\MeiliSearch;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Validates index settings.
@@ -18,25 +19,24 @@ class ValidateIndexSettings implements ValidatesIndexSettings
 {
     /**
      * Validated data.
+     *
+     * @var array<string, mixed>|null
      */
     protected ?array $validated = null;
 
     /**
      * Validation error messages.
+     *
+     * @var array<string, array<int, string>>
      */
     protected array $messages = [];
 
-    /**
-     * {@inheritDoc}
-     *
-     * @param string|null $version MeiliSearch engine version.
-     */
-    public function passes(array $settings, ?string $version = null): bool
+    public function passes(array $settings): bool
     {
-        $validator = Validator::make($settings, $this->rules($version), [], $this->attributes());
+        $validator = $this->validator($settings);
         if ($validator->fails()) {
             $this->validated = null;
-            $this->messages = $validator->messages()->toArray();
+            $this->messages = $validator->errors()->toArray();
 
             return false;
         }
@@ -50,105 +50,122 @@ class ValidateIndexSettings implements ValidatesIndexSettings
     /**
      * {@inheritDoc}
      *
-     * @param string|null $version MeiliSearch engine version.
-     *
-     * @throws \Illuminate\Validation\ValidationException On validation failure.
+     * @throws ValidationException On validation failure.
      */
-    public function validate(array $settings, ?string $version = null): array
+    public function validate(array $settings): array
     {
-        return Validator::make($settings, $this->rules($version), [], $this->attributes())->validate();
+        return $this->validator($settings)->validate();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function validated(): ?array
     {
         return $this->validated;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function messages(): array
     {
         return $this->messages;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @param string|null $version MeiliSearch engine version.
-     */
-    public function rules(?string $version = null): array
+    public function rules(): array
     {
-        $rules = [
-            'displayedAttributes'    => ['sometimes', 'nullable', 'array', 'min:1'],
-            'displayedAttributes.*'  => ['required', 'string'],
-            'distinctAttribute'      => ['sometimes', 'nullable', 'string'],
-            'filterableAttributes'   => ['sometimes', 'nullable', 'array'],
-            'filterableAttributes.*' => ['required', 'string'],
-            'rankingRules'           => ['sometimes', 'nullable', 'array', 'min:1'],
-            'rankingRules.*'         => ['required', 'string'],
-            'searchableAttributes'   => ['sometimes', 'nullable', 'array', 'min:1'],
-            'searchableAttributes.*' => ['required', 'string'],
-            'sortableAttributes'     => ['sometimes', 'nullable', 'array'],
-            'sortableAttributes.*'   => ['required', 'string'],
-            'stopWords'              => ['sometimes', 'nullable', 'array'],
-            'stopWords.*'            => ['required', 'string'],
-            'synonyms'               => ['sometimes', 'nullable', App::make(ArrayAssocRule::class)],
-            'synonyms.*'             => ['required', 'array'],
-            'synonyms.*.*'           => ['required', 'string'],
-            'typoTolerance'          => ['sometimes', 'nullable', App::make(ArrayAssocRule::class)],
-        ];
+        $assoc = resolve(ArrayAssocRule::class);
+        $list = ['sometimes', 'nullable', 'list'];
+        $string = ['required', 'string'];
 
-        // Add actual typo tolerance validation rules for engine version >=0.27.0.
-        if ($version && version_compare($version, '0.27.0', '>=')) {
-            $rules['typoTolerance.enabled'] = ['sometimes', 'nullable', 'boolean'];
-            $rules['typoTolerance.minWordSizeForTypos'] = ['sometimes', 'nullable', App::make(ArrayAssocRule::class)];
-            $rules['typoTolerance.minWordSizeForTypos.oneTypo'] = ['sometimes', 'nullable', 'integer', 'between:0,255'];
-            $rules['typoTolerance.minWordSizeForTypos.twoTypos'] = [
+        return [
+            'dictionary'                                => $list,
+            'dictionary.*'                              => $string,
+            'displayedAttributes'                       => [...$list, 'min:1'],
+            'displayedAttributes.*'                     => $string,
+            'distinctAttribute'                         => ['sometimes', 'nullable', 'string'],
+            'facetSearch'                               => ['sometimes', 'nullable', 'boolean:strict'],
+            'faceting'                                  => ['sometimes', 'nullable', $assoc],
+            'faceting.maxValuesPerFacet'                => ['sometimes', 'nullable', 'integer:strict', 'min:0'],
+            'faceting.sortFacetValuesBy'                => ['sometimes', 'nullable', $assoc],
+            'faceting.sortFacetValuesBy.*'              => ['required', Rule::in(['alpha', 'count'])],
+            'filterableAttributes'                      => $list,
+            'filterableAttributes.*'                    => $string,
+            'localizedAttributes'                       => $list,
+            'localizedAttributes.*'                     => ['required', $assoc],
+            'localizedAttributes.*.attributePatterns'   => ['required', 'list', 'min:1'],
+            'localizedAttributes.*.attributePatterns.*' => $string,
+            'localizedAttributes.*.locales'             => ['present', 'list'],
+            'localizedAttributes.*.locales.*'           => $string,
+            'nonSeparatorTokens'                        => $list,
+            'nonSeparatorTokens.*'                      => $string,
+            'pagination'                                => ['sometimes', 'nullable', $assoc],
+            'pagination.maxTotalHits'                   => ['sometimes', 'nullable', 'integer:strict', 'min:0'],
+            'prefixSearch'                              => [
                 'sometimes',
                 'nullable',
-                'integer',
+                Rule::in(['indexingTime', 'disabled']),
+            ],
+            'proximityPrecision' => [
+                'sometimes',
+                'nullable',
+                Rule::in(['byWord', 'byAttribute']),
+            ],
+            'rankingRules'                              => [...$list, 'min:1'],
+            'rankingRules.*'                            => $string,
+            'searchCutoffMs'                            => ['sometimes', 'nullable', 'integer:strict', 'min:0'],
+            'searchableAttributes'                      => [...$list, 'min:1'],
+            'searchableAttributes.*'                    => $string,
+            'separatorTokens'                           => $list,
+            'separatorTokens.*'                         => $string,
+            'sortableAttributes'                        => $list,
+            'sortableAttributes.*'                      => $string,
+            'stopWords'                                 => $list,
+            'stopWords.*'                               => $string,
+            'synonyms'                                  => ['sometimes', 'nullable', $assoc],
+            'synonyms.*'                                => ['required', 'list'],
+            'synonyms.*.*'                              => $string,
+            'typoTolerance'                             => ['sometimes', 'nullable', $assoc],
+            'typoTolerance.enabled'                     => ['sometimes', 'nullable', 'boolean:strict'],
+            'typoTolerance.minWordSizeForTypos'         => ['sometimes', 'nullable', $assoc],
+            'typoTolerance.minWordSizeForTypos.oneTypo' => [
+                'sometimes',
+                'nullable',
+                'integer:strict',
                 'between:0,255',
-            ];
-            $rules['typoTolerance.disableOnWords'] = ['sometimes', 'nullable', 'array'];
-            $rules['typoTolerance.disableOnWords.*'] = ['required', 'string'];
-            $rules['typoTolerance.disableOnAttributes'] = ['sometimes', 'nullable', 'array'];
-            $rules['typoTolerance.disableOnAttributes.*'] = ['required', 'string'];
-        }
-
-        // Add faceting and pagination validation rules for engine version >=0.28.0.
-        if ($version && version_compare($version, '0.28.0', '>=')) {
-            $rules['faceting'] = ['sometimes', 'nullable', App::make(ArrayAssocRule::class)];
-            $rules['faceting.maxValuesPerFacet'] = ['sometimes', 'nullable', 'integer', 'min:0'];
-            $rules['pagination'] = ['sometimes', 'nullable', App::make(ArrayAssocRule::class)];
-            $rules['pagination.maxTotalHits'] = ['sometimes', 'nullable', 'integer', 'min:0'];
-        }
-
-        return $rules;
+            ],
+            'typoTolerance.minWordSizeForTypos.twoTypos' => [
+                'sometimes',
+                'nullable',
+                'integer:strict',
+                'between:0,255',
+            ],
+            'typoTolerance.disableOnWords'        => $list,
+            'typoTolerance.disableOnWords.*'      => $string,
+            'typoTolerance.disableOnAttributes'   => $list,
+            'typoTolerance.disableOnAttributes.*' => $string,
+            'typoTolerance.disableOnNumbers'      => ['sometimes', 'nullable', 'boolean:strict'],
+        ];
     }
 
     /**
-     * Custom attribute values for typo tolerance rules.
+     * Custom attribute names for nested settings.
+     *
+     * @return array<string, string>
      */
     public function attributes(): array
     {
-        $fields = [
-            'faceting.maxValuesPerFacet',
-            'pagination.maxTotalHits',
-            'typoTolerance.enabled',
-            'typoTolerance.minWordSizeForTypos',
-            'typoTolerance.minWordSizeForTypos.oneTypo',
-            'typoTolerance.minWordSizeForTypos.twoTypos',
-            'typoTolerance.disableOnWords',
-            'typoTolerance.disableOnAttributes',
-        ];
-
-        return collect($fields)
-            ->mapWithKeys(fn ($field) => [$field => Str::of($field)->headline()->replace('.', ' ')->lower()])
+        return collect(array_keys($this->rules()))
+            ->filter(fn (string $field): bool => Str::contains($field, '.') && !Str::contains($field, '*'))
+            ->mapWithKeys(fn (string $field): array => [
+                $field => Str::of($field)->headline()->replace('.', ' ')->lower()->toString(),
+            ])
             ->all()
         ;
+    }
+
+    /**
+     * Create a validator for the given settings.
+     *
+     * @param array<string, mixed> $settings
+     */
+    protected function validator(array $settings): ValidatorContract
+    {
+        return Validator::make($settings, $this->rules(), [], $this->attributes());
     }
 }

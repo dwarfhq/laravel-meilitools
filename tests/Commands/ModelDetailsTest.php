@@ -11,9 +11,9 @@ use Illuminate\Support\Arr;
 /**
  * Test `meili:model:details` command with default settings.
  */
-test('with default settings', function () {
+test('with default settings', function (): void {
     try {
-        $values = Helpers::convertIndexDataToTable(Helpers::defaultSettings(Helpers::engineVersion()));
+        $values = Helpers::convertIndexDataToTable(Helpers::defaultSettings());
 
         $this->artisan('meili:model:details')
             ->expectsQuestion('What is the model class?', Movie::class)
@@ -31,19 +31,19 @@ test('with default settings', function () {
             ->assertSuccessful()
         ;
     } finally {
-        $this->deleteIndex(app(Movie::class)->searchableAs());
+        $this->deleteIndex(resolve(Movie::class)->searchableAs());
     }
 });
 
 /**
  * Test `meili:model:details` command with advanced settings.
  */
-test('with advanced settings', function () {
+test('with advanced settings', function (): void {
     try {
-        $defaults = Helpers::defaultSettings(Helpers::engineVersion());
-        $settings = app(MeiliMovie::class)->meiliSettings();
+        $defaults = Helpers::defaultSettings();
+        $settings = resolve(MeiliMovie::class)->meiliSettings();
 
-        $changes = app()->make(SynchronizesModel::class)(MeiliMovie::class);
+        $changes = resolve(SynchronizesModel::class)(MeiliMovie::class);
         expect($changes)->not->toBeEmpty();
 
         $values = Helpers::convertIndexDataToTable(
@@ -55,6 +55,6 @@ test('with advanced settings', function () {
             ->assertSuccessful()
         ;
     } finally {
-        $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
+        $this->deleteIndex(resolve(MeiliMovie::class)->searchableAs());
     }
 });

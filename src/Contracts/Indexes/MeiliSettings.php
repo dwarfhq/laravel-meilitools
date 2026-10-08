@@ -13,7 +13,7 @@ interface MeiliSettings
      * Index settings are represented as a JSON object literal,
      * containing a field for each possible customization option.
      *
-     * @see https://docs.meilisearch.com/learn/configuration/settings.html
+     * @see https://www.meilisearch.com/docs/reference/api/settings
      *
      * Example settings:
      * <code>
@@ -22,8 +22,9 @@ interface MeiliSettings
      *         'words',
      *         'typo',
      *         'proximity',
-     *         'attribute',
+     *         'attributeRank',
      *         'sort',
+     *         'wordPosition',
      *         'exactness',
      *         'release_date:desc',
      *         'rank:desc',
@@ -59,6 +60,8 @@ interface MeiliSettings
      *     ],
      * ];
      * </code>
+     *
+     * @return array<string, mixed>
      */
     public function meiliSettings(): array;
 }

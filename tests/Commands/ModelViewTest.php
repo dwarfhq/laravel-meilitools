@@ -7,8 +7,8 @@ use Dwarf\MeiliTools\Tests\Models\Movie;
 /**
  * Test `meili:model:view` command with default settings.
  */
-test('with default settings', function () {
-    $index = app(Movie::class)->searchableAs();
+test('with default settings', function (): void {
+    $index = resolve(Movie::class)->searchableAs();
 
     try {
         // Since data returned from MeiliSearch includes microsecond precision timestamps,
@@ -36,8 +36,8 @@ test('with default settings', function () {
 /**
  * Test `meili:model:view` command with stats option.
  */
-test('with stats', function () {
-    $index = app(Movie::class)->searchableAs();
+test('with stats', function (): void {
+    $index = resolve(Movie::class)->searchableAs();
 
     try {
         // Since data returned from MeiliSearch includes microsecond precision timestamps,

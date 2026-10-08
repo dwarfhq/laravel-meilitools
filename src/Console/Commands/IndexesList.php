@@ -29,8 +29,12 @@ class IndexesList extends Command
      */
     public function handle(ListsIndexes $listIndexes): int
     {
-        $list = $listIndexes($this->option('stats'));
-        $values = Helpers::convertIndexDataToTable($list);
+        $list = $listIndexes((bool) $this->option('stats'));
+        $values = array_map(
+            fn (string $index, array $data): array => [$index, Helpers::export($data)],
+            array_keys($list),
+            array_values($list),
+        );
 
         $this->table(['Index', 'Data'], $values);
 

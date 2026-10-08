@@ -5,89 +5,80 @@ declare(strict_types=1);
 use Dwarf\MeiliTools\Contracts\Actions\DetailsModel;
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesModels;
 use Dwarf\MeiliTools\Helpers;
+use Dwarf\MeiliTools\Tests\Models\BrokenMovie;
 use Dwarf\MeiliTools\Tests\Models\MeiliMovie;
 use Dwarf\MeiliTools\Tests\Models\Movie;
+use Dwarf\MeiliTools\Tests\Tools;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Test SynchronizesModels::__invoke() method with advanced settings.
  */
-test('with advanced settings', function () {
+test('with advanced settings', function (): void {
     try {
-        $defaults = Helpers::defaultSettings(Helpers::engineVersion());
-        $settings = app(MeiliMovie::class)->meiliSettings();
-        $expected = collect($settings)
-            ->mapWithKeys(function ($value, $key) use ($defaults) {
-                $old = $defaults[$key];
-                $new = $value;
-
-                return [$key => $old === $new ? false : compact('old', 'new')];
-            })
-            ->filter()
-            ->all()
-        ;
-        $exception = new BadMethodCallException('Call to undefined method ' . Movie::class . '::meiliSettings()');
+        $defaults = Helpers::defaultSettings();
+        $settings = resolve(MeiliMovie::class)->meiliSettings();
+        $expected = Tools::changes($defaults, $settings);
+        $exception = ValidationException::withMessages([
+            'distinctAttribute' => ['The distinct attribute field must be a string.'],
+        ]);
 
         $classes = [
-            Movie::class      => $exception,
-            MeiliMovie::class => $expected,
+            BrokenMovie::class => $exception,
+            Movie::class       => [],
+            MeiliMovie::class  => $expected,
         ];
 
-        $details = app()->make(DetailsModel::class)(Movie::class);
+        $details = resolve(DetailsModel::class)(Movie::class);
         expect($details)->toMatchArray($defaults);
-        $details = app()->make(DetailsModel::class)(MeiliMovie::class);
+        $details = resolve(DetailsModel::class)(MeiliMovie::class);
         expect($details)->toMatchArray($defaults);
 
-        $action = app()->make(SynchronizesModels::class);
-        $action(array_keys($classes), function ($class, $result) use ($classes) {
-            if (\is_array($result)) {
+        $action = resolve(SynchronizesModels::class);
+        $action(array_keys($classes), function ($class, $result) use ($classes): void {
+            if (is_array($result)) {
                 expect($result)->toBe($classes[$class]);
             } else {
-                expect($classes[$class] instanceof $result)->toBeTrue();
-                expect($result->getMessage())->toBe($classes[$class]->getMessage());
+                $expected = $classes[$class];
+                expect($expected)->toBeInstanceOf($result::class)
+                    ->and($result->getMessage())->toBe($expected instanceof Throwable ? $expected->getMessage() : null)
+                ;
             }
         });
 
-        $details = app()->make(DetailsModel::class)(Movie::class);
+        $details = resolve(DetailsModel::class)(Movie::class);
         expect($details)->toMatchArray($defaults);
 
-        $details = app()->make(DetailsModel::class)(MeiliMovie::class);
+        $details = resolve(DetailsModel::class)(MeiliMovie::class);
         expect(Arr::except($details, ['faceting', 'pagination', 'typoTolerance']))->toMatchArray($settings);
     } finally {
-        $this->deleteIndex(app(Movie::class)->searchableAs());
-        $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
+        $this->deleteIndex(resolve(BrokenMovie::class)->searchableAs());
+        $this->deleteIndex(resolve(Movie::class)->searchableAs());
+        $this->deleteIndex(resolve(MeiliMovie::class)->searchableAs());
     }
 });
 
 /**
  * Test SynchronizesModels::__invoke() method with pretend option.
  */
-test('with pretend', function () {
+test('with pretend', function (): void {
     try {
-        $defaults = Helpers::defaultSettings(Helpers::engineVersion());
-        $settings = app(MeiliMovie::class)->meiliSettings();
-        $expected = collect($settings)
-            ->mapWithKeys(function ($value, $key) use ($defaults) {
-                $old = $defaults[$key];
-                $new = $value;
+        $defaults = Helpers::defaultSettings();
+        $settings = resolve(MeiliMovie::class)->meiliSettings();
+        $expected = Tools::changes($defaults, $settings);
 
-                return [$key => $old === $new ? false : compact('old', 'new')];
-            })
-            ->filter()
-            ->all()
-        ;
-
-        $details = app()->make(DetailsModel::class)(MeiliMovie::class);
+        $details = resolve(DetailsModel::class)(MeiliMovie::class);
         expect($details)->toMatchArray($defaults);
 
-        $action = app()->make(SynchronizesModels::class);
-        $action([MeiliMovie::class], function ($class, $result) use ($expected) {
+        $action = resolve(SynchronizesModels::class);
+        $action([MeiliMovie::class], function ($class, $result) use ($expected): void {
             expect($result)->toBe($expected);
         }, true);
 
-        $details = app()->make(DetailsModel::class)(MeiliMovie::class);
+        $details = resolve(DetailsModel::class)(MeiliMovie::class);
         expect($details)->toMatchArray($defaults);
     } finally {
-        $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
+        $this->deleteIndex(resolve(MeiliMovie::class)->searchableAs());
     }
 });

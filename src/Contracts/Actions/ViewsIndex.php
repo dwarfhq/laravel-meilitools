@@ -12,7 +12,7 @@ interface ViewsIndex
     /**
      * Get index information.
      *
-     * @param string $index Index name.
+     * @return array<string, mixed>
      */
-    public function __invoke(string $index): array;
+    public function __invoke(string $index, bool $stats = false): array;
 }

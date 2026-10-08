@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Dwarf\MeiliTools\Console\Commands;
 
+use Dwarf\MeiliTools\Console\Commands\Concerns\RequiresIndex;
 use Dwarf\MeiliTools\Contracts\Actions\ViewsIndex;
 use Dwarf\MeiliTools\Helpers;
 use Illuminate\Console\Command;
 
 class IndexView extends Command
 {
-    use Concerns\RequiresIndex;
+    use RequiresIndex;
 
     /**
      * The name and signature of the console command.
@@ -31,7 +32,7 @@ class IndexView extends Command
      */
     public function handle(ViewsIndex $viewIndex): int
     {
-        $info = $viewIndex($this->getIndex(), $this->option('stats'));
+        $info = $viewIndex($this->getIndex(), (bool) $this->option('stats'));
         $values = Helpers::convertIndexDataToTable($info);
 
         $this->table(['Key', 'Value'], $values);

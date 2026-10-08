@@ -11,57 +11,59 @@ use Dwarf\MeiliTools\Tests\Models\MeiliMovie;
 /**
  * Test ResetsModel::__invoke() method with advanced settings.
  */
-test('with advanced settings', function () {
+test('with advanced settings', function (): void {
     try {
-        $defaults = Helpers::defaultSettings(Helpers::engineVersion());
-        $settings = app(MeiliMovie::class)->meiliSettings();
+        $defaults = Helpers::defaultSettings();
+        $settings = resolve(MeiliMovie::class)->meiliSettings();
 
-        app()->make(SynchronizesModel::class)(MeiliMovie::class);
-        $details = app()->make(DetailsModel::class)(MeiliMovie::class);
-        expect($details)->not->toBe($defaults);
-        expect($details)->toMatchArray(array_replace($defaults, $settings));
+        resolve(SynchronizesModel::class)(MeiliMovie::class);
+        $details = resolve(DetailsModel::class)(MeiliMovie::class);
+        expect($details)->not->toBe($defaults)
+            ->toMatchArray(array_replace($defaults, $settings))
+        ;
 
-        $changes = app()->make(ResetsModel::class)(MeiliMovie::class);
+        $changes = resolve(ResetsModel::class)(MeiliMovie::class);
         expect($changes)->toHaveCount(8);
 
         foreach ($changes as $key => $value) {
             $old = $settings[$key];
             $new = null;
-            expect($value)->toBe(compact('old', 'new'));
+            expect($value)->toBe(['old' => $old, 'new' => $new]);
         }
 
-        $details = app()->make(DetailsModel::class)(MeiliMovie::class);
+        $details = resolve(DetailsModel::class)(MeiliMovie::class);
         expect($details)->toMatchArray($defaults);
     } finally {
-        $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
+        $this->deleteIndex(resolve(MeiliMovie::class)->searchableAs());
     }
 });
 
 /**
  * Test ResetsModel::__invoke() method with pretend option.
  */
-test('with pretend', function () {
+test('with pretend', function (): void {
     try {
-        $defaults = Helpers::defaultSettings(Helpers::engineVersion());
-        $settings = app(MeiliMovie::class)->meiliSettings();
+        $defaults = Helpers::defaultSettings();
+        $settings = resolve(MeiliMovie::class)->meiliSettings();
 
-        app()->make(SynchronizesModel::class)(MeiliMovie::class);
-        $details = app()->make(DetailsModel::class)(MeiliMovie::class);
-        expect($details)->not->toBe($defaults);
-        expect($details)->toMatchArray(array_replace($defaults, $settings));
+        resolve(SynchronizesModel::class)(MeiliMovie::class);
+        $details = resolve(DetailsModel::class)(MeiliMovie::class);
+        expect($details)->not->toBe($defaults)
+            ->toMatchArray(array_replace($defaults, $settings))
+        ;
 
-        $changes = app()->make(ResetsModel::class)(MeiliMovie::class, true);
+        $changes = resolve(ResetsModel::class)(MeiliMovie::class, true);
         expect($changes)->toHaveCount(8);
 
         foreach ($changes as $key => $value) {
             $old = $settings[$key];
             $new = null;
-            expect($value)->toBe(compact('old', 'new'));
+            expect($value)->toBe(['old' => $old, 'new' => $new]);
         }
 
-        $details = app()->make(DetailsModel::class)(MeiliMovie::class);
+        $details = resolve(DetailsModel::class)(MeiliMovie::class);
         expect($details)->not->toBe($defaults);
     } finally {
-        $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
+        $this->deleteIndex(resolve(MeiliMovie::class)->searchableAs());
     }
 });

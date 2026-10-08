@@ -5,8 +5,8 @@ declare(strict_types=1);
 /**
  * Test `meili:index:view` command with default settings.
  */
-test('with default settings', function () {
-    $this->withIndex('testing-index-view', function () {
+test('with default settings', function (): void {
+    $this->withIndex('testing-index-view', function (): void {
         // Since data returned from MeiliSearch includes microsecond precision timestamps,
         // it's impossible to validate the exact console output.
         $this->artisan('meili:index:view')
@@ -25,8 +25,8 @@ test('with default settings', function () {
 /**
  * Test `meili:index:view` command with stats option.
  */
-test('with stats', function () {
-    $this->withIndex('testing-index-view', function () {
+test('with stats', function (): void {
+    $this->withIndex('testing-index-view', function (): void {
         // Since data returned from MeiliSearch includes microsecond precision timestamps,
         // it's impossible to validate the exact console output.
         $this->artisan('meili:index:view', ['index' => 'testing-index-view', '--stats' => true])

@@ -10,8 +10,14 @@
         "concat_space": {
             "spacing": "one"
         },
+        "declare_strict_types": true,
         "multiline_whitespace_before_semicolons": {
             "strategy": "new_line_for_chained_calls"
+        },
+        "native_function_invocation": {
+            "include": ["@compiler_optimized"],
+            "scope": "namespaced",
+            "strict": true
         },
         "new_with_parentheses": {
             "anonymous_class": false
@@ -21,10 +27,23 @@
             "null_adjustment": "always_last",
             "sort_algorithm": "alpha"
         },
-        "phpdoc_align": true,
+        "phpdoc_align": {
+            "tags": [
+                "method",
+                "param",
+                "property",
+                "property-read",
+                "property-write",
+                "return",
+                "throws",
+                "type",
+                "var"
+            ]
+        },
         "phpdoc_annotation_without_dot": false,
         "phpdoc_order": true,
         "phpdoc_separation": true,
+        "phpdoc_trim_consecutive_blank_line_separation": true,
         "phpdoc_types_order": {
             "null_adjustment": "always_last"
         },

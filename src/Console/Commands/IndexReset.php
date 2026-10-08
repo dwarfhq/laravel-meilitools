@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Dwarf\MeiliTools\Console\Commands;
 
+use Dwarf\MeiliTools\Console\Commands\Concerns\RequiresIndex;
 use Dwarf\MeiliTools\Contracts\Actions\ResetsIndex;
 use Dwarf\MeiliTools\Helpers;
 use Illuminate\Console\Command;
 
 class IndexReset extends Command
 {
-    use Concerns\RequiresIndex;
+    use RequiresIndex;
 
     /**
      * The name and signature of the console command.
@@ -33,7 +34,7 @@ class IndexReset extends Command
      */
     public function handle(ResetsIndex $resetIndex): int
     {
-        $changes = $resetIndex($this->getIndex(), $this->option('pretend'));
+        $changes = $resetIndex($this->getIndex(), (bool) $this->option('pretend'));
         $values = Helpers::convertIndexChangesToTable($changes);
 
         $this->table(['Setting', 'Old', 'New'], $values);

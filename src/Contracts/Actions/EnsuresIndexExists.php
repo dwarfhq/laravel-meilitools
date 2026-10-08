@@ -10,10 +10,9 @@ namespace Dwarf\MeiliTools\Contracts\Actions;
 interface EnsuresIndexExists
 {
     /**
-     * Ensure that the given index exists.
+     * Ensure index exists, creating it if missing.
      *
-     * @param string $index   Index name.
-     * @param array  $options Index options.
+     * @param array<string, mixed> $options
      */
     public function __invoke(string $index, array $options = []): void;
 }

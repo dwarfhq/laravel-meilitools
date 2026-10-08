@@ -8,18 +8,18 @@ use Dwarf\MeiliTools\Exceptions\MeiliToolsException;
 /**
  * Test using wrong Scout driver.
  */
-test('meili tools exception', function () {
+test('meili tools exception', function (): void {
     config(['scout.driver' => null]);
 
-    app()->make(EnsuresIndexExists::class)('testing-ensures-index');
+    resolve(EnsuresIndexExists::class)('testing-ensures-index');
 })->throws(MeiliToolsException::class);
 
 /**
  * Test EnsuresIndexExists::__invoke() method.
  */
-test('invoke', function () {
+test('invoke', function (): void {
     try {
-        app()->make(EnsuresIndexExists::class)('testing-ensures-index');
+        resolve(EnsuresIndexExists::class)('testing-ensures-index');
     } finally {
         $this->deleteIndex('testing-ensures-index');
     }

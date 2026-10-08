@@ -6,26 +6,33 @@ namespace Dwarf\MeiliTools;
 
 use Brick\VarExporter\VarExporter;
 use Dwarf\MeiliTools\Exceptions\MeiliToolsException;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Laravel\Scout\EngineManager;
+use Laravel\Scout\Searchable;
+use Meilisearch\Client;
 use Throwable;
 
 class Helpers
 {
     /**
+     * Minimum supported MeiliSearch engine version.
+     */
+    public const string MINIMUM_ENGINE_VERSION = '1.36.0';
+
+    /**
      * Whether Scout is using the MeiliSearch driver.
      */
     public static function usingMeiliSearch(): bool
     {
-        return app(EngineManager::class)->getDefaultDriver() === 'meilisearch';
+        return resolve(EngineManager::class)->getDefaultDriver() === 'meilisearch';
     }
 
     /**
      * Throw exception unless Scout is using the MeiliSearch driver.
      *
-     * @throws \Dwarf\MeiliTools\Exceptions\MeiliToolsException
+     * @throws MeiliToolsException
      */
     public static function throwUnlessMeiliSearch(): void
     {
@@ -37,22 +44,59 @@ class Helpers
     }
 
     /**
+     * Throw exception if the MeiliSearch engine version is unsupported.
+     *
+     * @throws MeiliToolsException
+     */
+    public static function throwUnlessSupportedEngine(?string $version): void
+    {
+        throw_if(
+            $version !== null && version_compare($version, self::MINIMUM_ENGINE_VERSION, '<'),
+            MeiliToolsException::class,
+            \sprintf(
+                'MeiliSearch engine version %s or newer is required, found %s',
+                self::MINIMUM_ENGINE_VERSION,
+                $version,
+            ),
+        );
+    }
+
+    /**
      * Default MeiliSearch index settings.
      *
-     * @param string|null $version MeiliSearch engine version.
+     * Experimental settings and embedders are not managed, and therefore not included.
+     *
+     * @return array<string, mixed>
      */
-    public static function defaultSettings(?string $version = null): array
+    public static function defaultSettings(): array
     {
-        $settings = [
+        return [
+            'dictionary'          => [],
             'displayedAttributes' => ['*'],
             'distinctAttribute'   => null,
+            'facetSearch'         => true,
             'faceting'            => [
                 'maxValuesPerFacet' => 100,
+                'sortFacetValuesBy' => ['*' => 'alpha'],
             ],
             'filterableAttributes' => [],
+            'localizedAttributes'  => null,
+            'nonSeparatorTokens'   => [],
             'pagination'           => ['maxTotalHits' => 1000],
-            'rankingRules'         => ['words', 'typo', 'proximity', 'attribute', 'sort', 'exactness'],
+            'prefixSearch'         => 'indexingTime',
+            'proximityPrecision'   => 'byWord',
+            'rankingRules'         => [
+                'words',
+                'typo',
+                'proximity',
+                'attributeRank',
+                'sort',
+                'wordPosition',
+                'exactness',
+            ],
+            'searchCutoffMs'       => null,
             'searchableAttributes' => ['*'],
+            'separatorTokens'      => [],
             'sortableAttributes'   => [],
             'stopWords'            => [],
             'synonyms'             => [],
@@ -64,77 +108,51 @@ class Helpers
                 ],
                 'disableOnWords'      => [],
                 'disableOnAttributes' => [],
+                'disableOnNumbers'    => false,
             ],
         ];
-
-        // Additional settings for engine version >=1.3.0.
-        if ($version && version_compare($version, '1.3.0', '>=')) {
-            $settings['faceting']['sortFacetValuesBy'] = ['*' => 'alpha'];
-        }
-
-        // Additional settings for engine version >=1.15.0.
-        if ($version && version_compare($version, '1.15.0', '>=')) {
-            $settings['typoTolerance']['disableOnNumbers'] = false;
-        }
-
-        // Sort settings by key.
-        ksort($settings);
-
-        return $settings;
     }
 
     /**
      * Sort MeiliSearch settings.
      *
-     * Certain settings are automatically sorted by MeiliSearch,
+     * Certain settings are automatically sorted and deduplicated by MeiliSearch,
      * so we do it the same way to correctly compare data.
      *
-     * @param array $settings Settings.
+     * @param array<string, mixed> $settings
+     *
+     * @return array<string, mixed>
      */
     public static function sortSettings(array $settings): array
     {
-        $sorter = function (&$value, $key) {
-            if (\is_array($value)) {
-                if (\in_array($key, ['filterableAttributes', 'stopWords', 'sortableAttributes'], true)) {
-                    sort($value);
-                }
-                if ($key === 'synonyms') {
-                    ksort($value);
-                    array_walk($value, fn (&$list) => sort($list));
-                }
-                if ($key === 'faceting') {
-                    $value = array_replace(Arr::only(['maxValuesPerFacet' => null], array_keys($value)), $value);
-                }
-                if ($key === 'pagination') {
-                    $value = array_replace(Arr::only(['maxTotalHits' => null], array_keys($value)), $value);
-                }
-                if ($key === 'typoTolerance') {
-                    $value = array_replace(
-                        Arr::only(
-                            [
-                                'enabled'             => null,
-                                'minWordSizeForTypos' => null,
-                                'disableOnWords'      => null,
-                                'disableOnAttributes' => null,
-                            ],
-                            array_keys($value),
-                        ),
-                        $value,
-                    );
-                    if (isset($value['minWordSizeForTypos'])) {
-                        ksort($value['minWordSizeForTypos']);
-                    }
-                    if (isset($value['disableOnWords'])) {
-                        sort($value['disableOnWords']);
-                    }
-                    if (isset($value['disableOnAttributes'])) {
-                        sort($value['disableOnAttributes']);
-                    }
-                }
-            }
-        };
         ksort($settings);
-        array_walk($settings, $sorter);
+
+        foreach ($settings as $key => $value) {
+            if (!\is_array($value)) {
+                continue;
+            }
+
+            $settings[$key] = match ($key) {
+                'dictionary',
+                'nonSeparatorTokens',
+                'separatorTokens',
+                'sortableAttributes',
+                'stopWords' => collect($value)->uniqueStrict()->sort(\SORT_STRING)->values()->all(),
+                'displayedAttributes',
+                'searchableAttributes' => collect($value)->uniqueStrict()->values()->all(),
+                'synonyms'             => collect($value)->sortKeys(\SORT_STRING)->all(),
+                'faceting'             => self::sortFaceting($value),
+                'localizedAttributes'  => array_map(
+                    fn (mixed $rule): mixed => \is_array($rule)
+                        ? self::orderKeys($rule, ['attributePatterns', 'locales'])
+                        : $rule,
+                    $value,
+                ),
+                'pagination'    => self::orderKeys($value, ['maxTotalHits']),
+                'typoTolerance' => self::sortTypoTolerance($value),
+                default         => $value,
+            };
+        }
 
         return $settings;
     }
@@ -144,23 +162,17 @@ class Helpers
      */
     public static function engineVersion(): ?string
     {
-        $version = null;
-
         try {
-            $version = app(EngineManager::class)->engine()->version()['pkgVersion'] ?? null;
-        } catch (Throwable $e) {
-            // Silently ignore.
+            return resolve(Client::class)->version()['pkgVersion'] ?? null;
+        } catch (Throwable) {
+            return null;
         }
-
-        return $version;
     }
 
     /**
      * Export value to a string.
-     *
-     * @param mixed $value
      */
-    public static function export($value): string
+    public static function export(mixed $value): string
     {
         if (class_exists(VarExporter::class)) {
             return VarExporter::export($value, VarExporter::INLINE_SCALAR_LIST);
@@ -172,59 +184,211 @@ class Helpers
     /**
      * Convert index data to table array.
      *
-     * @param array $data Key / value array.
+     * @param array<array-key, mixed> $data
+     *
+     * @return list<array{string, string}>
      */
     public static function convertIndexDataToTable(array $data): array
     {
-        return collect($data)
-            ->map(function ($value, $key) {
-                return [(string) Str::of($key)->snake()->replace('_', ' ')->title(), self::export($value)];
-            })
-            ->values()
-            ->all()
-        ;
+        return array_map(
+            fn (int|string $key, mixed $value): array => [Str::headline((string) $key), self::export($value)],
+            array_keys($data),
+            array_values($data),
+        );
     }
 
     /**
      * Convert index changes to table array.
      *
-     * @param array $changes Key / value array.
+     * @param array<string, array{old: mixed, new: mixed}> $changes
+     *
+     * @return list<array{string, string, string}>
      */
     public static function convertIndexChangesToTable(array $changes): array
     {
-        return collect($changes)
-            ->map(function ($value, $key) {
-                return [
-                    (string) Str::of($key)->snake()->replace('_', ' ')->title(),
-                    self::export($value['old']),
-                    self::export($value['new']),
-                ];
-            })
-            ->values()
-            ->all()
-        ;
+        return array_map(
+            fn (int|string $key, array $value): array => [
+                Str::headline((string) $key),
+                self::export($value['old']),
+                self::export($value['new']),
+            ],
+            array_keys($changes),
+            array_values($changes),
+        );
     }
 
     /**
      * Guess the model namespace using the configured paths.
-     *
-     * @param string $model Name of the model.
      */
     public static function guessModelNamespace(string $model): string
     {
-        return collect(config('meilitools.paths'))
-            ->map(fn (string $path) => $path . '\\')
-            ->first(fn (string $path) => class_exists($path . $model)) . $model
+        /** @var array<string, string> $paths */
+        $paths = config('meilitools.paths', []);
+
+        return collect($paths)
+            ->map(fn (string $namespace): string => $namespace . '\\')
+            ->first(fn (string $namespace): bool => class_exists($namespace . $model)) . $model
         ;
     }
 
     /**
      * Determine if the given model uses soft deletes and soft deletes are enabled for Scout.
      *
-     * @param \Illuminate\Database\Eloquent\Model|string $model
+     * @param class-string<Model>|Model $model
      */
-    public static function usesSoftDelete($model): bool
+    public static function usesSoftDelete(Model|string $model): bool
     {
-        return config('scout.soft_delete', false) && \in_array(SoftDeletes::class, class_uses_recursive($model));
+        return config('scout.soft_delete', false) && \in_array(SoftDeletes::class, class_uses_recursive($model), true);
+    }
+
+    /**
+     * Get the index settings configured for Scout's MeiliSearch driver.
+     *
+     * Entries without settings (e.g. `'index-settings' => [User::class]`) are normalized to empty settings.
+     *
+     * @return array<string, array<string, mixed>> Keyed by model class or index name.
+     */
+    public static function scoutIndexSettings(): array
+    {
+        $settings = [];
+        foreach ((array) config('scout.meilisearch.index-settings', []) as $name => $value) {
+            if (\is_array($value)) {
+                $settings[(string) $name] = $value;
+            } elseif (\is_string($value)) {
+                $settings[$value] = [];
+            }
+        }
+
+        return $settings;
+    }
+
+    /**
+     * Get the searchable model classes configured in Scout's MeiliSearch index settings.
+     *
+     * @return list<class-string<Model>>
+     */
+    public static function scoutModels(): array
+    {
+        $models = [];
+        foreach (array_keys(self::scoutIndexSettings()) as $name) {
+            if (self::isSearchableModel($name)) {
+                $models[] = $name;
+            }
+        }
+
+        return $models;
+    }
+
+    /**
+     * Get the settings configured in Scout's MeiliSearch index settings which aren't bound to a model.
+     *
+     * @return array<string, array<string, mixed>> Keyed by (prefixed) index name.
+     */
+    public static function scoutIndexes(): array
+    {
+        return collect(self::scoutIndexSettings())
+            ->reject(fn (array $settings, string $name): bool => class_exists($name))
+            ->mapWithKeys(fn (array $settings, string $name): array => [self::scoutIndexName($name) => $settings])
+            ->all()
+        ;
+    }
+
+    /**
+     * Get the index name for a Scout configured index, applying the Scout prefix the same way Scout does.
+     */
+    public static function scoutIndexName(string $name): string
+    {
+        $prefix = (string) config('scout.prefix', '');
+
+        return Str::startsWith($name, $prefix) ? $name : $prefix . $name;
+    }
+
+    /**
+     * Get the index name of a searchable model.
+     *
+     * @param class-string<Model> $class
+     *
+     * @throws MeiliToolsException When the class isn't a searchable model.
+     */
+    public static function modelIndexName(string $class): string
+    {
+        $model = resolve($class);
+        if (!$model instanceof Model || !method_exists($model, 'searchableAs')) {
+            throw new MeiliToolsException(\sprintf("Class '%s' is not a searchable model", $class));
+        }
+
+        return $model->searchableAs();
+    }
+
+    /**
+     * Whether the given class is a searchable Eloquent model.
+     *
+     * @phpstan-assert-if-true class-string<Model> $class
+     */
+    public static function isSearchableModel(string $class): bool
+    {
+        return class_exists($class)
+            && is_a($class, Model::class, true)
+            && \in_array(Searchable::class, class_uses_recursive($class), true);
+    }
+
+    /**
+     * Order the given keys first, in the given order, keeping any unknown keys last.
+     *
+     * @param array<array-key, mixed> $value
+     * @param list<string>            $keys
+     *
+     * @return array<array-key, mixed>
+     */
+    protected static function orderKeys(array $value, array $keys): array
+    {
+        return array_replace(array_intersect_key(array_fill_keys($keys, null), $value), $value);
+    }
+
+    /**
+     * Sort faceting settings.
+     *
+     * MeiliSearch always keeps a '*' entry when sorting facet values.
+     *
+     * @param array<array-key, mixed> $value
+     *
+     * @return array<array-key, mixed>
+     */
+    protected static function sortFaceting(array $value): array
+    {
+        $value = self::orderKeys($value, ['maxValuesPerFacet', 'sortFacetValuesBy']);
+        if (isset($value['sortFacetValuesBy']) && \is_array($value['sortFacetValuesBy'])) {
+            $value['sortFacetValuesBy'] = collect($value['sortFacetValuesBy'] + ['*' => 'alpha'])
+                ->sortKeys(\SORT_STRING)
+                ->all()
+            ;
+        }
+
+        return $value;
+    }
+
+    /**
+     * Sort typo tolerance settings.
+     *
+     * @param array<array-key, mixed> $value
+     *
+     * @return array<array-key, mixed>
+     */
+    protected static function sortTypoTolerance(array $value): array
+    {
+        $value = self::orderKeys(
+            $value,
+            ['enabled', 'minWordSizeForTypos', 'disableOnWords', 'disableOnAttributes', 'disableOnNumbers'],
+        );
+        if (isset($value['minWordSizeForTypos']) && \is_array($value['minWordSizeForTypos'])) {
+            $value['minWordSizeForTypos'] = self::orderKeys($value['minWordSizeForTypos'], ['oneTypo', 'twoTypos']);
+        }
+        foreach (['disableOnWords', 'disableOnAttributes'] as $key) {
+            if (isset($value[$key]) && \is_array($value[$key])) {
+                $value[$key] = collect($value[$key])->uniqueStrict()->sort(\SORT_STRING)->values()->all();
+            }
+        }
+
+        return $value;
     }
 }

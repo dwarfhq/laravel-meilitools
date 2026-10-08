@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Dwarf\MeiliTools\Console\Commands;
 
-use Dwarf\MeiliTools\Contracts\Actions\ListsClasses;
+use Dwarf\MeiliTools\Contracts\Actions\ListsModels;
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesModels;
-use Dwarf\MeiliTools\Contracts\Indexes\MeiliSettings;
 use Dwarf\MeiliTools\Helpers;
 use Illuminate\Console\Command;
 use Illuminate\Console\ConfirmableTrait;
+use Throwable;
 
 class ModelsSynchronize extends Command
 {
@@ -29,41 +29,29 @@ class ModelsSynchronize extends Command
      *
      * @var string
      */
-    protected $description = 'Synchronize all models implementing MeiliSearch index settings';
+    protected $description = 'Synchronize all models with MeiliSearch index settings';
 
     /**
      * Execute the console command.
      */
-    public function handle(ListsClasses $listClasses, SynchronizesModels $synchronizeModels): int
+    public function handle(ListsModels $listModels, SynchronizesModels $synchronizeModels): int
     {
-        // Confirm execution if not pretending and in production.
-        if (!$this->option('pretend') && !$this->confirmToProceed()) {
+        $pretend = (bool) $this->option('pretend');
+        if (!$pretend && !$this->confirmToProceed()) {
             return Command::FAILURE;
         }
 
-        $paths = config('meilitools.paths');
-        $classes = collect($paths)
-            ->map(function ($namespace, $path) use ($listClasses) {
-                return $listClasses($path, $namespace, fn ($class) => is_a($class, MeiliSettings::class, true));
-            })
-            ->values()
-            ->flatten()
-            ->all()
-        ;
+        $failed = false;
+        $synchronizeModels($listModels(), function (string $class, array|Throwable $result) use (&$failed): void {
+            $this->info('Processed ' . $class);
+            if (\is_array($result)) {
+                $this->table(['Setting', 'Old', 'New'], Helpers::convertIndexChangesToTable($result));
+            } else {
+                $failed = true;
+                $this->error(\sprintf("Exception '%s' with message '%s'", $result::class, $result->getMessage()));
+            }
+        }, $pretend);
 
-        if (!empty($classes)) {
-            $synchronizeModels($classes, function ($class, $result) {
-                $this->info('Processed ' . $class);
-                if (\is_array($result)) {
-                    $changes = Helpers::convertIndexChangesToTable($result);
-                    $this->table(['Setting', 'Old', 'New'], $changes);
-                } else {
-                    $error = sprintf("Exception '%s' with message '%s'", \get_class($result), $result->getMessage());
-                    $this->error($error);
-                }
-            }, $this->option('pretend'));
-        }
-
-        return Command::SUCCESS;
+        return $failed ? Command::FAILURE : Command::SUCCESS;
     }
 }

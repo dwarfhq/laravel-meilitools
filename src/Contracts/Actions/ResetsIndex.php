@@ -10,9 +10,9 @@ namespace Dwarf\MeiliTools\Contracts\Actions;
 interface ResetsIndex
 {
     /**
-     * Resets index settings.
+     * Reset index settings to defaults.
      *
-     * @param string $index Index name.
+     * @return array<string, array{old: mixed, new: mixed}> Changes keyed by setting.
      */
-    public function __invoke(string $index): array;
+    public function __invoke(string $index, bool $pretend = false): array;
 }
