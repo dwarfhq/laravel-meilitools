@@ -28,3 +28,10 @@ test('path listing', function (): void {
     $classes = $action($path, $namespace, fn ($class): bool => is_a($class, MeiliSettings::class, true));
     expect($classes)->toHaveCount(2);
 });
+
+/**
+ * Test ListsClasses::__invoke() method with a missing path.
+ */
+test('missing path', function (): void {
+    expect(resolve(ListsClasses::class)('app/Missing', 'App\\Missing'))->toBeEmpty();
+});

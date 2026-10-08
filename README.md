@@ -148,7 +148,7 @@ The following filter methods are available, each with `orWhere` variants, and mo
 | `whereExists('rank')` | `rank EXISTS` |
 | `whereStartsWith('title', 'Bat')` | `title STARTS WITH "Bat"` |
 | `whereContains('title', 'man')` | `title CONTAINS "man"`, requiring the experimental `containsFilter` feature |
-| `whereGeoRadius($lat, $lng, $distance, DistanceUnit::Miles)` | `_geoRadius(lat, lng, meters)`, with the distance in meters by default, or kilometers, miles or feet |
+| `whereGeoRadius($lat, $lng, $distance, DistanceUnit::Meters)` | `_geoRadius(lat, lng, meters)`, with the distance converted to meters from `Meters`, `Kilometers`, `Miles` or `Feet` |
 | `whereGeoBoundingBox([$lat, $lng], [$lat, $lng])` | `_geoBoundingBox([lat, lng], [lat, lng])`, with the top right and bottom left corners |
 | `whereGeoPolygon([[$lat, $lng], ...])` | `_geoPolygon([lat, lng], ...)`, requiring `_geojson` to be filterable |
 | `whereRaw('rank = 3 OR genre = drama')` | Raw filter expression in parentheses |

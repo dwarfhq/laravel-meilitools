@@ -6,6 +6,7 @@ use Dwarf\MeiliTools\Exceptions\MeiliToolsException;
 use Dwarf\MeiliTools\Helpers;
 use Dwarf\MeiliTools\Tests\Models\MeiliMovie;
 use Dwarf\MeiliTools\Tests\Models\Movie;
+use Meilisearch\Client;
 
 /**
  * Test Helpers::guessModelNamespace() method.
@@ -109,4 +110,16 @@ test('model index name', function (): void {
         ->and(fn () => Helpers::modelIndexName(Helpers::class))
         ->toThrow(MeiliToolsException::class, "Class 'Dwarf\\MeiliTools\\Helpers' is not a searchable model")
     ;
+});
+
+/**
+ * Test Helpers::engineVersion() method.
+ */
+test('engine version', function (): void {
+    expect(Helpers::engineVersion())->toMatch('/^\d+\.\d+\.\d+/');
+
+    config(['scout.meilisearch.host' => 'http://localhost:7777']);
+    app()->forgetInstance(Client::class);
+
+    expect(Helpers::engineVersion())->toBeNull();
 });

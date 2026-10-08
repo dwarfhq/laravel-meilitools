@@ -14,10 +14,12 @@ class ListClasses implements ListsClasses
 {
     public function __invoke(string $path, string $namespace, ?callable $filter = null): array
     {
-        $files = scandir(Str::startsWith($path, '/') ? $path : base_path($path));
-        if ($files === false) {
+        $directory = Str::startsWith($path, '/') ? $path : base_path($path);
+        if (!is_dir($directory)) {
             return [];
         }
+
+        $files = scandir($directory) ?: [];
 
         $classes = array_map(
             fn (string $file): string => Str::finish($namespace, '\\') . basename($file, '.php'),
