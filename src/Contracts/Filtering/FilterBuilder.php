@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Dwarf\MeiliTools\Contracts\Filtering;
 
 use Closure;
+use Dwarf\MeiliTools\Filtering\DistanceUnit;
 use Illuminate\Contracts\Support\Arrayable;
+use InvalidArgumentException;
 
 /**
  * Builds MeiliSearch filter expressions with an Eloquent style API.
@@ -300,14 +302,20 @@ interface FilterBuilder
     public function orWhereNotContains(string $field, string $value): static;
 
     /**
-     * Add a `_geoRadius` filter, with the distance in meters.
+     * Add a `_geoRadius` filter.
+     *
+     * The resolution only applies to `_geojson` shapes, which are matched against a polygon with that number
+     * of points approximating the circle, between 3 and 1000 (MeiliSearch defaults to 125).
+     *
+     * @throws InvalidArgumentException When the distance is negative or the resolution is out of range.
      *
      * @return $this
      */
     public function whereGeoRadius(
         float $lat,
         float $lng,
-        int $distance,
+        float|int $distance,
+        DistanceUnit $unit = DistanceUnit::Meters,
         ?int $resolution = null,
         string $boolean = 'and',
         bool $not = false,
@@ -318,7 +326,13 @@ interface FilterBuilder
      *
      * @return $this
      */
-    public function orWhereGeoRadius(float $lat, float $lng, int $distance, ?int $resolution = null): static;
+    public function orWhereGeoRadius(
+        float $lat,
+        float $lng,
+        float|int $distance,
+        DistanceUnit $unit = DistanceUnit::Meters,
+        ?int $resolution = null,
+    ): static;
 
     /**
      * Add a negated `_geoRadius` filter.
@@ -328,7 +342,8 @@ interface FilterBuilder
     public function whereNotGeoRadius(
         float $lat,
         float $lng,
-        int $distance,
+        float|int $distance,
+        DistanceUnit $unit = DistanceUnit::Meters,
         ?int $resolution = null,
         string $boolean = 'and',
     ): static;
@@ -338,7 +353,13 @@ interface FilterBuilder
      *
      * @return $this
      */
-    public function orWhereNotGeoRadius(float $lat, float $lng, int $distance, ?int $resolution = null): static;
+    public function orWhereNotGeoRadius(
+        float $lat,
+        float $lng,
+        float|int $distance,
+        DistanceUnit $unit = DistanceUnit::Meters,
+        ?int $resolution = null,
+    ): static;
 
     /**
      * Add a `_geoBoundingBox` filter.

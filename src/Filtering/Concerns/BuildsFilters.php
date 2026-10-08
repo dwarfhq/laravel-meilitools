@@ -7,6 +7,7 @@ namespace Dwarf\MeiliTools\Filtering\Concerns;
 use Closure;
 use Dwarf\MeiliTools\Contracts\Filtering\FilterBuilder;
 use Dwarf\MeiliTools\Contracts\Filtering\FormatsFilterValues;
+use Dwarf\MeiliTools\Filtering\DistanceUnit;
 use Illuminate\Contracts\Support\Arrayable;
 use InvalidArgumentException;
 
@@ -291,35 +292,55 @@ trait BuildsFilters
     public function whereGeoRadius(
         float $lat,
         float $lng,
-        int $distance,
+        float|int $distance,
+        DistanceUnit $unit = DistanceUnit::Meters,
         ?int $resolution = null,
         string $boolean = 'and',
         bool $not = false,
     ): static {
-        $arguments = [$lat, $lng, $distance, ...($resolution === null ? [] : [$resolution])];
+        if ($distance < 0) {
+            throw new InvalidArgumentException('A geo radius distance must not be negative');
+        }
+
+        if ($resolution !== null && ($resolution < 3 || $resolution > 1000)) {
+            throw new InvalidArgumentException('A geo radius resolution must be between 3 and 1000');
+        }
+
+        $arguments = [$lat, $lng, $unit->toMeters($distance), ...($resolution === null ? [] : [$resolution])];
         $arguments = implode(', ', array_map($this->formatter()->number(...), $arguments));
 
         return $this->addFilter(\sprintf('_geoRadius(%s)', $arguments), $boolean, $not);
     }
 
-    public function orWhereGeoRadius(float $lat, float $lng, int $distance, ?int $resolution = null): static
-    {
-        return $this->whereGeoRadius($lat, $lng, $distance, $resolution, 'or');
+    public function orWhereGeoRadius(
+        float $lat,
+        float $lng,
+        float|int $distance,
+        DistanceUnit $unit = DistanceUnit::Meters,
+        ?int $resolution = null,
+    ): static {
+        return $this->whereGeoRadius($lat, $lng, $distance, $unit, $resolution, 'or');
     }
 
     public function whereNotGeoRadius(
         float $lat,
         float $lng,
-        int $distance,
+        float|int $distance,
+        DistanceUnit $unit = DistanceUnit::Meters,
         ?int $resolution = null,
         string $boolean = 'and',
     ): static {
-        return $this->whereGeoRadius($lat, $lng, $distance, $resolution, $boolean, true);
+        return $this->whereGeoRadius($lat, $lng, $distance, $unit, $resolution, $boolean, true);
     }
 
-    public function orWhereNotGeoRadius(float $lat, float $lng, int $distance, ?int $resolution = null): static
-    {
-        return $this->whereNotGeoRadius($lat, $lng, $distance, $resolution, 'or');
+    public function orWhereNotGeoRadius(
+        float $lat,
+        float $lng,
+        float|int $distance,
+        DistanceUnit $unit = DistanceUnit::Meters,
+        ?int $resolution = null,
+    ): static {
+        return $this->whereNotGeoRadius($lat, $lng, $distance, $unit, $resolution, 'or');
     }
 
     public function whereGeoBoundingBox(

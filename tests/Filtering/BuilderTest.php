@@ -7,10 +7,12 @@ use Dwarf\MeiliTools\Contracts\Filtering\FilterBuilder;
 use Dwarf\MeiliTools\Contracts\Filtering\FormatsFilterValues;
 use Dwarf\MeiliTools\Contracts\Filtering\SearchBuilder;
 use Dwarf\MeiliTools\Exceptions\MeiliToolsException;
+use Dwarf\MeiliTools\Filtering\DistanceUnit;
 use Dwarf\MeiliTools\Filtering\FilterValueFormatter;
 use Dwarf\MeiliTools\Filtering\SearchBuilder as DefaultSearchBuilder;
 use Dwarf\MeiliTools\Tests\Models\MeiliMovie;
 use Dwarf\MeiliTools\Tests\Models\Movie;
+use Illuminate\Support\Facades\Http;
 use Laravel\Scout\Builder as ScoutBuilder;
 use Laravel\Scout\EngineManager;
 use Meilisearch\Client;
@@ -24,7 +26,7 @@ use Meilisearch\Endpoints\Indexes;
 function indexMovies(string $index, array $documents): void
 {
     resolve(SynchronizesIndex::class)($index, [
-        'filterableAttributes' => ['__soft_deleted', '_geo', 'genre', 'rank', 'released', 'tags', 'title'],
+        'filterableAttributes' => ['__soft_deleted', '_geo', '_geojson', 'genre', 'rank', 'released', 'tags', 'title'],
         'sortableAttributes'   => ['_geo', 'rank'],
     ]);
 
@@ -59,6 +61,7 @@ function movieDocuments(): array
             'released' => 1704067200,
             'tags'     => ['dc'],
             '_geo'     => ['lat' => 55.67, 'lng' => 12.56],
+            '_geojson' => ['type' => 'Point', 'coordinates' => [12.56, 55.67]],
         ],
         [
             'id'       => 2,
@@ -68,6 +71,7 @@ function movieDocuments(): array
             'released' => 1672531200,
             'tags'     => [],
             '_geo'     => ['lat' => 40.71, 'lng' => -74.0],
+            '_geojson' => ['type' => 'Point', 'coordinates' => [-74.0, 40.71]],
         ],
         [
             'id'       => 3,
@@ -77,6 +81,7 @@ function movieDocuments(): array
             'released' => 1735689600,
             'tags'     => ['paris'],
             '_geo'     => ['lat' => 48.85, 'lng' => 2.35],
+            '_geojson' => ['type' => 'Point', 'coordinates' => [2.35, 48.85]],
         ],
         [
             'id'    => 4,
@@ -99,7 +104,7 @@ test('resolves builder', function (): void {
 });
 
 /**
- * Test searching with filters.
+ * Test searching with every filter.
  */
 test('filters', function (Closure $build, array $expected): void {
     $this->withIndex('testing-movies', function () use ($build, $expected): void {
@@ -111,31 +116,249 @@ test('filters', function (Closure $build, array $expected): void {
         expect($ids)->toBe($expected);
     });
 })->with([
-    'none'        => [fn (SearchBuilder $b) => $b, [1, 2, 3, 4]],
-    'scout where' => [fn (SearchBuilder $b) => $b->where('genre', 'action'), [1, 2]],
-    'operator'    => [fn (SearchBuilder $b) => $b->where('rank', '>=', 4), [1]],
-    'or'          => [fn (SearchBuilder $b) => $b->where('rank', '>=', 4)->orWhere('title', 'Robin'), [1, 4]],
-    'nested'      => [
+    'none' => [
+        fn (SearchBuilder $b) => $b,
+        [1, 2, 3, 4],
+    ],
+    'where shorthand' => [
+        fn (SearchBuilder $b) => $b->where('genre', 'action'),
+        [1, 2],
+    ],
+    'where operator' => [
+        fn (SearchBuilder $b) => $b->where('rank', '>=', 4),
+        [1],
+    ],
+    'where not equals' => [
+        fn (SearchBuilder $b) => $b->where('genre', '!=', 'action'),
+        [3, 4],
+    ],
+    'where null' => [
+        fn (SearchBuilder $b) => $b->where('rank', null),
+        [3],
+    ],
+    'where date' => [
+        fn (SearchBuilder $b) => $b->where('released', '>=', new DateTimeImmutable('2024-01-01 00:00:00 UTC')),
+        [1, 3],
+    ],
+    'or where' => [
+        fn (SearchBuilder $b) => $b->where('rank', '>=', 4)->orWhere('title', 'Robin'),
+        [1, 4],
+    ],
+    'nested' => [
         fn (SearchBuilder $b) => $b
             ->where('genre', 'drama')
             ->where(fn (FilterBuilder $f) => $f->whereNull('rank')->orWhereNotExists('rank')),
         [3, 4],
     ],
-    'not'     => [fn (SearchBuilder $b) => $b->whereNot('genre', 'action'), [3, 4]],
-    'in'      => [fn (SearchBuilder $b) => $b->whereIn('title', ['Batman', 'Robin']), [1, 4]],
-    'not in'  => [fn (SearchBuilder $b) => $b->whereNotIn('title', ['Batman', 'Robin']), [2, 3]],
-    'between' => [fn (SearchBuilder $b) => $b->whereBetween('rank', [3, 4]), [2]],
-    'date'    => [
-        fn (SearchBuilder $b) => $b->where('released', '>=', new DateTimeImmutable('2024-01-01 00:00:00 UTC')),
+    'or nested' => [
+        fn (SearchBuilder $b) => $b
+            ->where('rank', 5)
+            ->orWhere(fn (FilterBuilder $f) => $f->where('genre', 'drama')->where('title', 'Robin')),
+        [1, 4],
+    ],
+    'where nested not' => [
+        fn (SearchBuilder $b) => $b->whereNested(fn (FilterBuilder $f) => $f->where('genre', 'action'), 'and', true),
+        [3, 4],
+    ],
+    'where not' => [
+        fn (SearchBuilder $b) => $b->whereNot('genre', 'action'),
+        [3, 4],
+    ],
+    'or where not' => [
+        fn (SearchBuilder $b) => $b->where('title', 'Batman')->orWhereNot('genre', 'drama'),
+        [1, 2],
+    ],
+    'raw' => [
+        fn (SearchBuilder $b) => $b->whereRaw('rank = 5 OR title = Robin'),
+        [1, 4],
+    ],
+    'or raw' => [
+        fn (SearchBuilder $b) => $b->where('rank', 3)->orWhereRaw('title = Robin'),
+        [2, 4],
+    ],
+    'in' => [
+        fn (SearchBuilder $b) => $b->whereIn('title', ['Batman', 'Robin']),
+        [1, 4],
+    ],
+    'or in' => [
+        fn (SearchBuilder $b) => $b->where('rank', 3)->orWhereIn('title', ['Robin']),
+        [2, 4],
+    ],
+    'not in' => [
+        fn (SearchBuilder $b) => $b->whereNotIn('title', ['Batman', 'Robin']),
+        [2, 3],
+    ],
+    'or not in' => [
+        fn (SearchBuilder $b) => $b->where('title', 'Amélie')->orWhereNotIn('genre', ['drama']),
+        [1, 2, 3],
+    ],
+    'between' => [
+        fn (SearchBuilder $b) => $b->whereBetween('rank', [3, 4]),
+        [2],
+    ],
+    'or between' => [
+        fn (SearchBuilder $b) => $b->where('title', 'Robin')->orWhereBetween('rank', [5, 6]),
+        [1, 4],
+    ],
+    'not between' => [
+        fn (SearchBuilder $b) => $b->whereNotBetween('rank', [3, 5]),
+        [3, 4],
+    ],
+    'or not between' => [
+        fn (SearchBuilder $b) => $b->where('rank', 5)->orWhereNotBetween('rank', [1, 10]),
+        [1, 3, 4],
+    ],
+    'null' => [
+        fn (SearchBuilder $b) => $b->whereNull('rank'),
+        [3],
+    ],
+    'or null' => [
+        fn (SearchBuilder $b) => $b->where('rank', 5)->orWhereNull('rank'),
         [1, 3],
     ],
-    'empty'            => [fn (SearchBuilder $b) => $b->whereEmpty('tags'), [2]],
-    'exists'           => [fn (SearchBuilder $b) => $b->whereExists('rank'), [1, 2, 3]],
-    'starts with'      => [fn (SearchBuilder $b) => $b->whereStartsWith('title', 'Bat'), [1]],
-    'geo radius'       => [fn (SearchBuilder $b) => $b->whereGeoRadius(55.67, 12.56, 1000), [1]],
-    'geo bounding box' => [fn (SearchBuilder $b) => $b->whereGeoBoundingBox([56, 13], [48, 2]), [1, 3]],
-    'raw'              => [fn (SearchBuilder $b) => $b->whereRaw('rank = 5 OR title = Robin'), [1, 4]],
+    'not null' => [
+        fn (SearchBuilder $b) => $b->whereNotNull('rank'),
+        [1, 2, 4],
+    ],
+    'or not null' => [
+        fn (SearchBuilder $b) => $b->where('title', 'Amélie')->orWhereNotNull('rank'),
+        [1, 2, 3, 4],
+    ],
+    'empty' => [
+        fn (SearchBuilder $b) => $b->whereEmpty('tags'),
+        [2],
+    ],
+    'or empty' => [
+        fn (SearchBuilder $b) => $b->where('rank', 5)->orWhereEmpty('tags'),
+        [1, 2],
+    ],
+    'not empty' => [
+        fn (SearchBuilder $b) => $b->whereNotEmpty('tags'),
+        [1, 3, 4],
+    ],
+    'or not empty' => [
+        fn (SearchBuilder $b) => $b->where('rank', 3)->orWhereNotEmpty('tags'),
+        [1, 2, 3, 4],
+    ],
+    'exists' => [
+        fn (SearchBuilder $b) => $b->whereExists('rank'),
+        [1, 2, 3],
+    ],
+    'or exists' => [
+        fn (SearchBuilder $b) => $b->where('title', 'Robin')->orWhereExists('rank'),
+        [1, 2, 3, 4],
+    ],
+    'not exists' => [
+        fn (SearchBuilder $b) => $b->whereNotExists('rank'),
+        [4],
+    ],
+    'or not exists' => [
+        fn (SearchBuilder $b) => $b->where('rank', 5)->orWhereNotExists('rank'),
+        [1, 4],
+    ],
+    'starts with' => [
+        fn (SearchBuilder $b) => $b->whereStartsWith('title', 'Bat'),
+        [1],
+    ],
+    'or starts with' => [
+        fn (SearchBuilder $b) => $b->where('rank', 3)->orWhereStartsWith('title', 'Rob'),
+        [2, 4],
+    ],
+    'not starts with' => [
+        fn (SearchBuilder $b) => $b->whereNotStartsWith('title', 'Bat'),
+        [2, 3, 4],
+    ],
+    'or not starts with' => [
+        fn (SearchBuilder $b) => $b->where('title', 'Batman')->orWhereNotStartsWith('genre', 'd'),
+        [1, 2],
+    ],
+    'geo radius' => [
+        fn (SearchBuilder $b) => $b->whereGeoRadius(55.67, 12.56, 1000),
+        [1],
+    ],
+    'geo radius kilometers' => [
+        fn (SearchBuilder $b) => $b->whereGeoRadius(48.85, 2.35, 1100, DistanceUnit::Kilometers),
+        [1, 3],
+    ],
+    'geo radius miles' => [
+        fn (SearchBuilder $b) => $b->whereGeoRadius(55.67, 12.56, 1, DistanceUnit::Miles),
+        [1],
+    ],
+    'geo radius feet' => [
+        fn (SearchBuilder $b) => $b->whereGeoRadius(55.67, 12.56, 5000, DistanceUnit::Feet),
+        [1],
+    ],
+    'or geo radius' => [
+        fn (SearchBuilder $b) => $b->where('title', 'Robin')->orWhereGeoRadius(48.85, 2.35, 1000),
+        [3, 4],
+    ],
+    'not geo radius' => [
+        fn (SearchBuilder $b) => $b->whereNotGeoRadius(55.67, 12.56, 1000),
+        [2, 3, 4],
+    ],
+    'or not geo radius' => [
+        fn (SearchBuilder $b) => $b->where('rank', 5)->orWhereNotGeoRadius(48.85, 2.35, 1000),
+        [1, 2, 4],
+    ],
+    'geo bounding box' => [
+        fn (SearchBuilder $b) => $b->whereGeoBoundingBox([56, 13], [48, 2]),
+        [1, 3],
+    ],
+    'or geo bounding box' => [
+        fn (SearchBuilder $b) => $b->where('title', 'Robin')->orWhereGeoBoundingBox([41, -73], [40, -75]),
+        [2, 4],
+    ],
+    'not geo bounding box' => [
+        fn (SearchBuilder $b) => $b->whereNotGeoBoundingBox([56, 13], [48, 2]),
+        [2, 4],
+    ],
+    'or not geo bounding box' => [
+        fn (SearchBuilder $b) => $b->where('rank', 5)->orWhereNotGeoBoundingBox([56, 13], [48, 2]),
+        [1, 2, 4],
+    ],
+    'geo polygon' => [
+        fn (SearchBuilder $b) => $b->whereGeoPolygon([[56, 12], [56, 13], [55, 13], [55, 12]]),
+        [1],
+    ],
+    'or geo polygon' => [
+        fn (SearchBuilder $b) => $b->where('title', 'Robin')->orWhereGeoPolygon([[49, 2], [49, 3], [48, 3], [48, 2]]),
+        [3, 4],
+    ],
+    'not geo polygon' => [
+        fn (SearchBuilder $b) => $b->whereNotGeoPolygon([[56, 12], [56, 13], [55, 13], [55, 12]]),
+        [2, 3, 4],
+    ],
+    'or not geo polygon' => [
+        fn (SearchBuilder $b) => $b->where('rank', 5)->orWhereNotGeoPolygon([[49, 2], [49, 3], [48, 3], [48, 2]]),
+        [1, 2, 4],
+    ],
 ]);
+
+/**
+ * Test searching with `CONTAINS` filters, which require an experimental feature.
+ */
+test('contains filters', function (): void {
+    $config = config('scout.meilisearch');
+    $request = Http::withToken($config['key'])->baseUrl($config['host']);
+    $enabled = $request->get('/experimental-features')->json('containsFilter');
+    $request->patch('/experimental-features', ['containsFilter' => true])->throw();
+
+    try {
+        $this->withIndex('testing-movies', function (): void {
+            indexMovies('testing-movies', movieDocuments());
+
+            expect(hitIds(Movie::search()->whereContains('title', 'man')))->toEqualCanonicalizing([1, 2])
+                ->and(hitIds(Movie::search()->whereNotContains('title', 'man')))->toEqualCanonicalizing([3, 4])
+                ->and(hitIds(Movie::search()->where('rank', 3)->orWhereContains('title', 'obi')))
+                ->toEqualCanonicalizing([2, 4])
+                ->and(hitIds(Movie::search()->where('rank', 5)->orWhereNotContains('title', 'man')))
+                ->toEqualCanonicalizing([1, 3, 4])
+            ;
+        });
+    } finally {
+        $request->patch('/experimental-features', ['containsFilter' => $enabled])->throw();
+    }
+});
 
 /**
  * Test searching with filters on a soft deleting model.
@@ -203,8 +426,9 @@ test('order by geo', function (): void {
 
         // Copenhagen, then Paris and New York, with documents without a location last.
         expect(hitIds(Movie::search()->orderByGeo(55.67, 12.56)))->toBe([1, 3, 2, 4])
+            // MeiliSearch panics on a bounding box covering the whole globe when `_geojson` is filterable.
             ->and(hitIds(
-                Movie::search()->whereGeoBoundingBox([90, 180], [-90, -180])->orderByGeo(55.67, 12.56, 'desc'),
+                Movie::search()->whereGeoBoundingBox([89, 179], [-89, -179])->orderByGeo(55.67, 12.56, 'desc'),
             ))
             ->toBe([2, 3, 1])
         ;

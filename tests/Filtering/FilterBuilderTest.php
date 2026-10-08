@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Carbon\CarbonImmutable;
 use Dwarf\MeiliTools\Contracts\Filtering\FilterBuilder;
+use Dwarf\MeiliTools\Filtering\DistanceUnit;
 use Dwarf\MeiliTools\Tests\Fixtures\Genre;
 
 /**
@@ -137,8 +138,33 @@ test('operators', function (Closure $build, string $expected): void {
         '_geoRadius(55.67, 12.56, 1000)',
     ],
     'geo radius resolution' => [
-        fn (FilterBuilder $f) => $f->whereGeoRadius(-55.67, -12.5, 1000, 10),
+        fn (FilterBuilder $f) => $f->whereGeoRadius(-55.67, -12.5, 1000, resolution: 10),
         '_geoRadius(-55.67, -12.5, 1000, 10)',
+    ],
+    'geo radius kilometers' => [
+        fn (FilterBuilder $f) => $f->whereGeoRadius(55.67, 12.56, 2.5, DistanceUnit::Kilometers),
+        '_geoRadius(55.67, 12.56, 2500)',
+    ],
+    'geo radius miles' => [
+        fn (FilterBuilder $f) => $f->whereGeoRadius(55.67, 12.56, 5, DistanceUnit::Miles),
+        '_geoRadius(55.67, 12.56, 8046.72)',
+    ],
+    'geo radius feet' => [
+        fn (FilterBuilder $f) => $f->whereGeoRadius(55.67, 12.56, 1000, DistanceUnit::Feet, 10),
+        '_geoRadius(55.67, 12.56, 304.8, 10)',
+    ],
+    'or not geo radius units' => [
+        fn (FilterBuilder $f) => $f
+            ->orWhereGeoRadius(1, 2, 1, DistanceUnit::Kilometers)
+            ->orWhereNotGeoRadius(3, 4, 1, DistanceUnit::Miles)
+            ->whereNotGeoRadius(5, 6, 1, DistanceUnit::Feet),
+        '_geoRadius(1, 2, 1000) OR NOT _geoRadius(3, 4, 1609.344) AND NOT _geoRadius(5, 6, 0.3048)',
+    ],
+    'nested' => [
+        fn (FilterBuilder $f) => $f
+            ->whereNested(fn (FilterBuilder $q) => $q->where('a', 1)->orWhere('b', 2))
+            ->whereNested(fn (FilterBuilder $q) => $q->where('c', 3), 'or', true),
+        '(a = 1 OR b = 2) OR NOT (c = 3)',
     ],
     'not geo radius' => [
         fn (FilterBuilder $f) => $f->whereNotGeoRadius(55.67, 12.56, 1000),
@@ -195,6 +221,18 @@ test('invalid arguments', function (Closure $build, string $message): void {
     'between'       => [
         fn (FilterBuilder $f) => $f->whereBetween('a', [1]),
         'A between filter requires exactly two values',
+    ],
+    'low resolution' => [
+        fn (FilterBuilder $f) => $f->whereGeoRadius(1, 2, 3, resolution: 2),
+        'A geo radius resolution must be between 3 and 1000',
+    ],
+    'high resolution' => [
+        fn (FilterBuilder $f) => $f->whereGeoRadius(1, 2, 3, resolution: 1001),
+        'A geo radius resolution must be between 3 and 1000',
+    ],
+    'negative distance' => [
+        fn (FilterBuilder $f) => $f->whereGeoRadius(1, 2, -1),
+        'A geo radius distance must not be negative',
     ],
     'polygon' => [
         fn (FilterBuilder $f) => $f->whereGeoPolygon([[1, 1], [2, 2]]),
