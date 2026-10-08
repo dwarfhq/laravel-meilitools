@@ -11,6 +11,8 @@ use Dwarf\MeiliTools\Exceptions\MeiliToolsException;
 use Dwarf\MeiliTools\Filtering\FilterValueFormatter;
 use Dwarf\MeiliTools\Filtering\MeilisearchEngine;
 use Dwarf\MeiliTools\Filtering\SearchBuilder as DefaultSearchBuilder;
+use Dwarf\MeiliTools\Tests\Fixtures\PlainBuilder;
+use Dwarf\MeiliTools\Tests\Fixtures\PlainMovie;
 use Dwarf\MeiliTools\Tests\Models\MeiliMovie;
 use Dwarf\MeiliTools\Tests\Models\Movie;
 use Illuminate\Support\Facades\Http;
@@ -575,3 +577,19 @@ test('singleton search builder', function (): void {
 
     Movie::search();
 })->throws(MeiliToolsException::class, 'The search builder must not be bound as a singleton');
+
+/**
+ * Test searching with a model using its own Scout builder.
+ */
+test('own scout builder', function (): void {
+    $this->withIndex('testing-movies', function (): void {
+        indexMovies('testing-movies', movieDocuments());
+
+        $builder = PlainMovie::search()->where('genre', 'action');
+
+        expect($builder)->toBeInstanceOf(PlainBuilder::class)
+            ->not->toBeInstanceOf(SearchBuilder::class)
+            ->and(hitIds($builder))->toEqualCanonicalizing([1, 2])
+        ;
+    });
+});
