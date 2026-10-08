@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace Dwarf\MeiliTools\Filtering;
 
-use Closure;
 use Dwarf\MeiliTools\Contracts\Filtering\SearchBuilder as SearchBuilderContract;
 use Dwarf\MeiliTools\Filtering\Concerns\BuildsFilters;
 use Illuminate\Database\Eloquent\Model;
 use InvalidArgumentException;
 use Laravel\Scout\Builder as ScoutBuilder;
-use Meilisearch\Endpoints\Indexes;
 
 /**
  * Scout builder with advanced MeiliSearch filtering and search options.
@@ -24,17 +22,11 @@ class SearchBuilder extends ScoutBuilder implements SearchBuilderContract
     use BuildsFilters;
 
     /**
-     * {@inheritDoc}
+     * Search parameters set by the builder, which take precedence over Scout's `options()`.
      *
-     * @param TModel        $model
-     * @param string        $query
-     * @param callable|null $callback
-     * @param bool          $softDelete
+     * @var array<string, mixed>
      */
-    public function __construct($model, $query, $callback = null, $softDelete = false)
-    {
-        parent::__construct($model, $query, $this->filterCallback($callback), $softDelete);
-    }
+    protected array $searchParameters = [];
 
     public function orderByGeo(float $lat, float $lng, string $direction = 'asc'): static
     {
@@ -77,35 +69,20 @@ class SearchBuilder extends ScoutBuilder implements SearchBuilderContract
         return $this->withOption('locales', $locales);
     }
 
+    public function searchParameters(): array
+    {
+        return $this->searchParameters;
+    }
+
     /**
-     * Merge a search option into the existing options.
+     * Set a search parameter.
      *
      * @return $this
      */
     protected function withOption(string $key, mixed $value): static
     {
-        $this->options[$key] = $value;
+        $this->searchParameters[$key] = $value;
 
         return $this;
-    }
-
-    /**
-     * Wrap the search callback, adding the filter expression to the search parameters.
-     */
-    protected function filterCallback(?callable $callback): Closure
-    {
-        return function (Indexes $index, ?string $query, array $options) use ($callback): mixed {
-            $filter = $this->toFilter();
-            if ($filter !== '') {
-                // Scout sets its own filters, e.g. for soft deletes, which must also apply.
-                $options['filter'] = match (true) {
-                    empty($options['filter'])     => $filter,
-                    \is_array($options['filter']) => [...$options['filter'], $filter],
-                    default                       => \sprintf('(%s) AND (%s)', $options['filter'], $filter),
-                };
-            }
-
-            return $callback !== null ? $callback($index, $query, $options) : $index->rawSearch($query, $options);
-        };
     }
 }

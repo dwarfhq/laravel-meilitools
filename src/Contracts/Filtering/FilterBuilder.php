@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Dwarf\MeiliTools\Contracts\Filtering;
 
 use Closure;
-use Dwarf\MeiliTools\Filtering\DistanceUnit;
+use Dwarf\MeiliTools\Enums\Filtering\DistanceUnit;
 use Illuminate\Contracts\Support\Arrayable;
 use InvalidArgumentException;
 

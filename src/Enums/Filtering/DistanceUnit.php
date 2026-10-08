@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Dwarf\MeiliTools\Filtering;
+namespace Dwarf\MeiliTools\Enums\Filtering;
 
 /**
  * Units of distance for geo filters.

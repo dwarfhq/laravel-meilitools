@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Carbon\CarbonImmutable;
 use Dwarf\MeiliTools\Contracts\Filtering\FilterBuilder;
-use Dwarf\MeiliTools\Filtering\DistanceUnit;
+use Dwarf\MeiliTools\Enums\Filtering\DistanceUnit;
 use Dwarf\MeiliTools\Tests\Fixtures\Genre;
 
 /**

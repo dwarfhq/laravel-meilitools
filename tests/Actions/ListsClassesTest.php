@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Dwarf\MeiliTools\Actions\ListClasses;
 use Dwarf\MeiliTools\Contracts\Actions\ListsClasses;
 use Dwarf\MeiliTools\Contracts\Indexes\MeiliSettings;
 
@@ -35,3 +36,25 @@ test('path listing', function (): void {
 test('missing path', function (): void {
     expect(resolve(ListsClasses::class)('app/Missing', 'App\\Missing'))->toBeEmpty();
 });
+
+/**
+ * Test ListsClasses detecting absolute paths, including Windows paths.
+ */
+test('absolute paths', function (string $path, bool $expected): void {
+    $action = new class extends ListClasses
+    {
+        public function absolute(string $path): bool
+        {
+            return $this->isAbsolutePath($path);
+        }
+    };
+
+    expect($action->absolute($path))->toBe($expected);
+})->with([
+    'unix'           => ['/var/www/app/Models', true],
+    'windows drive'  => ['C:\\www\\app\\Models', true],
+    'windows slash'  => ['c:/www/app/Models', true],
+    'unc'            => ['\\\\server\\share\\Models', true],
+    'relative'       => ['app/Models', false],
+    'drive relative' => ['C:Models', false],
+]);

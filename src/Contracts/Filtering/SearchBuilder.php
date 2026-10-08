@@ -62,4 +62,11 @@ interface SearchBuilder extends FilterBuilder
      * @return $this
      */
     public function locales(array $locales): static;
+
+    /**
+     * Get the search parameters set by the builder, e.g. the matching strategy.
+     *
+     * @return array<string, mixed>
+     */
+    public function searchParameters(): array;
 }

@@ -126,7 +126,7 @@ $articles = Article::search('laravel')
 Scout declares `search()` as returning its own builder, so for IDE and static analysis support, add the following to the model:
 ```php
 /**
- * @method static \Dwarf\MeiliTools\Contracts\Filtering\SearchBuilder search(string $query = '', ?\Closure $callback = null)
+ * @method static \Dwarf\MeiliTools\Filtering\SearchBuilder<static> search(string $query = '', ?\Closure $callback = null)
  */
 class Article extends Model
 ```
@@ -148,7 +148,7 @@ The following filter methods are available, each with `orWhere` variants, and mo
 | `whereExists('rank')` | `rank EXISTS` |
 | `whereStartsWith('title', 'Bat')` | `title STARTS WITH "Bat"` |
 | `whereContains('title', 'man')` | `title CONTAINS "man"`, requiring the experimental `containsFilter` feature |
-| `whereGeoRadius($lat, $lng, $distance, DistanceUnit::Meters)` | `_geoRadius(lat, lng, meters)`, with the distance converted to meters from `Meters`, `Kilometers`, `Miles` or `Feet` |
+| `whereGeoRadius($lat, $lng, $distance, DistanceUnit::Meters)` | `_geoRadius(lat, lng, meters)`, with the distance converted to meters from the `Enums\Filtering\DistanceUnit` cases `Meters`, `Kilometers`, `Miles` or `Feet` |
 | `whereGeoBoundingBox([$lat, $lng], [$lat, $lng])` | `_geoBoundingBox([lat, lng], [lat, lng])`, with the top right and bottom left corners |
 | `whereGeoPolygon([[$lat, $lng], ...])` | `_geoPolygon([lat, lng], ...)`, requiring `_geojson` to be filterable |
 | `whereRaw('rank = 3 OR genre = drama')` | Raw filter expression in parentheses |
@@ -164,13 +164,18 @@ Article::search('laravel')
     ->locales(['eng'])                 // Search using specific locales
     ->get();
 ```
-The filter is added to any filter Scout sets, e.g. for soft deletes, and to the parameters given to a search callback.
+These options take precedence over the same keys given to Scout's `options()`.
+The filter is combined with any filter Scout sets, e.g. for soft deletes, and with a `filter` given to `options()`,
+and the search parameters are also given to a search callback.
+
+Filters and search parameters are applied by the package's MeiliSearch engine, which replaces Scout's `meilisearch` engine.
+If you register your own MeiliSearch engine, use the `Dwarf\MeiliTools\Filtering\Concerns\AppliesSearchBuilder` trait in it.
 
 Filtering behaviour can be changed by binding your own implementations of the contracts in the service container:
 
 | Contract | Default | Purpose |
 |----------|---------|---------|
-| `Contracts\Filtering\SearchBuilder` | `Filtering\SearchBuilder` | Builder returned by `Model::search()`, which must extend Scout's builder |
+| `Contracts\Filtering\SearchBuilder` | `Filtering\SearchBuilder` | Builder returned by `Model::search()`, which must extend Scout's builder and not be a singleton |
 | `Contracts\Filtering\FilterBuilder` | `Filtering\FilterBuilder` | Builder given to nested filter closures |
 | `Contracts\Filtering\FormatsFilterValues` | `Filtering\FilterValueFormatter` | Formatting of fields and values, e.g. dates |
 
@@ -295,6 +300,9 @@ $ php artisan meili:model:view Article
 - List settings are validated as lists, and booleans and integers are validated strictly, e.g. `'1'` is no longer accepted as `true`.
 - `ArrayAssocRule` now extends `ValidationRule` instead of the deprecated `Rule` contract.
 - Models without `MeiliSettings` can be synchronized using settings from Scout's configuration, instead of throwing an exception.
+- Searching models using MeiliSearch returns the package's search builder, and Scout's `meilisearch` engine is replaced to apply it.
+  Scout's `where` now only accepts the `=`, `!=`, `<>`, `>`, `>=`, `<` and `<=` operators, throwing on others,
+  and `null` values are left out of `whereIn` and `whereNotIn`, as they never matched.
 
 ## Development
 Tests run against a MeiliSearch instance at `http://localhost:7700` with the master key `MeiliToolsMasterKey`, as configured in `phpunit.xml`.

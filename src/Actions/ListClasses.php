@@ -14,7 +14,7 @@ class ListClasses implements ListsClasses
 {
     public function __invoke(string $path, string $namespace, ?callable $filter = null): array
     {
-        $directory = Str::startsWith($path, '/') ? $path : base_path($path);
+        $directory = $this->isAbsolutePath($path) ? $path : base_path($path);
         if (!is_dir($directory)) {
             return [];
         }
@@ -27,5 +27,13 @@ class ListClasses implements ListsClasses
         );
 
         return array_values($filter !== null ? array_filter($classes, $filter) : $classes);
+    }
+
+    /**
+     * Whether the path is absolute, including Windows drive and UNC paths.
+     */
+    protected function isAbsolutePath(string $path): bool
+    {
+        return Str::startsWith($path, ['/', '\\']) || preg_match('#^[A-Za-z]:[/\\\\]#', $path) === 1;
     }
 }

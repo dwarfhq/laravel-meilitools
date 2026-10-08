@@ -7,7 +7,7 @@ namespace Dwarf\MeiliTools\Filtering\Concerns;
 use Closure;
 use Dwarf\MeiliTools\Contracts\Filtering\FilterBuilder;
 use Dwarf\MeiliTools\Contracts\Filtering\FormatsFilterValues;
-use Dwarf\MeiliTools\Filtering\DistanceUnit;
+use Dwarf\MeiliTools\Enums\Filtering\DistanceUnit;
 use Illuminate\Contracts\Support\Arrayable;
 use InvalidArgumentException;
 
@@ -43,8 +43,7 @@ trait BuildsFilters
             return $this->whereNested($field, $boolean);
         }
 
-        [$operator, $value] = \func_num_args() === 2 ? ['=', $operator] : [$operator, $value];
-        $operator = $operator === '<>' ? '!=' : $operator;
+        [$operator, $value] = $this->prepareValueAndOperator($operator, $value, \func_num_args() === 2);
 
         if (!\in_array($operator, ['=', '!=', '>', '>=', '<', '<='], true)) {
             $operator = \is_scalar($operator) ? (string) $operator : get_debug_type($operator);
@@ -68,7 +67,7 @@ trait BuildsFilters
 
     public function orWhere(Closure|string $field, mixed $operator = null, mixed $value = null): static
     {
-        [$operator, $value] = \func_num_args() === 2 ? ['=', $operator] : [$operator, $value];
+        [$operator, $value] = $this->prepareValueAndOperator($operator, $value, \func_num_args() === 2);
 
         return $this->where($field, $operator, $value, 'or');
     }
@@ -79,7 +78,7 @@ trait BuildsFilters
         mixed $value = null,
         string $boolean = 'and',
     ): static {
-        [$operator, $value] = \func_num_args() === 2 ? ['=', $operator] : [$operator, $value];
+        [$operator, $value] = $this->prepareValueAndOperator($operator, $value, \func_num_args() === 2);
         $callback = $field instanceof Closure
             ? $field
             : fn (FilterBuilder $filter): FilterBuilder => $filter->where($field, $operator, $value);
@@ -89,7 +88,7 @@ trait BuildsFilters
 
     public function orWhereNot(Closure|string $field, mixed $operator = null, mixed $value = null): static
     {
-        [$operator, $value] = \func_num_args() === 2 ? ['=', $operator] : [$operator, $value];
+        [$operator, $value] = $this->prepareValueAndOperator($operator, $value, \func_num_args() === 2);
 
         return $this->whereNot($field, $operator, $value, 'or');
     }
@@ -126,7 +125,9 @@ trait BuildsFilters
     {
         $format = $this->formatter();
         $values = $values instanceof Arrayable ? $values->toArray() : $values;
-        $values = implode(', ', array_map($format->value(...), [...$values]));
+        // Null never matches a list, like in SQL, so it's left out instead of failing.
+        $values = array_filter([...$values], fn (mixed $value): bool => $value !== null);
+        $values = implode(', ', array_map($format->value(...), $values));
 
         $filter = \sprintf('%s %s [%s]', $format->field($field), $not ? 'NOT IN' : 'IN', $values);
 
@@ -404,6 +405,18 @@ trait BuildsFilters
         }
 
         return $expression;
+    }
+
+    /**
+     * Use `=` when only a value is given, and `!=` for the `<>` operator.
+     *
+     * @return array{mixed, mixed} The operator and value.
+     */
+    protected function prepareValueAndOperator(mixed $operator, mixed $value, bool $useDefault): array
+    {
+        [$operator, $value] = $useDefault ? ['=', $operator] : [$operator, $value];
+
+        return [$operator === '<>' ? '!=' : $operator, $value];
     }
 
     /**

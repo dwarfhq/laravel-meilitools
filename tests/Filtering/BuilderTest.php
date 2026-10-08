@@ -6,9 +6,10 @@ use Dwarf\MeiliTools\Contracts\Actions\SynchronizesIndex;
 use Dwarf\MeiliTools\Contracts\Filtering\FilterBuilder;
 use Dwarf\MeiliTools\Contracts\Filtering\FormatsFilterValues;
 use Dwarf\MeiliTools\Contracts\Filtering\SearchBuilder;
+use Dwarf\MeiliTools\Enums\Filtering\DistanceUnit;
 use Dwarf\MeiliTools\Exceptions\MeiliToolsException;
-use Dwarf\MeiliTools\Filtering\DistanceUnit;
 use Dwarf\MeiliTools\Filtering\FilterValueFormatter;
+use Dwarf\MeiliTools\Filtering\MeilisearchEngine;
 use Dwarf\MeiliTools\Filtering\SearchBuilder as DefaultSearchBuilder;
 use Dwarf\MeiliTools\Tests\Models\MeiliMovie;
 use Dwarf\MeiliTools\Tests\Models\Movie;
@@ -499,3 +500,78 @@ test('custom value formatter', function (): void {
 
     expect($filter)->toBe('released >= "2024-01-01" AND (updated "2024-01-01" TO "2024-12-31")');
 });
+
+/**
+ * Test the engine applying the search builder for models using MeiliSearch.
+ */
+test('engine', function (): void {
+    expect(new Movie()->searchableUsing())->toBeInstanceOf(MeilisearchEngine::class);
+});
+
+/**
+ * Test cloned builders keeping their own filters.
+ */
+test('cloned builder', function (): void {
+    $this->withIndex('testing-movies', function (): void {
+        indexMovies('testing-movies', movieDocuments());
+
+        $base = Movie::search()->where('genre', 'action');
+        $clone = (clone $base)->where('rank', 5);
+
+        expect(hitIds($clone))->toBe([1])
+            ->and(hitIds($base))->toEqualCanonicalizing([1, 2])
+        ;
+    });
+});
+
+/**
+ * Test filters and search parameters applying regardless of the search callback and options.
+ */
+test('replaced callback and options', function (): void {
+    $this->withIndex('testing-movies', function (): void {
+        indexMovies('testing-movies', movieDocuments());
+
+        $options = [];
+        $builder = Movie::search()->where('genre', 'drama')->matchingStrategy('all');
+        $builder->options([
+            'attributesToRetrieve' => ['title'],
+            'filter'               => ['rank NOT EXISTS', ['title = Robin', 'title = Batman']],
+        ]);
+        $builder->callback = function (Indexes $index, string $query, array $params) use (&$options): array {
+            $options = $params;
+
+            return $index->rawSearch($query, $params);
+        };
+
+        expect(hitIds($builder))->toBe([4])
+            ->and($options['matchingStrategy'])->toBe('all')
+            ->and($options['attributesToRetrieve'])->toBe(['id', 'title'])
+            ->and($options['filter'])
+            ->toBe('((rank NOT EXISTS) AND (title = Robin OR title = Batman)) AND (genre = "drama")')
+        ;
+    });
+});
+
+/**
+ * Test null values in `IN` filters matching nothing, like Scout's own filters.
+ */
+test('in with null', function (): void {
+    $this->withIndex('testing-movies', function (): void {
+        indexMovies('testing-movies', movieDocuments());
+
+        $builder = Movie::search()->whereIn('rank', [null, 5]);
+
+        expect($builder->toFilter())->toBe('rank IN [5]')
+            ->and(hitIds($builder))->toBe([1])
+        ;
+    });
+});
+
+/**
+ * Test binding the search builder as a singleton.
+ */
+test('singleton search builder', function (): void {
+    app()->singleton(SearchBuilder::class, DefaultSearchBuilder::class);
+
+    Movie::search();
+})->throws(MeiliToolsException::class, 'The search builder must not be bound as a singleton');
