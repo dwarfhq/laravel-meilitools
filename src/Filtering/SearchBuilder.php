@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Dwarf\MeiliTools\Filtering;
 
 use Closure;
+use Dwarf\MeiliTools\Contracts\Filtering\SearchBuilder as SearchBuilderContract;
 use Dwarf\MeiliTools\Filtering\Concerns\BuildsFilters;
 use Illuminate\Database\Eloquent\Model;
 use InvalidArgumentException;
@@ -18,7 +19,7 @@ use Meilisearch\Endpoints\Indexes;
  *
  * @extends ScoutBuilder<TModel>
  */
-class Builder extends ScoutBuilder
+class SearchBuilder extends ScoutBuilder implements SearchBuilderContract
 {
     use BuildsFilters;
 
@@ -35,20 +36,14 @@ class Builder extends ScoutBuilder
         parent::__construct($model, $query, $this->filterCallback($callback), $softDelete);
     }
 
-    /**
-     * Sort by distance to a geo point.
-     */
     public function orderByGeo(float $lat, float $lng, string $direction = 'asc'): static
     {
         return $this->orderBy(
-            \sprintf('_geoPoint(%s, %s)', $this->formatNumber($lat), $this->formatNumber($lng)),
+            \sprintf('_geoPoint(%s, %s)', $this->formatter()->number($lat), $this->formatter()->number($lng)),
             $direction,
         );
     }
 
-    /**
-     * Set the strategy for matching query terms: `last`, `all` or `frequency`.
-     */
     public function matchingStrategy(string $strategy): static
     {
         if (!\in_array($strategy, ['last', 'all', 'frequency'], true)) {
@@ -58,9 +53,6 @@ class Builder extends ScoutBuilder
         return $this->withOption('matchingStrategy', $strategy);
     }
 
-    /**
-     * Exclude results with a ranking score below the threshold, between 0 and 1.
-     */
     public function rankingScoreThreshold(float $threshold): static
     {
         if ($threshold < 0 || $threshold > 1) {
@@ -70,29 +62,16 @@ class Builder extends ScoutBuilder
         return $this->withOption('rankingScoreThreshold', $threshold);
     }
 
-    /**
-     * Restrict the search to the given searchable attributes.
-     *
-     * @param list<string> $attributes
-     */
     public function attributesToSearchOn(array $attributes): static
     {
         return $this->withOption('attributesToSearchOn', $attributes);
     }
 
-    /**
-     * Return at most one result per value of the given filterable attribute.
-     */
     public function distinct(string $attribute): static
     {
         return $this->withOption('distinct', $attribute);
     }
 
-    /**
-     * Search using the given locales, e.g. `jpn` or `eng`.
-     *
-     * @param list<string> $locales
-     */
     public function locales(array $locales): static
     {
         return $this->withOption('locales', $locales);
@@ -100,6 +79,8 @@ class Builder extends ScoutBuilder
 
     /**
      * Merge a search option into the existing options.
+     *
+     * @return $this
      */
     protected function withOption(string $key, mixed $value): static
     {

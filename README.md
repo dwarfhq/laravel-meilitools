@@ -112,7 +112,7 @@ Searching models using MeiliSearch returns a builder with an Eloquent style API 
 in addition to Scout's own `where`, `whereIn` and `whereNotIn` methods.
 Filtered attributes must be filterable, and sorted attributes must be sortable, in the index settings.
 ```php
-use Dwarf\MeiliTools\Filtering\FilterBuilder;
+use Dwarf\MeiliTools\Contracts\Filtering\FilterBuilder;
 
 $articles = Article::search('laravel')
     ->where('status', 'published')
@@ -123,6 +123,14 @@ $articles = Article::search('laravel')
     ->whereNot('author', 'bot')
     ->get();
 ```
+Scout declares `search()` as returning its own builder, so for IDE and static analysis support, add the following to the model:
+```php
+/**
+ * @method static \Dwarf\MeiliTools\Contracts\Filtering\SearchBuilder search(string $query = '', ?\Closure $callback = null)
+ */
+class Article extends Model
+```
+
 Values are formatted for MeiliSearch: strings are quoted and escaped, backed enums use their value,
 and dates are converted to Unix timestamps, so dates must be indexed as timestamps to be filterable.
 
@@ -157,6 +165,27 @@ Article::search('laravel')
     ->get();
 ```
 The filter is added to any filter Scout sets, e.g. for soft deletes, and to the parameters given to a search callback.
+
+Filtering behaviour can be changed by binding your own implementations of the contracts in the service container:
+
+| Contract | Default | Purpose |
+|----------|---------|---------|
+| `Contracts\Filtering\SearchBuilder` | `Filtering\SearchBuilder` | Builder returned by `Model::search()`, which must extend Scout's builder |
+| `Contracts\Filtering\FilterBuilder` | `Filtering\FilterBuilder` | Builder given to nested filter closures |
+| `Contracts\Filtering\FormatsFilterValues` | `Filtering\FilterValueFormatter` | Formatting of fields and values, e.g. dates |
+
+For example, to filter on dates indexed as `Y-m-d` strings instead of timestamps:
+```php
+use Dwarf\MeiliTools\Contracts\Filtering\FormatsFilterValues;
+use Dwarf\MeiliTools\Filtering\FilterValueFormatter;
+
+$this->app->bind(FormatsFilterValues::class, fn () => new class extends FilterValueFormatter {
+    public function value(mixed $value): string
+    {
+        return parent::value($value instanceof DateTimeInterface ? $value->format('Y-m-d') : $value);
+    }
+});
+```
 
 ### Commands
 The following commands are available:

@@ -3,8 +3,12 @@
 declare(strict_types=1);
 
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesIndex;
-use Dwarf\MeiliTools\Filtering\Builder;
-use Dwarf\MeiliTools\Filtering\FilterBuilder;
+use Dwarf\MeiliTools\Contracts\Filtering\FilterBuilder;
+use Dwarf\MeiliTools\Contracts\Filtering\FormatsFilterValues;
+use Dwarf\MeiliTools\Contracts\Filtering\SearchBuilder;
+use Dwarf\MeiliTools\Exceptions\MeiliToolsException;
+use Dwarf\MeiliTools\Filtering\FilterValueFormatter;
+use Dwarf\MeiliTools\Filtering\SearchBuilder as DefaultSearchBuilder;
 use Dwarf\MeiliTools\Tests\Models\MeiliMovie;
 use Dwarf\MeiliTools\Tests\Models\Movie;
 use Laravel\Scout\Builder as ScoutBuilder;
@@ -86,12 +90,12 @@ function movieDocuments(): array
  * Test the Scout builder resolved for searchable models.
  */
 test('resolves builder', function (): void {
-    expect(Movie::search())->toBeInstanceOf(Builder::class);
+    expect(Movie::search())->toBeInstanceOf(DefaultSearchBuilder::class);
 
     config(['scout.driver' => 'collection']);
     resolve(EngineManager::class)->forgetDrivers();
 
-    expect(Movie::search())->toBeInstanceOf(ScoutBuilder::class)->not->toBeInstanceOf(Builder::class);
+    expect(Movie::search())->toBeInstanceOf(ScoutBuilder::class)->not->toBeInstanceOf(SearchBuilder::class);
 });
 
 /**
@@ -107,30 +111,30 @@ test('filters', function (Closure $build, array $expected): void {
         expect($ids)->toBe($expected);
     });
 })->with([
-    'none'        => [fn (Builder $b) => $b, [1, 2, 3, 4]],
-    'scout where' => [fn (Builder $b) => $b->where('genre', 'action'), [1, 2]],
-    'operator'    => [fn (Builder $b) => $b->where('rank', '>=', 4), [1]],
-    'or'          => [fn (Builder $b) => $b->where('rank', '>=', 4)->orWhere('title', 'Robin'), [1, 4]],
+    'none'        => [fn (SearchBuilder $b) => $b, [1, 2, 3, 4]],
+    'scout where' => [fn (SearchBuilder $b) => $b->where('genre', 'action'), [1, 2]],
+    'operator'    => [fn (SearchBuilder $b) => $b->where('rank', '>=', 4), [1]],
+    'or'          => [fn (SearchBuilder $b) => $b->where('rank', '>=', 4)->orWhere('title', 'Robin'), [1, 4]],
     'nested'      => [
-        fn (Builder $b) => $b
+        fn (SearchBuilder $b) => $b
             ->where('genre', 'drama')
             ->where(fn (FilterBuilder $f) => $f->whereNull('rank')->orWhereNotExists('rank')),
         [3, 4],
     ],
-    'not'     => [fn (Builder $b) => $b->whereNot('genre', 'action'), [3, 4]],
-    'in'      => [fn (Builder $b) => $b->whereIn('title', ['Batman', 'Robin']), [1, 4]],
-    'not in'  => [fn (Builder $b) => $b->whereNotIn('title', ['Batman', 'Robin']), [2, 3]],
-    'between' => [fn (Builder $b) => $b->whereBetween('rank', [3, 4]), [2]],
+    'not'     => [fn (SearchBuilder $b) => $b->whereNot('genre', 'action'), [3, 4]],
+    'in'      => [fn (SearchBuilder $b) => $b->whereIn('title', ['Batman', 'Robin']), [1, 4]],
+    'not in'  => [fn (SearchBuilder $b) => $b->whereNotIn('title', ['Batman', 'Robin']), [2, 3]],
+    'between' => [fn (SearchBuilder $b) => $b->whereBetween('rank', [3, 4]), [2]],
     'date'    => [
-        fn (Builder $b) => $b->where('released', '>=', new DateTimeImmutable('2024-01-01 00:00:00 UTC')),
+        fn (SearchBuilder $b) => $b->where('released', '>=', new DateTimeImmutable('2024-01-01 00:00:00 UTC')),
         [1, 3],
     ],
-    'empty'            => [fn (Builder $b) => $b->whereEmpty('tags'), [2]],
-    'exists'           => [fn (Builder $b) => $b->whereExists('rank'), [1, 2, 3]],
-    'starts with'      => [fn (Builder $b) => $b->whereStartsWith('title', 'Bat'), [1]],
-    'geo radius'       => [fn (Builder $b) => $b->whereGeoRadius(55.67, 12.56, 1000), [1]],
-    'geo bounding box' => [fn (Builder $b) => $b->whereGeoBoundingBox([56, 13], [48, 2]), [1, 3]],
-    'raw'              => [fn (Builder $b) => $b->whereRaw('rank = 5 OR title = Robin'), [1, 4]],
+    'empty'            => [fn (SearchBuilder $b) => $b->whereEmpty('tags'), [2]],
+    'exists'           => [fn (SearchBuilder $b) => $b->whereExists('rank'), [1, 2, 3]],
+    'starts with'      => [fn (SearchBuilder $b) => $b->whereStartsWith('title', 'Bat'), [1]],
+    'geo radius'       => [fn (SearchBuilder $b) => $b->whereGeoRadius(55.67, 12.56, 1000), [1]],
+    'geo bounding box' => [fn (SearchBuilder $b) => $b->whereGeoBoundingBox([56, 13], [48, 2]), [1, 3]],
+    'raw'              => [fn (SearchBuilder $b) => $b->whereRaw('rank = 5 OR title = Robin'), [1, 4]],
 ]);
 
 /**
@@ -213,9 +217,61 @@ test('order by geo', function (): void {
 test('invalid options', function (Closure $build, string $message): void {
     expect(fn () => $build(Movie::search()))->toThrow(InvalidArgumentException::class, $message);
 })->with([
-    'matching strategy' => [fn (Builder $b) => $b->matchingStrategy('some'), 'Invalid matching strategy [some]'],
+    'matching strategy' => [fn (SearchBuilder $b) => $b->matchingStrategy('some'), 'Invalid matching strategy [some]'],
     'threshold'         => [
-        fn (Builder $b) => $b->rankingScoreThreshold(1.5),
+        fn (SearchBuilder $b) => $b->rankingScoreThreshold(1.5),
         'The ranking score threshold must be between 0 and 1',
     ],
 ]);
+
+/**
+ * Test replacing the search builder through its contract.
+ */
+test('custom search builder', function (): void {
+    $builder = new class(new Movie(), '') extends DefaultSearchBuilder
+    {
+        public function whereReleased(): static
+        {
+            return $this->whereExists('released');
+        }
+    };
+    app()->bind(SearchBuilder::class, $builder::class);
+
+    expect(Movie::search()->whereReleased()->toFilter())->toBe('released EXISTS');
+});
+
+/**
+ * Test replacing the search builder with a class not extending Scout's builder.
+ */
+test('invalid search builder', function (): void {
+    app()->bind(SearchBuilder::class, Dwarf\MeiliTools\Filtering\FilterBuilder::class);
+
+    Movie::search();
+})->throws(MeiliToolsException::class, "must extend Scout's builder");
+
+/**
+ * Test replacing how values are formatted through the formatter contract.
+ */
+test('custom value formatter', function (): void {
+    app()->bind(FormatsFilterValues::class, fn (): FormatsFilterValues => new class extends FilterValueFormatter
+    {
+        public function value(mixed $value): string
+        {
+            return $value instanceof DateTimeInterface ? parent::value($value->format('Y-m-d')) : parent::value($value);
+        }
+    });
+
+    $builder = Movie::search();
+    assert($builder instanceof SearchBuilder);
+
+    $filter = $builder
+        ->where('released', '>=', new DateTimeImmutable('2024-01-01'))
+        ->where(fn (FilterBuilder $filter) => $filter->whereBetween('updated', [
+            new DateTimeImmutable('2024-01-01'),
+            new DateTimeImmutable('2024-12-31'),
+        ]))
+        ->toFilter()
+    ;
+
+    expect($filter)->toBe('released >= "2024-01-01" AND (updated "2024-01-01" TO "2024-12-31")');
+});

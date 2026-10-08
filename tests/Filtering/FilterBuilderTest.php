@@ -3,14 +3,14 @@
 declare(strict_types=1);
 
 use Carbon\CarbonImmutable;
-use Dwarf\MeiliTools\Filtering\FilterBuilder;
+use Dwarf\MeiliTools\Contracts\Filtering\FilterBuilder;
 use Dwarf\MeiliTools\Tests\Fixtures\Genre;
 
 /**
  * Test FilterBuilder comparisons and value formatting.
  */
 test('where', function (Closure $build, string $expected): void {
-    expect($build(new FilterBuilder())->toFilter())->toBe($expected);
+    expect($build(resolve(FilterBuilder::class))->toFilter())->toBe($expected);
 })->with([
     'equals shorthand' => [fn (FilterBuilder $f) => $f->where('rank', 42), 'rank = 42'],
     'operator'         => [fn (FilterBuilder $f) => $f->where('rank', '>=', 4.5), 'rank >= 4.5'],
@@ -64,7 +64,7 @@ test('where', function (Closure $build, string $expected): void {
  * Test FilterBuilder operator filters.
  */
 test('operators', function (Closure $build, string $expected): void {
-    expect((string) $build(new FilterBuilder()))->toBe($expected);
+    expect((string) $build(resolve(FilterBuilder::class)))->toBe($expected);
 })->with([
     'in' => [
         fn (FilterBuilder $f) => $f->whereIn('genre', ['action', Genre::Drama, 3]),
@@ -184,7 +184,7 @@ test('operators', function (Closure $build, string $expected): void {
  * Test FilterBuilder argument validation.
  */
 test('invalid arguments', function (Closure $build, string $message): void {
-    expect(fn () => $build(new FilterBuilder()))->toThrow(InvalidArgumentException::class, $message);
+    expect(fn () => $build(resolve(FilterBuilder::class)))->toThrow(InvalidArgumentException::class, $message);
 })->with([
     'operator'      => [fn (FilterBuilder $f) => $f->where('a', 'LIKE', 'b'), 'Invalid filter operator [LIKE]'],
     'null operator' => [fn (FilterBuilder $f) => $f->where('a', '>', null), 'Invalid filter operator [>] for null'],
