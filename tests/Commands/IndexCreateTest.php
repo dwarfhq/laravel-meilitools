@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * Test `meili:index:create` command with default settings.
  */
-test('with default settings', function () {
+test('with default settings', function (): void {
     try {
         $this->artisan('meili:index:create')
             ->expectsQuestion('What is the index name?', 'testing-create-index')

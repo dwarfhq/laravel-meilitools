@@ -4,45 +4,37 @@ declare(strict_types=1);
 
 namespace Dwarf\MeiliTools\Actions;
 
+use Dwarf\MeiliTools\Actions\Concerns\ExtractsIndexInformation;
 use Dwarf\MeiliTools\Contracts\Actions\CreatesIndex;
+use Dwarf\MeiliTools\Exceptions\MeiliToolsException;
 use Dwarf\MeiliTools\Helpers;
-use Laravel\Scout\EngineManager;
+use Meilisearch\Client;
+use Meilisearch\Exceptions\CommunicationException;
 
 /**
  * Create index.
  */
 class CreateIndex implements CreatesIndex
 {
-    use Concerns\ExtractsIndexInformation;
+    use ExtractsIndexInformation;
 
-    /**
-     * Scout engine manager.
-     */
-    protected EngineManager $manager;
-
-    /**
-     * Constructor.
-     *
-     * @param \Laravel\Scout\EngineManager $manager Scout engine manager.
-     */
-    public function __construct(EngineManager $manager)
+    public function __construct(protected Client $client)
     {
-        $this->manager = $manager;
     }
 
     /**
      * {@inheritDoc}
      *
-     * @throws \Dwarf\MeiliTools\Exceptions\MeiliToolsException When not using the MeiliSearch Scout driver.
-     * @throws \MeiliSearch\Exceptions\CommunicationException   When connection to MeiliSearch fails.
+     * @throws MeiliToolsException    When not using the MeiliSearch Scout driver.
+     * @throws CommunicationException When connection to MeiliSearch fails.
      */
     public function __invoke(string $index, array $options = []): array
     {
         Helpers::throwUnlessMeiliSearch();
-        $engine = $this->manager->engine();
-        $task = $engine->createIndex($index, $options);
-        $engine->waitForTask($task['taskUid']);
 
-        return $this->getIndexData($engine->getIndex($index));
+        $task = $this->client->createIndex($index, $options);
+        $this->client->waitForTask($task['taskUid']);
+
+        return $this->getIndexData($this->client->getIndex($index));
     }
 }

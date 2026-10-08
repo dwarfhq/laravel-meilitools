@@ -9,13 +9,13 @@ use Illuminate\Testing\Fluent\AssertableJson;
 /**
  * Test ViewsModel::__invoke() method.
  */
-test('invoke', function () {
-    $model = app(Movie::class);
+test('invoke', function (): void {
+    $model = resolve(Movie::class);
     $index = $model->searchableAs();
     $primaryKey = $model->getKeyName();
 
     try {
-        $info = app()->make(ViewsModel::class)(Movie::class);
+        $info = resolve(ViewsModel::class)(Movie::class);
 
         AssertableJson::fromArray($info)
             ->where('uid', $index)
@@ -32,13 +32,13 @@ test('invoke', function () {
 /**
  * Test ViewsModel::__invoke() method with stats.
  */
-test('invoke with stats', function () {
-    $model = app(Movie::class);
+test('invoke with stats', function (): void {
+    $model = resolve(Movie::class);
     $index = $model->searchableAs();
     $primaryKey = $model->getKeyName();
 
     try {
-        $info = app()->make(ViewsModel::class)(Movie::class, true);
+        $info = resolve(ViewsModel::class)(Movie::class, true);
 
         AssertableJson::fromArray($info)
             ->where('uid', $index)

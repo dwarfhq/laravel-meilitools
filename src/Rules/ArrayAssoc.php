@@ -4,31 +4,21 @@ declare(strict_types=1);
 
 namespace Dwarf\MeiliTools\Rules;
 
+use Closure;
 use Dwarf\MeiliTools\Contracts\Rules\ArrayAssocRule;
 use Illuminate\Support\Arr;
 
 class ArrayAssoc implements ArrayAssocRule
 {
     /**
-     * Determine if the validation rule passes.
-     *
-     * @param string $attribute
-     * @param mixed  $value
-     *
-     * @return bool
+     * Validation error message.
      */
-    public function passes($attribute, $value)
-    {
-        return \is_array($value) && (empty($value) || Arr::isAssoc($value));
-    }
+    public const string MESSAGE = 'The :attribute must be an associative array.';
 
-    /**
-     * Get the validation error message.
-     *
-     * @return string
-     */
-    public function message()
+    public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        return 'The :attribute must be an associative array.';
+        if (!\is_array($value) || ($value !== [] && !Arr::isAssoc($value))) {
+            $fail(self::MESSAGE);
+        }
     }
 }

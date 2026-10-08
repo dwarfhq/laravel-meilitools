@@ -14,6 +14,8 @@ class MeiliMovie extends Movie implements MeiliSettings
 
     /**
      * {@inheritdoc}
+     *
+     * @return array<string, mixed>
      */
     public function meiliSettings(): array
     {

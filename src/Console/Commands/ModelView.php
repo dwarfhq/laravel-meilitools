@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Dwarf\MeiliTools\Console\Commands;
 
+use Dwarf\MeiliTools\Console\Commands\Concerns\RequiresModel;
 use Dwarf\MeiliTools\Contracts\Actions\ViewsModel;
 use Dwarf\MeiliTools\Helpers;
 use Illuminate\Console\Command;
 
 class ModelView extends Command
 {
-    use Concerns\RequiresModel;
+    use RequiresModel;
 
     /**
      * The name and signature of the console command.
@@ -31,7 +32,7 @@ class ModelView extends Command
      */
     public function handle(ViewsModel $viewModel): int
     {
-        $info = $viewModel($this->getModel(), $this->option('stats'));
+        $info = $viewModel($this->getModel(), (bool) $this->option('stats'));
         $values = Helpers::convertIndexDataToTable($info);
 
         $this->table(['Key', 'Value'], $values);

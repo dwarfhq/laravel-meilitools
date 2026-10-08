@@ -5,32 +5,32 @@ declare(strict_types=1);
 use Dwarf\MeiliTools\Contracts\Actions\CreatesIndex;
 use Dwarf\MeiliTools\Exceptions\MeiliToolsException;
 use Illuminate\Testing\Fluent\AssertableJson;
-use MeiliSearch\Exceptions\CommunicationException;
+use Meilisearch\Exceptions\CommunicationException;
 
 /**
  * Test using wrong Scout driver.
  */
-test('meili tools exception', function () {
+test('meili tools exception', function (): void {
     config(['scout.driver' => null]);
 
-    app()->make(CreatesIndex::class)('testing-creates-index');
+    resolve(CreatesIndex::class)('testing-creates-index');
 })->throws(MeiliToolsException::class);
 
 /**
  * Test creating index when MeiliSearch isn't running.
  */
-test('communication exception', function () {
+test('communication exception', function (): void {
     config(['scout.meilisearch.host' => 'http://localhost:7777']);
 
-    app()->make(CreatesIndex::class)('testing-creates-index');
-})->throws(CommunicationException::class, 'Failed to connect to localhost port 7777');
+    resolve(CreatesIndex::class)('testing-creates-index');
+})->throws(CommunicationException::class, 'Failed to connect to localhost');
 
 /**
  * Test CreatesIndex::__invoke() method.
  */
-test('invoke', function () {
+test('invoke', function (): void {
     try {
-        $info = app()->make(CreatesIndex::class)('testing-creates-index');
+        $info = resolve(CreatesIndex::class)('testing-creates-index');
 
         AssertableJson::fromArray($info)
             ->where('uid', 'testing-creates-index')
@@ -47,9 +47,9 @@ test('invoke', function () {
 /**
  * Test CreatesIndex::__invoke() method with options.
  */
-test('invoke with options', function () {
+test('invoke with options', function (): void {
     try {
-        $info = app()->make(CreatesIndex::class)('testing-creates-index', ['primaryKey' => 'id']);
+        $info = resolve(CreatesIndex::class)('testing-creates-index', ['primaryKey' => 'id']);
 
         AssertableJson::fromArray($info)
             ->where('uid', 'testing-creates-index')

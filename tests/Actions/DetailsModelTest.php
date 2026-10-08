@@ -9,11 +9,11 @@ use Dwarf\MeiliTools\Tests\Models\Movie;
 /**
  * Test DetailsModel::__invoke() method.
  */
-test('invoke', function () {
+test('invoke', function (): void {
     try {
-        $details = app()->make(DetailsModel::class)(Movie::class);
-        expect($details)->toMatchArray(Helpers::defaultSettings(Helpers::engineVersion()));
+        $details = resolve(DetailsModel::class)(Movie::class);
+        expect($details)->toMatchArray(Helpers::defaultSettings());
     } finally {
-        $this->deleteIndex(app(Movie::class)->searchableAs());
+        $this->deleteIndex(resolve(Movie::class)->searchableAs());
     }
 });

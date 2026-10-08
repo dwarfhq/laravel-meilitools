@@ -6,8 +6,8 @@ namespace Dwarf\MeiliTools\Tests;
 
 use Closure;
 use Dwarf\MeiliTools\MeiliToolsServiceProvider;
-use Laravel\Scout\EngineManager;
 use Laravel\Scout\ScoutServiceProvider;
+use Meilisearch\Client;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 
 /**
@@ -15,9 +15,6 @@ use Orchestra\Testbench\TestCase as BaseTestCase;
  */
 class TestCase extends BaseTestCase
 {
-    /**
-     * {@inheritdoc}
-     */
     protected function getPackageProviders($app): array
     {
         return [
@@ -26,9 +23,6 @@ class TestCase extends BaseTestCase
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function defineEnvironment($app): void
     {
         $path = __DIR__ . '/Models';
@@ -39,9 +33,6 @@ class TestCase extends BaseTestCase
 
     /**
      * Perform tests using the specified index.
-     *
-     * @param string   $index    Index name.
-     * @param \Closure $callback Test callback function.
      */
     protected function withIndex(string $index, Closure $callback): void
     {
@@ -56,25 +47,22 @@ class TestCase extends BaseTestCase
     /**
      * Create index and wait for task completion.
      *
-     * @param string $index   Index name.
-     * @param array  $options Index options.
+     * @param array<string, mixed> $options
      */
     protected function createIndex(string $index, array $options = []): void
     {
-        $engine = $this->app->make(EngineManager::class)->engine();
-        $task = $engine->createIndex($index, $options);
-        $engine->waitForTask($task['taskUid']);
+        $client = resolve(Client::class);
+        $task = $client->createIndex($index, $options);
+        $client->waitForTask($task['taskUid']);
     }
 
     /**
      * Delete index and wait for task completion.
-     *
-     * @param string $index Index name.
      */
     protected function deleteIndex(string $index): void
     {
-        $engine = $this->app->make(EngineManager::class)->engine();
-        $task = $engine->deleteIndex($index);
-        $engine->waitForTask($task['taskUid']);
+        $client = resolve(Client::class);
+        $task = $client->deleteIndex($index);
+        $client->waitForTask($task['taskUid']);
     }
 }

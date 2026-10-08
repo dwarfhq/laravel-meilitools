@@ -1,0 +1,10 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    paths:
+        - config/
+        - src/
+
+    # One level above the skeleton, as the public API of a package benefits from strict null checks.
+    level: 8

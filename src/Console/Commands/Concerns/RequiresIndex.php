@@ -11,6 +11,6 @@ trait RequiresIndex
      */
     protected function getIndex(): string
     {
-        return $this->argument('index') ?? $this->ask('What is the index name?');
+        return (string) ($this->argument('index') ?? $this->ask('What is the index name?'));
     }
 }

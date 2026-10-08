@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Dwarf\MeiliTools\Console\Commands;
 
+use Dwarf\MeiliTools\Console\Commands\Concerns\RequiresIndex;
 use Dwarf\MeiliTools\Contracts\Actions\CreatesIndex;
 use Illuminate\Console\Command;
 
 class IndexCreate extends Command
 {
-    use Concerns\RequiresIndex;
+    use RequiresIndex;
 
     /**
      * The name and signature of the console command.

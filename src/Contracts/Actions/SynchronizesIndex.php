@@ -12,8 +12,9 @@ interface SynchronizesIndex
     /**
      * Synchronizes index settings.
      *
-     * @param string $index    Index name.
-     * @param array  $settings Index settings.
+     * @param array<string, mixed> $settings
+     *
+     * @return array<string, array{old: mixed, new: mixed}> Changes keyed by setting.
      */
-    public function __invoke(string $index, array $settings): array;
+    public function __invoke(string $index, array $settings, bool $pretend = false): array;
 }

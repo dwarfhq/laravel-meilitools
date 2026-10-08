@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 use Dwarf\MeiliTools\Tests\TestCase;
 
-uses(TestCase::class)->in('Actions', 'Commands', 'Support');
+pest()->extend(TestCase::class)->in('Actions', 'Commands', 'Support');
 
 /*
 |--------------------------------------------------------------------------

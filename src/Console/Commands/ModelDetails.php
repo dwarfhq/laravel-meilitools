@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Dwarf\MeiliTools\Console\Commands;
 
+use Dwarf\MeiliTools\Console\Commands\Concerns\RequiresModel;
 use Dwarf\MeiliTools\Contracts\Actions\DetailsModel;
 use Dwarf\MeiliTools\Helpers;
 use Illuminate\Console\Command;
 
 class ModelDetails extends Command
 {
-    use Concerns\RequiresModel;
+    use RequiresModel;
 
     /**
      * The name and signature of the console command.

@@ -4,52 +4,54 @@ declare(strict_types=1);
 
 namespace Dwarf\MeiliTools\Actions;
 
+use Dwarf\MeiliTools\Actions\Concerns\ExtractsIndexInformation;
 use Dwarf\MeiliTools\Contracts\Actions\ListsIndexes;
+use Dwarf\MeiliTools\Exceptions\MeiliToolsException;
 use Dwarf\MeiliTools\Helpers;
-use Laravel\Scout\EngineManager;
+use Meilisearch\Client;
+use Meilisearch\Contracts\IndexesQuery;
 use Meilisearch\Endpoints\Indexes;
+use Meilisearch\Exceptions\CommunicationException;
 
 /**
  * List indexes.
  */
 class ListIndexes implements ListsIndexes
 {
-    use Concerns\ExtractsIndexInformation;
+    use ExtractsIndexInformation;
 
     /**
-     * Scout engine manager.
+     * Number of indexes fetched per request.
      */
-    protected EngineManager $manager;
+    protected const int LIMIT = 100;
 
-    /**
-     * Constructor.
-     *
-     * @param \Laravel\Scout\EngineManager $manager Scout engine manager.
-     */
-    public function __construct(EngineManager $manager)
+    public function __construct(protected Client $client)
     {
-        $this->manager = $manager;
     }
 
     /**
      * {@inheritDoc}
      *
-     * @param bool $stats Whether to include index stats.
-     *
-     * @throws \Dwarf\MeiliTools\Exceptions\MeiliToolsException When not using the MeiliSearch Scout driver.
-     * @throws \MeiliSearch\Exceptions\CommunicationException   When connection to MeiliSearch fails.
+     * @throws MeiliToolsException    When not using the MeiliSearch Scout driver.
+     * @throws CommunicationException When connection to MeiliSearch fails.
      */
     public function __invoke(bool $stats = false): array
     {
         Helpers::throwUnlessMeiliSearch();
 
-        $indexes = $this->manager->engine()->getIndexes()->getResults();
+        $indexes = [];
+        $offset = 0;
+        do {
+            $results = $this->client->getIndexes(new IndexesQuery()->setOffset($offset)->setLimit(self::LIMIT));
+            /** @var Indexes $index */
+            foreach ($results->getResults() as $index) {
+                $indexes[(string) $index->getUid()] = $this->getIndexData($index, $stats);
+            }
+            $offset += self::LIMIT;
+        } while ($offset < $results->getTotal());
 
-        // Convert iterator objects from contract to array.
-        return collect($indexes)
-            ->mapWithKeys(fn (Indexes $index) => [$index->getUid() => $this->getIndexData($index, $stats)])
-            ->sortKeys()
-            ->all()
-        ;
+        ksort($indexes);
+
+        return $indexes;
     }
 }

@@ -12,22 +12,18 @@ use Illuminate\Support\Str;
  */
 class ListClasses implements ListsClasses
 {
-    /**
-     * {@inheritdoc}
-     */
     public function __invoke(string $path, string $namespace, ?callable $filter = null): array
     {
-        // Use path as-is if absolute, otherwise load relative to the project base path.
         $files = scandir(Str::startsWith($path, '/') ? $path : base_path($path));
-
-        $classes = collect($files)
-            ->filter(fn ($file) => Str::endsWith($file, '.php'))
-            ->map(fn ($file) => Str::finish($namespace, '\\') . basename($file, '.php'))
-        ;
-        if ($filter) {
-            $classes = $classes->filter($filter);
+        if ($files === false) {
+            return [];
         }
 
-        return $classes->all();
+        $classes = array_map(
+            fn (string $file): string => Str::finish($namespace, '\\') . basename($file, '.php'),
+            array_filter($files, fn (string $file): bool => Str::endsWith($file, '.php')),
+        );
+
+        return array_values($filter !== null ? array_filter($classes, $filter) : $classes);
     }
 }

@@ -6,6 +6,8 @@ use Dwarf\MeiliTools\Contracts\Actions\DetailsModel;
 use Dwarf\MeiliTools\Helpers;
 use Dwarf\MeiliTools\Tests\Models\BrokenMovie;
 use Dwarf\MeiliTools\Tests\Models\MeiliMovie;
+use Dwarf\MeiliTools\Tests\Models\Movie;
+use Dwarf\MeiliTools\Tests\Tools;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
 use Illuminate\Validation\ValidationException;
@@ -13,23 +15,14 @@ use Illuminate\Validation\ValidationException;
 /**
  * Test `meili:models:synchronize` command.
  */
-test('with advanced settings', function () {
+test('with advanced settings', function (): void {
     try {
-        $defaults = Helpers::defaultSettings(Helpers::engineVersion());
-        $settings = app(MeiliMovie::class)->meiliSettings();
-        $changes = collect($settings)
-            ->mapWithKeys(function ($value, $key) use ($defaults) {
-                $old = $defaults[$key];
-                $new = $value;
-
-                return [$key => $old === $new ? false : compact('old', 'new')];
-            })
-            ->filter()
-            ->all()
-        ;
+        $defaults = Helpers::defaultSettings();
+        $settings = resolve(MeiliMovie::class)->meiliSettings();
+        $changes = Tools::changes($defaults, $settings);
         $values = Helpers::convertIndexChangesToTable($changes);
 
-        $details = app()->make(DetailsModel::class)(MeiliMovie::class);
+        $details = resolve(DetailsModel::class)(MeiliMovie::class);
         expect($details)->toMatchArray($defaults);
 
         $this->artisan('meili:models:synchronize')
@@ -44,34 +37,25 @@ test('with advanced settings', function () {
             ->assertSuccessful()
         ;
 
-        $details = app()->make(DetailsModel::class)(MeiliMovie::class);
+        $details = resolve(DetailsModel::class)(MeiliMovie::class);
         expect(Arr::except($details, ['faceting', 'pagination', 'typoTolerance']))->toMatchArray($settings);
     } finally {
-        $this->deleteIndex(app(BrokenMovie::class)->searchableAs());
-        $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
+        $this->deleteIndex(resolve(BrokenMovie::class)->searchableAs());
+        $this->deleteIndex(resolve(MeiliMovie::class)->searchableAs());
     }
 });
 
 /**
  * Test `meili:models:synchronize` command with pretend option.
  */
-test('with pretend', function () {
+test('with pretend', function (): void {
     try {
-        $defaults = Helpers::defaultSettings(Helpers::engineVersion());
-        $settings = app(MeiliMovie::class)->meiliSettings();
-        $changes = collect($settings)
-            ->mapWithKeys(function ($value, $key) use ($defaults) {
-                $old = $defaults[$key];
-                $new = $value;
-
-                return [$key => $old === $new ? false : compact('old', 'new')];
-            })
-            ->filter()
-            ->all()
-        ;
+        $defaults = Helpers::defaultSettings();
+        $settings = resolve(MeiliMovie::class)->meiliSettings();
+        $changes = Tools::changes($defaults, $settings);
         $values = Helpers::convertIndexChangesToTable($changes);
 
-        $details = app()->make(DetailsModel::class)(MeiliMovie::class);
+        $details = resolve(DetailsModel::class)(MeiliMovie::class);
         expect($details)->toMatchArray($defaults);
 
         $path = __DIR__ . '/../Models';
@@ -90,19 +74,19 @@ test('with pretend', function () {
             ->assertSuccessful()
         ;
 
-        $details = app()->make(DetailsModel::class)(MeiliMovie::class);
+        $details = resolve(DetailsModel::class)(MeiliMovie::class);
         expect($details)->toMatchArray($defaults);
     } finally {
-        $this->deleteIndex(app(BrokenMovie::class)->searchableAs());
-        $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
+        $this->deleteIndex(resolve(BrokenMovie::class)->searchableAs());
+        $this->deleteIndex(resolve(MeiliMovie::class)->searchableAs());
     }
 });
 
 /**
  * Test `meili:models:synchronize` command in production mode.
  */
-test('in production mode', function () {
-    App::detectEnvironment(fn () => 'production');
+test('in production mode', function (): void {
+    App::detectEnvironment(fn (): string => 'production');
 
     try {
         $this->artisan('meili:models:synchronize')
@@ -119,7 +103,35 @@ test('in production mode', function () {
             ->assertSuccessful()
         ;
     } finally {
-        $this->deleteIndex(app(BrokenMovie::class)->searchableAs());
-        $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
+        $this->deleteIndex(resolve(BrokenMovie::class)->searchableAs());
+        $this->deleteIndex(resolve(MeiliMovie::class)->searchableAs());
+    }
+});
+
+/**
+ * Test `meili:models:synchronize` command with models configured in Scout.
+ */
+test('with scout settings', function (): void {
+    config([
+        'meilitools.paths'                 => [],
+        'scout.meilisearch.index-settings' => [
+            Movie::class => ['sortableAttributes' => ['rating']],
+            'books'      => ['sortableAttributes' => ['title']],
+        ],
+    ]);
+
+    try {
+        $this->artisan('meili:models:synchronize')
+            ->expectsOutput('Processed ' . Movie::class)
+            ->expectsTable(['Setting', 'Old', 'New'], [['Sortable Attributes', '[]', "['rating']"]])
+            ->doesntExpectOutput('Processed books')
+            ->doesntExpectOutput('Processed ' . MeiliMovie::class)
+            ->assertSuccessful()
+        ;
+
+        $details = resolve(DetailsModel::class)(Movie::class);
+        expect($details['sortableAttributes'])->toBe(['rating']);
+    } finally {
+        $this->deleteIndex(resolve(Movie::class)->searchableAs());
     }
 });

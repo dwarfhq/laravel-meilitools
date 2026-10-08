@@ -10,11 +10,11 @@ namespace Dwarf\MeiliTools\Contracts\Actions;
 interface ListsClasses
 {
     /**
-     * List classes for a given path with the provided namespace.
+     * Get a list of classes in the given path.
      *
-     * @param string        $path      Path to scan for models.
-     * @param string        $namespace Namespace matching the models.
-     * @param callable|null $filter    Optional callback filter.
+     * @param (callable(string): bool)|null $filter
+     *
+     * @return list<string>
      */
     public function __invoke(string $path, string $namespace, ?callable $filter = null): array;
 }

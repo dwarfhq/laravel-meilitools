@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Dwarf\MeiliTools\Console\Commands;
 
+use Dwarf\MeiliTools\Console\Commands\Concerns\RequiresModel;
 use Dwarf\MeiliTools\Contracts\Actions\ResetsModel;
 use Dwarf\MeiliTools\Helpers;
 use Illuminate\Console\Command;
 
 class ModelReset extends Command
 {
-    use Concerns\RequiresModel;
+    use RequiresModel;
 
     /**
      * The name and signature of the console command.
@@ -33,7 +34,7 @@ class ModelReset extends Command
      */
     public function handle(ResetsModel $resetModel): int
     {
-        $changes = $resetModel($this->getModel(), $this->option('pretend'));
+        $changes = $resetModel($this->getModel(), (bool) $this->option('pretend'));
         $values = Helpers::convertIndexChangesToTable($changes);
 
         $this->table(['Setting', 'Old', 'New'], $values);

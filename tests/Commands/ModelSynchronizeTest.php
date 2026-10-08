@@ -5,27 +5,19 @@ declare(strict_types=1);
 use Dwarf\MeiliTools\Contracts\Actions\DetailsModel;
 use Dwarf\MeiliTools\Helpers;
 use Dwarf\MeiliTools\Tests\Models\MeiliMovie;
+use Dwarf\MeiliTools\Tests\Tools;
 use Illuminate\Support\Arr;
 
 /**
  * Test `meili:model:synchronize` command with advanced settings.
  */
-test('with advanced settings', function () {
+test('with advanced settings', function (): void {
     try {
-        $defaults = Helpers::defaultSettings(Helpers::engineVersion());
-        $settings = app(MeiliMovie::class)->meiliSettings();
-        $changes = collect($settings)
-            ->mapWithKeys(function ($value, $key) use ($defaults) {
-                $old = $defaults[$key];
-                $new = $value;
+        $defaults = Helpers::defaultSettings();
+        $settings = resolve(MeiliMovie::class)->meiliSettings();
+        $changes = Tools::changes($defaults, $settings);
 
-                return [$key => $old === $new ? false : compact('old', 'new')];
-            })
-            ->filter()
-            ->all()
-        ;
-
-        $details = app()->make(DetailsModel::class)(MeiliMovie::class);
+        $details = resolve(DetailsModel::class)(MeiliMovie::class);
         expect($details)->toMatchArray($defaults);
 
         $values = Helpers::convertIndexChangesToTable($changes);
@@ -35,32 +27,23 @@ test('with advanced settings', function () {
             ->assertSuccessful()
         ;
 
-        $details = app()->make(DetailsModel::class)(MeiliMovie::class);
+        $details = resolve(DetailsModel::class)(MeiliMovie::class);
         expect(Arr::except($details, ['faceting', 'pagination', 'typoTolerance']))->toMatchArray($settings);
     } finally {
-        $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
+        $this->deleteIndex(resolve(MeiliMovie::class)->searchableAs());
     }
 });
 
 /**
  * Test `meili:model:synchronize` command with pretend option.
  */
-test('with pretend', function () {
+test('with pretend', function (): void {
     try {
-        $defaults = Helpers::defaultSettings(Helpers::engineVersion());
-        $settings = app(MeiliMovie::class)->meiliSettings();
-        $changes = collect($settings)
-            ->mapWithKeys(function ($value, $key) use ($defaults) {
-                $old = $defaults[$key];
-                $new = $value;
+        $defaults = Helpers::defaultSettings();
+        $settings = resolve(MeiliMovie::class)->meiliSettings();
+        $changes = Tools::changes($defaults, $settings);
 
-                return [$key => $old === $new ? false : compact('old', 'new')];
-            })
-            ->filter()
-            ->all()
-        ;
-
-        $details = app()->make(DetailsModel::class)(MeiliMovie::class);
+        $details = resolve(DetailsModel::class)(MeiliMovie::class);
         expect($details)->toMatchArray($defaults);
 
         $values = Helpers::convertIndexChangesToTable($changes);
@@ -70,9 +53,9 @@ test('with pretend', function () {
             ->assertSuccessful()
         ;
 
-        $details = app()->make(DetailsModel::class)(MeiliMovie::class);
+        $details = resolve(DetailsModel::class)(MeiliMovie::class);
         expect($details)->toMatchArray($defaults);
     } finally {
-        $this->deleteIndex(app(MeiliMovie::class)->searchableAs());
+        $this->deleteIndex(resolve(MeiliMovie::class)->searchableAs());
     }
 });

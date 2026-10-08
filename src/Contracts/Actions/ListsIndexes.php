@@ -11,6 +11,8 @@ interface ListsIndexes
 {
     /**
      * Get a list of all indexes.
+     *
+     * @return array<string, array<string, mixed>> Index information keyed by index name.
      */
-    public function __invoke(): array;
+    public function __invoke(bool $stats = false): array;
 }

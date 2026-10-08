@@ -10,9 +10,9 @@ use Illuminate\Support\Arr;
 /**
  * Test `meili:index:details` command with default settings.
  */
-test('with default settings', function () {
-    $this->withIndex('testing-details-index', function () {
-        $values = Helpers::convertIndexDataToTable(Helpers::defaultSettings(Helpers::engineVersion()));
+test('with default settings', function (): void {
+    $this->withIndex('testing-details-index', function (): void {
+        $values = Helpers::convertIndexDataToTable(Helpers::defaultSettings());
 
         $this->artisan('meili:index:details')
             ->expectsQuestion('What is the index name?', 'testing-details-index')
@@ -30,12 +30,12 @@ test('with default settings', function () {
 /**
  * Test `meili:index:details` command with advanced settings.
  */
-test('with advanced settings', function () {
-    $this->withIndex('testing-details-index', function () {
-        $defaults = Helpers::defaultSettings(Helpers::engineVersion());
+test('with advanced settings', function (): void {
+    $this->withIndex('testing-details-index', function (): void {
+        $defaults = Helpers::defaultSettings();
         $settings = Tools::movieSettings();
 
-        $changes = app()->make(SynchronizesIndex::class)('testing-details-index', $settings);
+        $changes = resolve(SynchronizesIndex::class)('testing-details-index', $settings);
         expect($changes)->not->toBeEmpty();
 
         $values = Helpers::convertIndexDataToTable(

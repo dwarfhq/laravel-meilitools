@@ -7,9 +7,12 @@ namespace Dwarf\MeiliTools\Actions;
 use Dwarf\MeiliTools\Contracts\Actions\DetailsIndex;
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesIndex;
 use Dwarf\MeiliTools\Contracts\Actions\ValidatesIndexSettings;
+use Dwarf\MeiliTools\Exceptions\MeiliToolsException;
 use Dwarf\MeiliTools\Helpers;
-use Illuminate\Support\Arr;
-use Laravel\Scout\EngineManager;
+use Illuminate\Validation\ValidationException;
+use Meilisearch\Client;
+use Meilisearch\Exceptions\ApiException;
+use Meilisearch\Exceptions\CommunicationException;
 
 /**
  * Synchronize index.
@@ -17,126 +20,99 @@ use Laravel\Scout\EngineManager;
 class SynchronizeIndex implements SynchronizesIndex
 {
     /**
-     * Scout engine manager.
-     */
-    protected EngineManager $manager;
-
-    /**
-     * Details index action.
-     */
-    protected DetailsIndex $detailIndex;
-
-    /**
-     * Validates index settings action.
-     */
-    protected ValidatesIndexSettings $validateSettings;
-
-    /**
-     * Constructor.
+     * Settings which MeiliSearch partially updates, merging given keys into the existing values.
      *
-     * @param \Laravel\Scout\EngineManager                               $manager          Scout engine manager.
-     * @param \Dwarf\MeiliTools\Contracts\Actions\DetailsIndex           $detailIndex      Detail action.
-     * @param \Dwarf\MeiliTools\Contracts\Actions\ValidatesIndexSettings $validateSettings Validate action.
+     * @var list<string>
      */
+    protected const array MERGED_SETTINGS = [
+        'faceting',
+        'pagination',
+        'typoTolerance',
+        'typoTolerance.minWordSizeForTypos',
+    ];
+
     public function __construct(
-        EngineManager $manager,
-        DetailsIndex $detailIndex,
-        ValidatesIndexSettings $validateSettings
+        protected Client $client,
+        protected DetailsIndex $detailIndex,
+        protected ValidatesIndexSettings $validateSettings,
     ) {
-        $this->manager = $manager;
-        $this->detailIndex = $detailIndex;
-        $this->validateSettings = $validateSettings;
     }
 
     /**
      * {@inheritDoc}
      *
-     * @param bool $pretend Whether to pretend running the action.
-     *
-     * @uses \Dwarf\MeiliTools\Contracts\Actions\DetailsIndex
-     * @uses \Dwarf\MeiliTools\Contracts\Actions\ValidatesIndexSettings
-     *
-     * @throws \Illuminate\Validation\ValidationException       On validation failure.
-     * @throws \Dwarf\MeiliTools\Exceptions\MeiliToolsException When not using the MeiliSearch Scout driver.
-     * @throws \MeiliSearch\Exceptions\CommunicationException   When connection to MeiliSearch fails.
-     * @throws \MeiliSearch\Exceptions\ApiException             When index is not found.
+     * @throws ValidationException    On validation failure.
+     * @throws MeiliToolsException    When not using the MeiliSearch Scout driver or the engine is unsupported.
+     * @throws CommunicationException When connection to MeiliSearch fails.
+     * @throws ApiException           When index is not found.
      */
     public function __invoke(string $index, array $settings, bool $pretend = false): array
     {
-        // Get engine version.
-        $version = Helpers::engineVersion();
-
-        $validated = $this->validateSettings->validate($settings, $version);
-        // Quick return if no valid settings.
-        if (empty($validated)) {
+        $validated = $this->validateSettings->validate($settings);
+        if ($validated === []) {
             return [];
         }
 
-        // Fetch index settings.
+        Helpers::throwUnlessSupportedEngine(Helpers::engineVersion());
+
         $details = ($this->detailIndex)($index);
-        $defaults = Helpers::defaultSettings($version);
-        $sorted = Helpers::sortSettings($validated);
+        $defaults = Helpers::defaultSettings();
 
-        // Remove typo tolerance if not present in defaults.
-        if (!\array_key_exists('typoTolerance', $defaults)) {
-            unset($sorted['typoTolerance']);
-        }
-
-        // Special handling for typo tolerance.
-        if (\array_key_exists('typoTolerance', $sorted) && \is_array($sorted['typoTolerance'])) {
-            $sorted['typoTolerance'] = array_filter(
-                $sorted['typoTolerance'],
-                function ($value, string $key) use ($details, $defaults) {
-                    return $this->filter($value, $details['typoTolerance'][$key], $defaults['typoTolerance'][$key]);
-                },
-                \ARRAY_FILTER_USE_BOTH
+        $changes = [];
+        foreach (Helpers::sortSettings($validated) as $key => $value) {
+            [$changed, $new, $old] = $this->compare(
+                $key,
+                $value,
+                $details[$key] ?? null,
+                $defaults[$key] ?? null,
             );
-            $keys = array_keys($sorted['typoTolerance']);
-            $defaults['typoTolerance'] = Arr::only($defaults['typoTolerance'], $keys);
-            $details['typoTolerance'] = Arr::only($details['typoTolerance'], $keys);
+            if ($changed) {
+                $changes[$key] = ['old' => $old, 'new' => $new];
+            }
         }
 
-        // Compare and extract settings changes.
-        $changes = array_filter($sorted, function ($value, string $key) use ($details, $defaults) {
-            return $this->filter($value, $details[$key], $defaults[$key]);
-        }, \ARRAY_FILTER_USE_BOTH);
-
-        // Return if no changes exists.
-        if (empty($changes)) {
-            return [];
-        }
-        // Sort changes.
-        ksort($changes);
-
-        // Update index settings and wait for completion.
-        if (!$pretend) {
-            $engine = $this->manager->engine();
-            $task = $engine->index($index)->updateSettings($changes);
-            $engine->waitForTask($task['taskUid']);
+        if (!$pretend && $changes !== []) {
+            $task = $this->client
+                ->index($index)
+                ->updateSettings(array_map(fn (array $change): mixed => $change['new'], $changes))
+            ;
+            $this->client->waitForTask($task['taskUid']);
         }
 
-        return collect($changes)->map(fn ($value, $key) => ['old' => $details[$key], 'new' => $value])->all();
+        return $changes;
     }
 
     /**
-     * Whether the value should be filtered as changed.
+     * Compare a setting value with the current index value.
      *
-     * @param mixed $value
-     * @param mixed $detail
-     * @param mixed $default
+     * Merged settings are compared key by key, so only changed keys are included.
+     *
+     * @return array{bool, mixed, mixed} Whether the value changed, the new value and the old value.
      */
-    protected function filter($value, $detail, $default): bool
+    protected function compare(string $path, mixed $value, mixed $detail, mixed $default): array
     {
-        // Straight comparison.
-        if ($value === $detail) {
-            return false;
+        if (\in_array($path, self::MERGED_SETTINGS, true) && \is_array($value) && \is_array($detail)) {
+            $new = [];
+            $old = [];
+            foreach ($value as $key => $item) {
+                [$changed, $newItem, $oldItem] = $this->compare(
+                    $path . '.' . $key,
+                    $item,
+                    $detail[$key] ?? null,
+                    \is_array($default) ? $default[$key] ?? null : null,
+                );
+                if ($changed) {
+                    $new[$key] = $newItem;
+                    $old[$key] = $oldItem;
+                }
+            }
+
+            return [$new !== [], $new, $old];
         }
 
-        // Check if settings are default.
-        if ($value === null && $detail === $default) {
-            return false;
-        }
+        // Unchanged if identical, or if resetting a setting which is already default.
+        $unchanged = $value === $detail || ($value === null && $detail === $default);
 
-        return true;
+        return [!$unchanged, $value, $detail];
     }
 }

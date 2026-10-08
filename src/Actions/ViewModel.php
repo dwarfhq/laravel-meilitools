@@ -4,56 +4,34 @@ declare(strict_types=1);
 
 namespace Dwarf\MeiliTools\Actions;
 
+use Dwarf\MeiliTools\Actions\Concerns\EnsuresModelIndex;
 use Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists;
 use Dwarf\MeiliTools\Contracts\Actions\ViewsIndex;
 use Dwarf\MeiliTools\Contracts\Actions\ViewsModel;
+use Dwarf\MeiliTools\Exceptions\MeiliToolsException;
+use Meilisearch\Exceptions\CommunicationException;
 
 /**
  * View model index.
  */
 class ViewModel implements ViewsModel
 {
-    /**
-     * Views index action.
-     */
-    protected ViewsIndex $viewIndex;
+    use EnsuresModelIndex;
 
-    /**
-     * Ensures index exists action.
-     */
-    protected EnsuresIndexExists $ensureIndexExists;
-
-    /**
-     * Constructor.
-     *
-     * @param \Dwarf\MeiliTools\Contracts\Actions\ViewsIndex         $viewIndex         View action.
-     * @param \Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists $ensureIndexExists Action ensuring index exists.
-     */
-    public function __construct(ViewsIndex $viewIndex, EnsuresIndexExists $ensureIndexExists)
-    {
-        $this->viewIndex = $viewIndex;
-        $this->ensureIndexExists = $ensureIndexExists;
+    public function __construct(
+        protected ViewsIndex $viewIndex,
+        protected EnsuresIndexExists $ensureIndexExists,
+    ) {
     }
 
     /**
      * {@inheritDoc}
      *
-     * @uses \Dwarf\MeiliTools\Contracts\Actions\ViewsIndex
-     * @uses \Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists
-     *
-     * @param bool $stats Whether to include index stats.
-     *
-     * @throws \Dwarf\MeiliTools\Exceptions\MeiliToolsException When not using the MeiliSearch Scout driver.
-     * @throws \MeiliSearch\Exceptions\CommunicationException   When connection to MeiliSearch fails.
+     * @throws MeiliToolsException    When not using the MeiliSearch Scout driver.
+     * @throws CommunicationException When connection to MeiliSearch fails.
      */
     public function __invoke(string $class, bool $stats = false): array
     {
-        $model = app($class);
-        $index = $model->searchableAs();
-        $primaryKey = $model->getKeyName();
-
-        ($this->ensureIndexExists)($index, compact('primaryKey'));
-
-        return ($this->viewIndex)($index, $stats);
+        return ($this->viewIndex)($this->ensureModelIndex($class), $stats);
     }
 }

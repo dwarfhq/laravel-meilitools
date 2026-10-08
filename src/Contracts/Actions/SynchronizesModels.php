@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Dwarf\MeiliTools\Contracts\Actions;
 
+use Illuminate\Database\Eloquent\Model;
+use Throwable;
+
 /**
  * Synchronizes model indexes.
  */
@@ -12,8 +15,11 @@ interface SynchronizesModels
     /**
      * Synchronizes model index settings.
      *
-     * @param array         $classes  Model classes.
-     * @param callable|null $callback Callback executed for each model.
+     * @param list<class-string<Model>> $classes
+     * @param (callable(
+     *     class-string<Model>,
+     *     array<string, array{old: mixed, new: mixed}>|Throwable,
+     * ): void)|null $callback
      */
-    public function __invoke(array $classes, ?callable $callback = null): void;
+    public function __invoke(array $classes, ?callable $callback = null, bool $pretend = false): void;
 }
