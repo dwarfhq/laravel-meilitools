@@ -56,8 +56,13 @@ use Dwarf\MeiliTools\Contracts\Actions\ValidatesIndexSettings;
 use Dwarf\MeiliTools\Contracts\Actions\ViewsIndex;
 use Dwarf\MeiliTools\Contracts\Actions\ViewsModel;
 use Dwarf\MeiliTools\Contracts\Rules\ArrayAssocRule;
+use Dwarf\MeiliTools\Filtering\Builder;
 use Dwarf\MeiliTools\Rules\ArrayAssoc;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Scout\Builder as ScoutBuilder;
+use Laravel\Scout\Engines\MeilisearchEngine;
 
 class MeiliToolsServiceProvider extends ServiceProvider
 {
@@ -95,6 +100,16 @@ class MeiliToolsServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/meilitools.php', 'meilitools');
+
+        // Scout resolves its search builder through the container, so models using MeiliSearch get the filter builder.
+        $this->app->bind(function (Application $app, array $parameters): ScoutBuilder {
+            $model = $parameters['model'] ?? null;
+            $usesMeiliSearch = $model instanceof Model
+                && method_exists($model, 'searchableUsing')
+                && $model->searchableUsing() instanceof MeilisearchEngine;
+
+            return $usesMeiliSearch ? new Builder(...$parameters) : new ScoutBuilder(...$parameters);
+        });
     }
 
     /**

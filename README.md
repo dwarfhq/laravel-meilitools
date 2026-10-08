@@ -14,6 +14,7 @@ The purpose of this package is to ease the configuration of indexes for MeiliSea
 - [Configuration](#configuration)
 - [Usage](#usage)
     - [Index Settings](#index-settings)
+    - [Filtering](#filtering)
     - [Commands](#commands)
 - [Examples](#examples)
 - [Upgrading](#upgrading)
@@ -105,6 +106,57 @@ class Article extends Model implements MeiliSettings
 ```
 Settings for a model are merged from Scout's configuration keyed by the model's index name, Scout's configuration
 keyed by the model class, and the model's `meiliSettings()` method, with later sources taking precedence.
+
+### Filtering
+Searching models using MeiliSearch returns a builder with an Eloquent style API for MeiliSearch filters,
+in addition to Scout's own `where`, `whereIn` and `whereNotIn` methods.
+Filtered attributes must be filterable, and sorted attributes must be sortable, in the index settings.
+```php
+use Dwarf\MeiliTools\Filtering\FilterBuilder;
+
+$articles = Article::search('laravel')
+    ->where('status', 'published')
+    ->where('views', '>=', 100)
+    ->where(fn (FilterBuilder $filter) => $filter
+        ->whereIn('category', ['news', 'tutorials'])
+        ->orWhereNull('category'))
+    ->whereNot('author', 'bot')
+    ->get();
+```
+Values are formatted for MeiliSearch: strings are quoted and escaped, backed enums use their value,
+and dates are converted to Unix timestamps, so dates must be indexed as timestamps to be filterable.
+
+The following filter methods are available, each with `orWhere` variants, and most with `whereNot` variants:
+
+| Method | MeiliSearch filter |
+|--------|--------------------|
+| `where('rank', '>', 3)`, `where('rank', 3)` | `rank > 3`, `rank = 3` (operators `=`, `!=`, `>`, `>=`, `<`, `<=`) |
+| `where(fn (FilterBuilder $filter) => ...)` | Nested group in parentheses |
+| `whereNot('genre', 'drama')` | `NOT (genre = "drama")`, also accepting a closure |
+| `whereIn('genre', [...])`, `whereNotIn(...)` | `genre IN [...]`, `genre NOT IN [...]` |
+| `whereBetween('rank', [1, 5])` | `rank 1 TO 5` |
+| `whereNull('rank')`, `where('rank', null)` | `rank IS NULL` |
+| `whereEmpty('tags')` | `tags IS EMPTY` |
+| `whereExists('rank')` | `rank EXISTS` |
+| `whereStartsWith('title', 'Bat')` | `title STARTS WITH "Bat"` |
+| `whereContains('title', 'man')` | `title CONTAINS "man"`, requiring the experimental `containsFilter` feature |
+| `whereGeoRadius($lat, $lng, $meters)` | `_geoRadius(lat, lng, meters)` |
+| `whereGeoBoundingBox([$lat, $lng], [$lat, $lng])` | `_geoBoundingBox([lat, lng], [lat, lng])`, with the top right and bottom left corners |
+| `whereGeoPolygon([[$lat, $lng], ...])` | `_geoPolygon([lat, lng], ...)`, requiring `_geojson` to be filterable |
+| `whereRaw('rank = 3 OR genre = drama')` | Raw filter expression in parentheses |
+
+The builder also adds the following search options:
+```php
+Article::search('laravel')
+    ->orderByGeo($lat, $lng)           // Sort by distance, using `_geoPoint(lat, lng):asc`
+    ->matchingStrategy('frequency')    // `last`, `all` or `frequency`
+    ->rankingScoreThreshold(0.5)       // Exclude results ranked below the threshold
+    ->attributesToSearchOn(['title'])  // Restrict which searchable attributes are searched
+    ->distinct('slug')                 // Return one result per value of a filterable attribute
+    ->locales(['eng'])                 // Search using specific locales
+    ->get();
+```
+The filter is added to any filter Scout sets, e.g. for soft deletes, and to the parameters given to a search callback.
 
 ### Commands
 The following commands are available:
