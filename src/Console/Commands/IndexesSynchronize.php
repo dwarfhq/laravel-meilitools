@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Dwarf\MeiliTools\Console\Commands;
 
-use Dwarf\MeiliTools\Contracts\Actions\SynchronizesScoutIndex;
+use Dwarf\MeiliTools\Contracts\Actions\ListsModels;
+use Dwarf\MeiliTools\Contracts\Actions\SynchronizesScoutIndexes;
 use Dwarf\MeiliTools\Helpers;
 use Illuminate\Console\Command;
 use Illuminate\Console\ConfirmableTrait;
@@ -33,24 +34,39 @@ class IndexesSynchronize extends Command
     /**
      * Execute the console command.
      */
-    public function handle(SynchronizesScoutIndex $synchronizeScoutIndex): int
+    public function handle(ListsModels $listModels, SynchronizesScoutIndexes $synchronizeScoutIndexes): int
     {
         $pretend = (bool) $this->option('pretend');
         if (!$pretend && !$this->confirmToProceed()) {
             return Command::FAILURE;
         }
 
-        foreach (array_keys(Helpers::scoutIndexes()) as $index) {
-            $this->info('Processed ' . $index);
+        // Indexes of models are synchronized with the model settings by `meili:models:synchronize`.
+        $models = collect($listModels())
+            ->filter(Helpers::isSearchableModel(...))
+            ->mapWithKeys(fn (string $class): array => [Helpers::modelIndexName($class) => $class])
+        ;
 
-            try {
-                $changes = $synchronizeScoutIndex($index, $pretend);
-                $this->table(['Setting', 'Old', 'New'], Helpers::convertIndexChangesToTable($changes));
-            } catch (Throwable $e) {
-                $this->error(\sprintf("Exception '%s' with message '%s'", $e::class, $e->getMessage()));
+        $indexes = [];
+        foreach (array_keys(Helpers::scoutIndexes()) as $index) {
+            if ($models->has($index)) {
+                $this->info(\sprintf('Skipped %s, synchronized by model %s', $index, $models->get($index)));
+            } else {
+                $indexes[] = $index;
             }
         }
 
-        return Command::SUCCESS;
+        $failed = false;
+        $synchronizeScoutIndexes($indexes, function (string $index, array|Throwable $result) use (&$failed): void {
+            $this->info('Processed ' . $index);
+            if (\is_array($result)) {
+                $this->table(['Setting', 'Old', 'New'], Helpers::convertIndexChangesToTable($result));
+            } else {
+                $failed = true;
+                $this->error(\sprintf("Exception '%s' with message '%s'", $result::class, $result->getMessage()));
+            }
+        }, $pretend);
+
+        return $failed ? Command::FAILURE : Command::SUCCESS;
     }
 }

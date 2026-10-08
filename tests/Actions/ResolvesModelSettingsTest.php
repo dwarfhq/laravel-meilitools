@@ -59,3 +59,18 @@ test('with soft deletes enabled', function (): void {
     // Movie doesn't use soft deletes.
     expect(resolve(ResolvesModelSettings::class)(Movie::class))->toBeEmpty();
 });
+
+/**
+ * Test ResolvesModelSettings::__invoke() method with Scout settings keyed by index name.
+ */
+test('with scout index settings', function (): void {
+    config(['scout.meilisearch.index-settings' => [
+        'movies'     => ['sortableAttributes' => ['rating'], 'searchCutoffMs' => 100],
+        Movie::class => ['sortableAttributes' => ['title']],
+    ]]);
+
+    // Settings keyed by model class take precedence.
+    expect(resolve(ResolvesModelSettings::class)(Movie::class))
+        ->toBe(['sortableAttributes' => ['title'], 'searchCutoffMs' => 100])
+    ;
+});

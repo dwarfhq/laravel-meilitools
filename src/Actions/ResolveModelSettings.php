@@ -16,11 +16,15 @@ class ResolveModelSettings implements ResolvesModelSettings
     /**
      * {@inheritDoc}
      *
-     * Settings from the model's `meiliSettings()` method take precedence over Scout's configuration.
+     * Scout settings keyed by model class take precedence over settings keyed by the model's index name,
+     * and settings from the model's `meiliSettings()` method take precedence over both.
      */
     public function __invoke(string $class): array
     {
-        $settings = Helpers::scoutIndexSettings()[$class] ?? [];
+        $settings = array_replace(
+            Helpers::scoutIndexes()[Helpers::modelIndexName($class)] ?? [],
+            Helpers::scoutIndexSettings()[$class] ?? [],
+        );
 
         if (is_a($class, MeiliSettings::class, true)) {
             /** @var MeiliSettings $model */

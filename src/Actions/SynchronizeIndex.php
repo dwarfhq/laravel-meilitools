@@ -31,6 +31,11 @@ class SynchronizeIndex implements SynchronizesIndex
         'typoTolerance.minWordSizeForTypos',
     ];
 
+    /**
+     * MeiliSearch engine version, fetched once per instance.
+     */
+    protected ?string $engineVersion = null;
+
     public function __construct(
         protected Client $client,
         protected DetailsIndex $detailIndex,
@@ -53,7 +58,9 @@ class SynchronizeIndex implements SynchronizesIndex
             return [];
         }
 
-        Helpers::throwUnlessSupportedEngine(Helpers::engineVersion());
+        Helpers::throwUnlessMeiliSearch();
+        $this->engineVersion ??= Helpers::engineVersion();
+        Helpers::throwUnlessSupportedEngine($this->engineVersion);
 
         $details = ($this->detailIndex)($index);
         $defaults = Helpers::defaultSettings();

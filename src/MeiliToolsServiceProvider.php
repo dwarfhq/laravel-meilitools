@@ -11,6 +11,7 @@ use Dwarf\MeiliTools\Actions\DetailModel;
 use Dwarf\MeiliTools\Actions\EnsureIndexExists;
 use Dwarf\MeiliTools\Actions\ListClasses;
 use Dwarf\MeiliTools\Actions\ListIndexes;
+use Dwarf\MeiliTools\Actions\ListModels;
 use Dwarf\MeiliTools\Actions\ResetIndex;
 use Dwarf\MeiliTools\Actions\ResetModel;
 use Dwarf\MeiliTools\Actions\ResolveModelSettings;
@@ -18,6 +19,7 @@ use Dwarf\MeiliTools\Actions\SynchronizeIndex;
 use Dwarf\MeiliTools\Actions\SynchronizeModel;
 use Dwarf\MeiliTools\Actions\SynchronizeModels;
 use Dwarf\MeiliTools\Actions\SynchronizeScoutIndex;
+use Dwarf\MeiliTools\Actions\SynchronizeScoutIndexes;
 use Dwarf\MeiliTools\Actions\ValidateIndexSettings;
 use Dwarf\MeiliTools\Actions\ViewIndex;
 use Dwarf\MeiliTools\Actions\ViewModel;
@@ -41,6 +43,7 @@ use Dwarf\MeiliTools\Contracts\Actions\DetailsModel;
 use Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists;
 use Dwarf\MeiliTools\Contracts\Actions\ListsClasses;
 use Dwarf\MeiliTools\Contracts\Actions\ListsIndexes;
+use Dwarf\MeiliTools\Contracts\Actions\ListsModels;
 use Dwarf\MeiliTools\Contracts\Actions\ResetsIndex;
 use Dwarf\MeiliTools\Contracts\Actions\ResetsModel;
 use Dwarf\MeiliTools\Contracts\Actions\ResolvesModelSettings;
@@ -48,6 +51,7 @@ use Dwarf\MeiliTools\Contracts\Actions\SynchronizesIndex;
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesModel;
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesModels;
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesScoutIndex;
+use Dwarf\MeiliTools\Contracts\Actions\SynchronizesScoutIndexes;
 use Dwarf\MeiliTools\Contracts\Actions\ValidatesIndexSettings;
 use Dwarf\MeiliTools\Contracts\Actions\ViewsIndex;
 use Dwarf\MeiliTools\Contracts\Actions\ViewsModel;
@@ -63,24 +67,26 @@ class MeiliToolsServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     public array $bindings = [
-        ArrayAssocRule::class         => ArrayAssoc::class,
-        CreatesIndex::class           => CreateIndex::class,
-        DeletesIndex::class           => DeleteIndex::class,
-        DetailsIndex::class           => DetailIndex::class,
-        DetailsModel::class           => DetailModel::class,
-        EnsuresIndexExists::class     => EnsureIndexExists::class,
-        ListsClasses::class           => ListClasses::class,
-        ListsIndexes::class           => ListIndexes::class,
-        ResetsIndex::class            => ResetIndex::class,
-        ResetsModel::class            => ResetModel::class,
-        ResolvesModelSettings::class  => ResolveModelSettings::class,
-        SynchronizesIndex::class      => SynchronizeIndex::class,
-        SynchronizesModel::class      => SynchronizeModel::class,
-        SynchronizesModels::class     => SynchronizeModels::class,
-        SynchronizesScoutIndex::class => SynchronizeScoutIndex::class,
-        ValidatesIndexSettings::class => ValidateIndexSettings::class,
-        ViewsIndex::class             => ViewIndex::class,
-        ViewsModel::class             => ViewModel::class,
+        ArrayAssocRule::class           => ArrayAssoc::class,
+        CreatesIndex::class             => CreateIndex::class,
+        DeletesIndex::class             => DeleteIndex::class,
+        DetailsIndex::class             => DetailIndex::class,
+        DetailsModel::class             => DetailModel::class,
+        EnsuresIndexExists::class       => EnsureIndexExists::class,
+        ListsClasses::class             => ListClasses::class,
+        ListsIndexes::class             => ListIndexes::class,
+        ListsModels::class              => ListModels::class,
+        ResetsIndex::class              => ResetIndex::class,
+        ResetsModel::class              => ResetModel::class,
+        ResolvesModelSettings::class    => ResolveModelSettings::class,
+        SynchronizesIndex::class        => SynchronizeIndex::class,
+        SynchronizesModel::class        => SynchronizeModel::class,
+        SynchronizesModels::class       => SynchronizeModels::class,
+        SynchronizesScoutIndex::class   => SynchronizeScoutIndex::class,
+        SynchronizesScoutIndexes::class => SynchronizeScoutIndexes::class,
+        ValidatesIndexSettings::class   => ValidateIndexSettings::class,
+        ViewsIndex::class               => ViewIndex::class,
+        ViewsModel::class               => ViewModel::class,
     ];
 
     /**

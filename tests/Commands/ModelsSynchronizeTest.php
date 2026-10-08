@@ -34,7 +34,7 @@ test('with advanced settings', function (): void {
             ))
             ->expectsOutput('Processed ' . MeiliMovie::class)
             ->expectsTable(['Setting', 'Old', 'New'], $values)
-            ->assertSuccessful()
+            ->assertFailed()
         ;
 
         $details = resolve(DetailsModel::class)(MeiliMovie::class);
@@ -71,7 +71,7 @@ test('with pretend', function (): void {
             ))
             ->expectsOutput('Processed ' . MeiliMovie::class)
             ->expectsTable(['Setting', 'Old', 'New'], $values)
-            ->assertSuccessful()
+            ->assertFailed()
         ;
 
         $details = resolve(DetailsModel::class)(MeiliMovie::class);
@@ -87,25 +87,21 @@ test('with pretend', function (): void {
  */
 test('in production mode', function (): void {
     App::detectEnvironment(fn (): string => 'production');
+    config(['meilitools.paths' => []]);
 
-    try {
-        $this->artisan('meili:models:synchronize')
-            ->expectsConfirmation('Are you sure you want to run this command?', 'no')
-            ->assertFailed()
-        ;
+    $this->artisan('meili:models:synchronize')
+        ->expectsConfirmation('Are you sure you want to run this command?', 'no')
+        ->assertFailed()
+    ;
 
-        $this->artisan('meili:models:synchronize', ['--force' => true])
-            ->assertSuccessful()
-        ;
+    $this->artisan('meili:models:synchronize', ['--force' => true])
+        ->assertSuccessful()
+    ;
 
-        $this->artisan('meili:models:synchronize')
-            ->expectsConfirmation('Are you sure you want to run this command?', 'yes')
-            ->assertSuccessful()
-        ;
-    } finally {
-        $this->deleteIndex(resolve(BrokenMovie::class)->searchableAs());
-        $this->deleteIndex(resolve(MeiliMovie::class)->searchableAs());
-    }
+    $this->artisan('meili:models:synchronize')
+        ->expectsConfirmation('Are you sure you want to run this command?', 'yes')
+        ->assertSuccessful()
+    ;
 });
 
 /**

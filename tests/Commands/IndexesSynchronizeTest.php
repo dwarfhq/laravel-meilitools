@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Dwarf\MeiliTools\Contracts\Actions\DetailsIndex;
 use Dwarf\MeiliTools\Helpers;
+use Dwarf\MeiliTools\Tests\Models\MeiliMovie;
 use Dwarf\MeiliTools\Tests\Models\Movie;
 use Dwarf\MeiliTools\Tests\Tools;
 use Illuminate\Support\Facades\App;
@@ -35,7 +36,7 @@ test('with configured settings', function (bool $pretend): void {
             ->expectsOutput('Processed testing-books')
             ->expectsTable(['Setting', 'Old', 'New'], $values)
             ->doesntExpectOutput('Processed ' . Movie::class)
-            ->assertSuccessful()
+            ->assertFailed()
         ;
 
         $details = resolve(DetailsIndex::class)('testing-books');
@@ -60,4 +61,25 @@ test('in production mode', function (): void {
     $this->artisan('meili:indexes:synchronize', ['--force' => true])
         ->assertSuccessful()
     ;
+});
+
+/**
+ * Test `meili:indexes:synchronize` command with an index belonging to a model.
+ */
+test('with model index', function (): void {
+    config(['scout.meilisearch.index-settings' => [
+        'books'        => ['sortableAttributes' => ['title']],
+        'meili_movies' => ['sortableAttributes' => ['rating']],
+    ]]);
+
+    try {
+        $this->artisan('meili:indexes:synchronize')
+            ->expectsOutput('Skipped testing-meili_movies, synchronized by model ' . MeiliMovie::class)
+            ->expectsOutput('Processed testing-books')
+            ->doesntExpectOutput('Processed testing-meili_movies')
+            ->assertSuccessful()
+        ;
+    } finally {
+        $this->deleteIndex('testing-books');
+    }
 });

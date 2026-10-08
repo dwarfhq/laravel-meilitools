@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace Dwarf\MeiliTools\Console\Commands;
 
-use Dwarf\MeiliTools\Contracts\Actions\ListsClasses;
+use Dwarf\MeiliTools\Contracts\Actions\ListsModels;
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesModels;
-use Dwarf\MeiliTools\Contracts\Indexes\MeiliSettings;
 use Dwarf\MeiliTools\Helpers;
 use Illuminate\Console\Command;
 use Illuminate\Console\ConfirmableTrait;
-use Illuminate\Database\Eloquent\Model;
 use Throwable;
 
 class ModelsSynchronize extends Command
@@ -36,37 +34,24 @@ class ModelsSynchronize extends Command
     /**
      * Execute the console command.
      */
-    public function handle(ListsClasses $listClasses, SynchronizesModels $synchronizeModels): int
+    public function handle(ListsModels $listModels, SynchronizesModels $synchronizeModels): int
     {
         $pretend = (bool) $this->option('pretend');
         if (!$pretend && !$this->confirmToProceed()) {
             return Command::FAILURE;
         }
 
-        $configured = Helpers::scoutModels();
-        $filter = fn (string $class): bool => is_a($class, MeiliSettings::class, true)
-            || \in_array($class, $configured, true);
-
-        /** @var array<string, string> $paths */
-        $paths = config('meilitools.paths', []);
-        /** @var list<class-string<Model>> $classes */
-        $classes = collect($paths)
-            ->flatMap(fn (string $namespace, string $path): array => $listClasses($path, $namespace, $filter))
-            ->merge($configured)
-            ->unique()
-            ->values()
-            ->all()
-        ;
-
-        $synchronizeModels($classes, function (string $class, array|Throwable $result): void {
+        $failed = false;
+        $synchronizeModels($listModels(), function (string $class, array|Throwable $result) use (&$failed): void {
             $this->info('Processed ' . $class);
             if (\is_array($result)) {
                 $this->table(['Setting', 'Old', 'New'], Helpers::convertIndexChangesToTable($result));
             } else {
+                $failed = true;
                 $this->error(\sprintf("Exception '%s' with message '%s'", $result::class, $result->getMessage()));
             }
         }, $pretend);
 
-        return Command::SUCCESS;
+        return $failed ? Command::FAILURE : Command::SUCCESS;
     }
 }

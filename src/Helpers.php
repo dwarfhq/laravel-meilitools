@@ -116,7 +116,7 @@ class Helpers
     /**
      * Sort MeiliSearch settings.
      *
-     * Certain settings are automatically sorted by MeiliSearch,
+     * Certain settings are automatically sorted and deduplicated by MeiliSearch,
      * so we do it the same way to correctly compare data.
      *
      * @param array<string, mixed> $settings
@@ -137,10 +137,12 @@ class Helpers
                 'nonSeparatorTokens',
                 'separatorTokens',
                 'sortableAttributes',
-                'stopWords'           => self::sortList($value),
-                'synonyms'            => self::sortKeys($value),
-                'faceting'            => self::sortFaceting($value),
-                'localizedAttributes' => array_map(
+                'stopWords' => collect($value)->uniqueStrict()->sort(\SORT_STRING)->values()->all(),
+                'displayedAttributes',
+                'searchableAttributes' => collect($value)->uniqueStrict()->values()->all(),
+                'synonyms'             => collect($value)->sortKeys(\SORT_STRING)->all(),
+                'faceting'             => self::sortFaceting($value),
+                'localizedAttributes'  => array_map(
                     fn (mixed $rule): mixed => \is_array($rule)
                         ? self::orderKeys($rule, ['attributePatterns', 'locales'])
                         : $rule,
@@ -302,6 +304,23 @@ class Helpers
     }
 
     /**
+     * Get the index name of a searchable model.
+     *
+     * @param class-string<Model> $class
+     *
+     * @throws MeiliToolsException When the class isn't a searchable model.
+     */
+    public static function modelIndexName(string $class): string
+    {
+        $model = resolve($class);
+        if (!$model instanceof Model || !method_exists($model, 'searchableAs')) {
+            throw new MeiliToolsException(\sprintf("Class '%s' is not a searchable model", $class));
+        }
+
+        return $model->searchableAs();
+    }
+
+    /**
      * Whether the given class is a searchable Eloquent model.
      *
      * @phpstan-assert-if-true class-string<Model> $class
@@ -311,34 +330,6 @@ class Helpers
         return class_exists($class)
             && is_a($class, Model::class, true)
             && \in_array(Searchable::class, class_uses_recursive($class), true);
-    }
-
-    /**
-     * Sort a list of strings the same way as MeiliSearch.
-     *
-     * @param array<array-key, mixed> $list
-     *
-     * @return array<array-key, mixed>
-     */
-    protected static function sortList(array $list): array
-    {
-        sort($list, \SORT_STRING);
-
-        return $list;
-    }
-
-    /**
-     * Sort a map by key the same way as MeiliSearch.
-     *
-     * @param array<array-key, mixed> $map
-     *
-     * @return array<array-key, mixed>
-     */
-    protected static function sortKeys(array $map): array
-    {
-        ksort($map, \SORT_STRING);
-
-        return $map;
     }
 
     /**
@@ -367,7 +358,10 @@ class Helpers
     {
         $value = self::orderKeys($value, ['maxValuesPerFacet', 'sortFacetValuesBy']);
         if (isset($value['sortFacetValuesBy']) && \is_array($value['sortFacetValuesBy'])) {
-            $value['sortFacetValuesBy'] = self::sortKeys($value['sortFacetValuesBy'] + ['*' => 'alpha']);
+            $value['sortFacetValuesBy'] = collect($value['sortFacetValuesBy'] + ['*' => 'alpha'])
+                ->sortKeys(\SORT_STRING)
+                ->all()
+            ;
         }
 
         return $value;
@@ -391,7 +385,7 @@ class Helpers
         }
         foreach (['disableOnWords', 'disableOnAttributes'] as $key) {
             if (isset($value[$key]) && \is_array($value[$key])) {
-                $value[$key] = self::sortList($value[$key]);
+                $value[$key] = collect($value[$key])->uniqueStrict()->sort(\SORT_STRING)->values()->all();
             }
         }
 

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Dwarf\MeiliTools\Exceptions\MeiliToolsException;
 use Dwarf\MeiliTools\Helpers;
 use Dwarf\MeiliTools\Tests\Models\MeiliMovie;
 use Dwarf\MeiliTools\Tests\Models\Movie;
@@ -78,16 +79,18 @@ test('sort settings', function (): void {
             'minWordSizeForTypos' => ['twoTypos' => 9, 'oneTypo' => 5],
         ],
         'synonyms'             => ['b' => ['y', 'x'], 'a' => ['z']],
-        'stopWords'            => ['b', '10', 'a', '9'],
-        'filterableAttributes' => ['b', 'a'],
+        'stopWords'            => ['b', '10', 'a', '9', 'a'],
+        'searchableAttributes' => ['b', 'a', 'b'],
+        'filterableAttributes' => ['b', 'a', 'b'],
         'faceting'             => ['sortFacetValuesBy' => ['b' => 'count'], 'maxValuesPerFacet' => 10],
         'localizedAttributes'  => [['locales' => ['jpn'], 'attributePatterns' => ['b', 'a']]],
     ]);
 
     expect($sorted)->toBe([
         'faceting'             => ['maxValuesPerFacet' => 10, 'sortFacetValuesBy' => ['*' => 'alpha', 'b' => 'count']],
-        'filterableAttributes' => ['b', 'a'],
+        'filterableAttributes' => ['b', 'a', 'b'],
         'localizedAttributes'  => [['attributePatterns' => ['b', 'a'], 'locales' => ['jpn']]],
+        'searchableAttributes' => ['b', 'a'],
         'stopWords'            => ['10', '9', 'a', 'b'],
         'synonyms'             => ['a' => ['z'], 'b' => ['y', 'x']],
         'typoTolerance'        => [
@@ -96,4 +99,14 @@ test('sort settings', function (): void {
             'disableOnNumbers'    => true,
         ],
     ]);
+});
+
+/**
+ * Test Helpers::modelIndexName() method.
+ */
+test('model index name', function (): void {
+    expect(Helpers::modelIndexName(Movie::class))->toBe('testing-movies')
+        ->and(fn () => Helpers::modelIndexName(Helpers::class))
+        ->toThrow(MeiliToolsException::class, "Class 'Dwarf\\MeiliTools\\Helpers' is not a searchable model")
+    ;
 });

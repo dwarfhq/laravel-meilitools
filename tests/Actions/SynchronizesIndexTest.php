@@ -326,3 +326,12 @@ test('with unsupported engine', function (): void {
     Helpers::throwUnlessSupportedEngine(null);
     Helpers::throwUnlessSupportedEngine(Helpers::engineVersion());
 });
+
+/**
+ * Test SynchronizesIndex::__invoke() method when not using the MeiliSearch driver.
+ */
+test('without meilisearch driver', function (): void {
+    config(['scout.driver' => 'collection', 'scout.meilisearch.host' => 'http://localhost:7777']);
+
+    resolve(SynchronizesIndex::class)('testing-synchronizes-index', Tools::movieSettings());
+})->throws(MeiliToolsException::class, 'Scout must be using the MeiliSearch driver');

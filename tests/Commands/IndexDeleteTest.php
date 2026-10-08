@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+use Dwarf\MeiliTools\Exceptions\MeiliToolsException;
 
 /**
  * Test `meili:index:delete` command with default settings.
@@ -48,3 +49,12 @@ test('with force option', function (): void {
         ;
     });
 });
+
+/**
+ * Test `meili:index:delete` command without an index name.
+ */
+test('without index name', function (): void {
+    $this->artisan('meili:index:delete')
+        ->expectsQuestion('What is the index name?', '')
+    ;
+})->throws(MeiliToolsException::class, 'An index name is required');

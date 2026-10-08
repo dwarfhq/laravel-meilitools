@@ -15,28 +15,49 @@ on:
       - "**.json"
       - "**.php"
 
+permissions:
+  contents: read
+
 jobs:
-  laravel-pint:
-    name: PHP Linting (Pint)
+  lint:
+    name: Linting (Composer Normalize, Rector, Pint)
 
     if: github.event.pull_request.draft == false
 
     runs-on: ubuntu-latest
 
+    # Fixes are committed back to the branch.
+    permissions:
+      contents: write
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # Make sure the actual branch is checked out when running on pull requests.
           ref: ${{ github.head_ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Laravel Pint
-        uses: aglipanci/laravel-pint-action@2.6
+      - name: Setup PHP
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
         with:
-          parallel: true
+          php-version: "8.5"
+          coverage: none
+
+      - name: Install dependencies
+        run: composer update --prefer-stable --prefer-dist --no-interaction --no-progress
+
+      - name: Composer Normalize
+        run: composer normalize --no-update-lock
+
+      # Rector runs before Pint, as Pint formats the refactored code.
+      - name: Rector
+        run: composer rector:fix
+
+      - name: Laravel Pint
+        run: composer lint
 
       - name: Commit changes
-        uses: stefanzweifel/git-auto-commit-action@v7
+        uses: stefanzweifel/git-auto-commit-action@4a55954c782fc1ea30b9056cd3e7a2b40ca8887d # v7.2.0
         with:
-          commit_message: PHP Linting (Pint)
+          commit_message: Linting (Composer Normalize, Rector, Pint)

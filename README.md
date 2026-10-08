@@ -103,8 +103,8 @@ class Article extends Model implements MeiliSettings
     }
 }
 ```
-When settings for a model are defined in both Scout's configuration and on the model, they are merged,
-with the model settings taking precedence for any setting defined in both places.
+Settings for a model are merged from Scout's configuration keyed by the model's index name, Scout's configuration
+keyed by the model class, and the model's `meiliSettings()` method, with later sources taking precedence.
 
 ### Commands
 The following commands are available:
@@ -150,6 +150,8 @@ The following commands are available:
 - `--stats` : Whether to include index stats
 
 #### `meili:indexes:synchronize` - Synchronize all MeiliSearch indexes configured in Scout which are not bound to a model
+Indexes belonging to models synchronized by `meili:models:synchronize` are skipped. Exits with a failure code if any index fails to synchronize.
+
 **Options:**
 - `--pretend` : Only shows what changes would have been done to the indexes
 - `--force` : Force the operation to run when in production
@@ -181,6 +183,7 @@ The following commands are available:
 
 #### `meili:models:synchronize` - Synchronize all models with MeiliSearch index settings
 Synchronizes models in the configured paths implementing `MeiliSettings`, as well as models configured in Scout's `meilisearch.index-settings`.
+Exits with a failure code if any model fails to synchronize.
 
 **Options:**
 - `--pretend` : Only shows what changes would have been done to the indexes

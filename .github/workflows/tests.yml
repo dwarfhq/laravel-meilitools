@@ -19,13 +19,16 @@ on:
   schedule:
     - cron: "0 1 * * 1" # Run at 01:00 on Mondays.
 
+permissions:
+  contents: read
+
 jobs:
   tests:
     strategy:
       fail-fast: false
       matrix:
         php: [8.5, 8.4]
-        testbench: [11.0, 10.0]
+        testbench: ["11.0", "10.0"]
         version: [prefer-stable, prefer-lowest]
         include:
           - version: prefer-stable
@@ -60,7 +63,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # Make sure the actual branch is checked out when running on pull requests.
           ref: ${{ github.head_ref }}
@@ -74,5 +77,6 @@ jobs:
           if [ "${{ matrix.testbench }}" = "10.0" ]; then composer remove --dev pestphp/pest-plugin-rector --no-interaction --no-update; fi
           composer update --${{ matrix.version }} --prefer-dist --no-interaction
 
+      # Lowest dependencies are only tested, as advisories for old versions are expected.
       - name: Execute tests
-        run: composer ci:check
+        run: composer ${{ matrix.version == 'prefer-stable' && 'ci:check' || 'test' }}
