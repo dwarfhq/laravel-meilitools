@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Dwarf\MeiliTools\Tests\TestCase;
 
-pest()->extend(TestCase::class)->in('Actions', 'Commands', 'Filtering', 'Support');
+pest()->extend(TestCase::class)->in('Actions', 'Commands', 'Console', 'Filtering', 'Support');
 
 /*
 |--------------------------------------------------------------------------

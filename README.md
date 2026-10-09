@@ -16,6 +16,7 @@ The purpose of this package is to ease the configuration of indexes for MeiliSea
     - [Index Settings](#index-settings)
     - [Filtering](#filtering)
     - [Commands](#commands)
+    - [About](#about)
 - [Examples](#examples)
 - [Upgrading](#upgrading)
 - [Development](#development)
@@ -312,6 +313,13 @@ At least one filter is required.
 - `--index=*` : Only cancel tasks of the index
 - `--uid=*` : Only cancel the task with the uid
 - `--force` : Force the operation to run
+
+### About
+The `about` command includes a Meilisearch section with the Scout driver, host, engine version, number of indexes and database size,
+showing the version as `Unreachable` when Meilisearch can't be reached:
+```
+$ php artisan about --only=meilisearch
+```
 
 ## Examples
 The `--check` option of the synchronize commands fails when settings are out of sync without changing them,
