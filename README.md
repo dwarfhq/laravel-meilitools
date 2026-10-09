@@ -15,6 +15,7 @@ The purpose of this package is to ease the configuration of indexes for MeiliSea
 - [Usage](#usage)
     - [Index Settings](#index-settings)
     - [Filtering](#filtering)
+    - [Tenant Tokens](#tenant-tokens)
     - [Commands](#commands)
     - [About](#about)
 - [Examples](#examples)
@@ -44,7 +45,8 @@ Publish config using Artisan command:
 ```bash
 php artisan vendor:publish --provider="Dwarf\MeiliTools\MeiliToolsServiceProvider"
 ```
-Change configuration through `config/meilitools.php`, which contains the paths scanned for models when synchronizing all models.
+Change configuration through `config/meilitools.php`, which contains the paths scanned for models when synchronizing all models,
+and the API key signing [tenant tokens](#tenant-tokens).
 
 ## Usage
 This package provides commands and helpers to ease the use of configuring MeiliSearch indexes.
@@ -201,6 +203,30 @@ $this->app->bind(FormatsFilterValues::class, fn () => new class extends FilterVa
     }
 });
 ```
+
+### Tenant Tokens
+Tenant tokens let users search MeiliSearch directly, e.g. from the frontend, while only finding the documents they're allowed to.
+The tokens are signed with an API key allowing searches, which is configured with `MEILITOOLS_TENANT_TOKEN_KEY`.
+The master key can't sign tenant tokens. Setting `MEILITOOLS_TENANT_TOKEN_KEY_UID` to the uid of the key saves looking it up for every token.
+
+Search rules are keyed by index name, index pattern or searchable model class.
+Each rule is a filter expression, a filter builder, a closure receiving a filter builder, or `null` to allow every document:
+```php
+use Dwarf\MeiliTools\Contracts\Actions\GeneratesTenantToken;
+use Dwarf\MeiliTools\Contracts\Filtering\FilterBuilder;
+
+$token = resolve(GeneratesTenantToken::class)(
+    [
+        Article::class => fn (FilterBuilder $filter) => $filter
+            ->where('team_id', $user->team_id)
+            ->orWhere('public', true),
+        'tags' => null,
+    ],
+    expiresAt: now()->addDay(),
+);
+```
+A list of indexes allows every document in them, e.g. `['*']` for all indexes.
+The API key and its uid can also be given as `apiKey` and `apiKeyUid`.
 
 ### Commands
 The following commands are available:

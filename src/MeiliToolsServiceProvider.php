@@ -10,6 +10,7 @@ use Dwarf\MeiliTools\Actions\DeleteIndex;
 use Dwarf\MeiliTools\Actions\DetailIndex;
 use Dwarf\MeiliTools\Actions\DetailModel;
 use Dwarf\MeiliTools\Actions\EnsureIndexExists;
+use Dwarf\MeiliTools\Actions\GenerateTenantToken;
 use Dwarf\MeiliTools\Actions\ListClasses;
 use Dwarf\MeiliTools\Actions\ListIndexes;
 use Dwarf\MeiliTools\Actions\ListModels;
@@ -49,6 +50,7 @@ use Dwarf\MeiliTools\Contracts\Actions\DeletesIndex;
 use Dwarf\MeiliTools\Contracts\Actions\DetailsIndex;
 use Dwarf\MeiliTools\Contracts\Actions\DetailsModel;
 use Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists;
+use Dwarf\MeiliTools\Contracts\Actions\GeneratesTenantToken;
 use Dwarf\MeiliTools\Contracts\Actions\ListsClasses;
 use Dwarf\MeiliTools\Contracts\Actions\ListsIndexes;
 use Dwarf\MeiliTools\Contracts\Actions\ListsModels;
@@ -99,6 +101,7 @@ class MeiliToolsServiceProvider extends ServiceProvider
         DetailsIndex::class             => DetailIndex::class,
         DetailsModel::class             => DetailModel::class,
         EnsuresIndexExists::class       => EnsureIndexExists::class,
+        GeneratesTenantToken::class     => GenerateTenantToken::class,
         FilterBuilderContract::class    => FilterBuilder::class,
         FormatsFilterValues::class      => FilterValueFormatter::class,
         ListsClasses::class             => ListClasses::class,
