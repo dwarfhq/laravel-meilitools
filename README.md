@@ -57,6 +57,7 @@ The following settings are supported:
 `dictionary`, `displayedAttributes`, `distinctAttribute`, `facetSearch`, `faceting`, `filterableAttributes`,
 `localizedAttributes`, `nonSeparatorTokens`, `pagination`, `prefixSearch`, `proximityPrecision`, `rankingRules`,
 `searchCutoffMs`, `searchableAttributes`, `separatorTokens`, `sortableAttributes`, `stopWords`, `synonyms` and `typoTolerance`.
+`filterableAttributes` accepts both attribute names and granular rules with `attributePatterns` and `features`.
 
 Experimental settings and `embedders` are not managed, and are ignored if present.
 A full description of the index settings can be found [here](https://www.meilisearch.com/docs/reference/api/settings).
@@ -182,7 +183,8 @@ The filter is combined with any filter Scout sets, e.g. for soft deletes, and wi
 and the search parameters are also given to a search callback.
 
 Filters and search parameters are applied by the package's MeiliSearch engine, which replaces Scout's `meilisearch` engine.
-If you register your own MeiliSearch engine, use the `Dwarf\MeiliTools\Filtering\Concerns\AppliesSearchBuilder` trait in it.
+If you register your own MeiliSearch engine, use the `Dwarf\MeiliTools\Filtering\Concerns\AppliesSearchBuilder` trait in it,
+as models using an engine without it get Scout's own builder.
 
 Filtering behaviour can be changed by binding your own implementations of the contracts in the service container:
 
@@ -391,7 +393,8 @@ The card is cached for 60 seconds, and shows tasks which failed within the last 
 
 ## Examples
 The `--check` option of the synchronize commands fails when settings are out of sync without changing them,
-e.g. to verify settings in CI or before deploying:
+e.g. to verify settings in CI or before deploying. Like `--pretend`, it compares missing indexes with the default settings
+without creating them:
 ```
 $ php artisan meili:models:synchronize --check
 $ php artisan meili:indexes:synchronize --check

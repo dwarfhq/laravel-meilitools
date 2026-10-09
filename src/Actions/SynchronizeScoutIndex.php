@@ -42,7 +42,9 @@ class SynchronizeScoutIndex implements SynchronizesScoutIndex
             \sprintf("No settings configured for index '%s' in 'scout.meilisearch.index-settings'", $index),
         );
 
-        ($this->ensureIndexExists)($index);
+        if (!$pretend) {
+            ($this->ensureIndexExists)($index);
+        }
 
         return ($this->synchronizeIndex)($index, $settings, $pretend);
     }

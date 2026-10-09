@@ -9,6 +9,7 @@ use Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists;
 use Dwarf\MeiliTools\Contracts\Actions\ResetsIndex;
 use Dwarf\MeiliTools\Contracts\Actions\ResetsModel;
 use Dwarf\MeiliTools\Exceptions\MeiliToolsException;
+use Dwarf\MeiliTools\Helpers;
 use Meilisearch\Exceptions\CommunicationException;
 
 /**
@@ -32,6 +33,8 @@ class ResetModel implements ResetsModel
      */
     public function __invoke(string $class, bool $pretend = false): array
     {
-        return ($this->resetIndex)($this->ensureModelIndex($class), $pretend);
+        $index = $pretend ? Helpers::modelIndexName($class) : $this->ensureModelIndex($class);
+
+        return ($this->resetIndex)($index, $pretend);
     }
 }

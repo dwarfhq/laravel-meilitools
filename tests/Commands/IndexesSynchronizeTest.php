@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Dwarf\MeiliTools\Contracts\Actions\DetailsIndex;
+use Dwarf\MeiliTools\Contracts\Actions\ListsIndexes;
 use Dwarf\MeiliTools\Helpers;
 use Dwarf\MeiliTools\Tests\Models\MeiliMovie;
 use Dwarf\MeiliTools\Tests\Models\Movie;
@@ -39,8 +40,11 @@ test('with configured settings', function (bool $pretend): void {
             ->assertFailed()
         ;
 
-        $details = resolve(DetailsIndex::class)('testing-books');
-        expect($details)->toMatchArray($pretend ? $defaults : array_replace($defaults, $settings));
+        if ($pretend) {
+            expect(resolve(ListsIndexes::class)())->not->toHaveKey('testing-books');
+        } else {
+            expect(resolve(DetailsIndex::class)('testing-books'))->toMatchArray(array_replace($defaults, $settings));
+        }
     } finally {
         $this->deleteIndex('testing-authors');
         $this->deleteIndex('testing-books');
@@ -102,7 +106,7 @@ test('with check', function (): void {
             ->assertFailed()
         ;
 
-        expect(resolve(DetailsIndex::class)('testing-books')['sortableAttributes'])->toBe([]);
+        expect(resolve(ListsIndexes::class)())->not->toHaveKey('testing-books');
 
         $this->artisan('meili:indexes:synchronize', ['--force' => true])->assertSuccessful();
 

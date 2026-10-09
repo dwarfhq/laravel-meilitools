@@ -18,6 +18,7 @@ use Dwarf\MeiliTools\Tests\Models\Movie;
 use Illuminate\Support\Facades\Http;
 use Laravel\Scout\Builder as ScoutBuilder;
 use Laravel\Scout\EngineManager;
+use Laravel\Scout\Engines\MeilisearchEngine as ScoutMeilisearchEngine;
 use Meilisearch\Client;
 use Meilisearch\Endpoints\Indexes;
 
@@ -99,6 +100,14 @@ function movieDocuments(): array
  */
 test('resolves builder', function (): void {
     expect(Movie::search())->toBeInstanceOf(DefaultSearchBuilder::class);
+
+    resolve(EngineManager::class)->extend(
+        'meilisearch',
+        fn ($app): ScoutMeilisearchEngine => new ScoutMeilisearchEngine($app->make(Client::class)),
+    );
+    resolve(EngineManager::class)->forgetDrivers();
+
+    expect(Movie::search())->toBeInstanceOf(ScoutBuilder::class)->not->toBeInstanceOf(SearchBuilder::class);
 
     config(['scout.driver' => 'collection']);
     resolve(EngineManager::class)->forgetDrivers();
@@ -501,6 +510,20 @@ test('custom value formatter', function (): void {
     ;
 
     expect($filter)->toBe('released >= "2024-01-01" AND (updated "2024-01-01" TO "2024-12-31")');
+});
+
+/**
+ * Test empty raw filters and nested groups being skipped.
+ */
+test('empty groups', function (): void {
+    $filter = resolve(FilterBuilder::class)
+        ->where('genre', 'action')
+        ->whereRaw(' ')
+        ->orWhere(fn (FilterBuilder $filter) => $filter)
+        ->toFilter()
+    ;
+
+    expect($filter)->toBe('genre = "action"');
 });
 
 /**

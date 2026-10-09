@@ -77,6 +77,7 @@ use Dwarf\MeiliTools\Contracts\Filtering\FormatsFilterValues;
 use Dwarf\MeiliTools\Contracts\Filtering\SearchBuilder as SearchBuilderContract;
 use Dwarf\MeiliTools\Contracts\Rules\ArrayAssocRule;
 use Dwarf\MeiliTools\Exceptions\MeiliToolsException;
+use Dwarf\MeiliTools\Filtering\Concerns\AppliesSearchBuilder;
 use Dwarf\MeiliTools\Filtering\FilterBuilder;
 use Dwarf\MeiliTools\Filtering\FilterValueFormatter;
 use Dwarf\MeiliTools\Filtering\MeilisearchEngine;
@@ -90,7 +91,6 @@ use Illuminate\Support\ServiceProvider;
 use Laravel\Pulse\Livewire\Card;
 use Laravel\Scout\Builder as ScoutBuilder;
 use Laravel\Scout\EngineManager;
-use Laravel\Scout\Engines\MeilisearchEngine as ScoutMeilisearchEngine;
 use Livewire\LivewireManager;
 use Meilisearch\Client;
 
@@ -152,14 +152,15 @@ class MeiliToolsServiceProvider extends ServiceProvider
             });
         });
 
-        // Scout resolves its search builder through the container, so models using MeiliSearch get the search builder.
+        // Scout resolves its search builder through the container, so models whose engine applies the search builder
+        // get it. Other engines would ignore its filters, as they're not stored in Scout's wheres.
         $this->app->bind(function (Application $app, array $parameters): ScoutBuilder {
             $model = $parameters['model'] ?? null;
-            $usesMeiliSearch = $model instanceof Model
+            $appliesSearchBuilder = $model instanceof Model
                 && method_exists($model, 'searchableUsing')
-                && $model->searchableUsing() instanceof ScoutMeilisearchEngine;
+                && \in_array(AppliesSearchBuilder::class, class_uses_recursive($model->searchableUsing()), true);
 
-            if (!$usesMeiliSearch) {
+            if (!$appliesSearchBuilder) {
                 return new ScoutBuilder(...$parameters);
             }
 

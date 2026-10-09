@@ -8,17 +8,18 @@ use Meilisearch\Client;
 use Meilisearch\Endpoints\Indexes;
 
 /**
- * MeiliSearch client redirecting one index to another, used to import models into another index.
+ * MeiliSearch client redirecting one index to another through the given client.
+ *
+ * Only `index()` is supported, which is all Scout's engine uses when updating documents.
  */
 class RedirectingClient extends Client
 {
-    public function __construct(protected string $from, protected string $to, string $url, ?string $apiKey = null)
+    public function __construct(protected Client $client, protected string $from, protected string $to)
     {
-        parent::__construct($url, $apiKey);
     }
 
     public function index(string $uid): Indexes
     {
-        return parent::index($uid === $this->from ? $this->to : $uid);
+        return $this->client->index($uid === $this->from ? $this->to : $uid);
     }
 }

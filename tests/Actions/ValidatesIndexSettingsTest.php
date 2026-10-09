@@ -6,6 +6,7 @@ use Dwarf\MeiliTools\Contracts\Actions\ValidatesIndexSettings;
 use Dwarf\MeiliTools\Contracts\Rules\ArrayAssocRule;
 use Dwarf\MeiliTools\Rules\ArrayAssoc;
 use Dwarf\MeiliTools\Tests\Tools;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -46,7 +47,6 @@ test('rules', function (): void {
         'faceting.sortFacetValuesBy'                => ['sometimes', 'nullable', $assoc],
         'faceting.sortFacetValuesBy.*'              => ['required', Rule::in(['alpha', 'count'])],
         'filterableAttributes'                      => $list,
-        'filterableAttributes.*'                    => $string,
         'localizedAttributes'                       => $list,
         'localizedAttributes.*'                     => ['required', $assoc],
         'localizedAttributes.*.attributePatterns'   => ['required', 'list', 'min:1'],
@@ -93,7 +93,12 @@ test('rules', function (): void {
         'typoTolerance.disableOnNumbers'             => ['sometimes', 'nullable', 'boolean:strict'],
     ];
 
-    expect(resolve(ValidatesIndexSettings::class)->rules())->toEqual($expected);
+    $rules = resolve(ValidatesIndexSettings::class)->rules();
+
+    expect(Arr::except($rules, 'filterableAttributes.*'))->toEqual($expected)
+        ->and($rules['filterableAttributes.*'][0])->toBe('required')
+        ->and($rules['filterableAttributes.*'][1])->toBeInstanceOf(Closure::class)
+    ;
 });
 
 /**
@@ -205,6 +210,37 @@ dataset('passesProvider', function () {
             [$field . '.0' => [__('validation.string', ['attribute' => $field . '.0'])]],
         ]];
     }
+
+    $granular = [
+        'genre',
+        ['attributePatterns' => ['year'], 'features' => ['facetSearch' => true, 'filter' => ['comparison' => true]]],
+        ['attributePatterns' => ['title', 'author']],
+    ];
+
+    yield 'granular filterable attributes valid' => [fn (): array => [
+        ['filterableAttributes' => $granular],
+        ['filterableAttributes' => $granular],
+        true,
+        [],
+    ]];
+
+    yield 'granular filterable attributes patterns error' => [fn (): array => [
+        ['filterableAttributes' => [['features' => ['facetSearch' => true]]]],
+        null,
+        false,
+        ['filterableAttributes.0' => [
+            __('validation.required', ['attribute' => 'filterableAttributes.0.attributePatterns']),
+        ]],
+    ]];
+
+    yield 'granular filterable attributes boolean error' => [fn (): array => [
+        ['filterableAttributes' => [['attributePatterns' => ['year'], 'features' => ['filter' => ['equality' => 1]]]]],
+        null,
+        false,
+        ['filterableAttributes.0' => [
+            __('validation.boolean', ['attribute' => 'filterableAttributes.0.features.filter.equality']),
+        ]],
+    ]];
 
     yield 'distinct attribute string error' => [fn (): array => [
         ['distinctAttribute' => 42],

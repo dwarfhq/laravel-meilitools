@@ -142,7 +142,11 @@ class Helpers
                 'searchableAttributes' => collect($value)->uniqueStrict()->values()->all(),
                 'synonyms'             => collect($value)->sortKeys(\SORT_STRING)->all(),
                 'faceting'             => self::sortFaceting($value),
-                'localizedAttributes'  => array_map(
+                'filterableAttributes' => array_map(
+                    fn (mixed $rule): mixed => \is_array($rule) ? self::filterableAttributeRule($rule) : $rule,
+                    $value,
+                ),
+                'localizedAttributes' => array_map(
                     fn (mixed $rule): mixed => \is_array($rule)
                         ? self::orderKeys($rule, ['attributePatterns', 'locales'])
                         : $rule,
@@ -342,6 +346,30 @@ class Helpers
         return class_exists($class)
             && is_a($class, Model::class, true)
             && \in_array(Searchable::class, class_uses_recursive($class), true);
+    }
+
+    /**
+     * Complete a granular filterable attribute with the default features, the way MeiliSearch returns it.
+     *
+     * @param array<array-key, mixed> $rule
+     *
+     * @return array<array-key, mixed>
+     */
+    protected static function filterableAttributeRule(array $rule): array
+    {
+        $features = \is_array($rule['features'] ?? null) ? $rule['features'] : [];
+        $filter = \is_array($features['filter'] ?? null) ? $features['filter'] : [];
+
+        return [
+            'attributePatterns' => $rule['attributePatterns'] ?? [],
+            'features'          => [
+                'facetSearch' => $features['facetSearch'] ?? false,
+                'filter'      => [
+                    'equality'   => $filter['equality'] ?? true,
+                    'comparison' => $filter['comparison'] ?? false,
+                ],
+            ],
+        ];
     }
 
     /**

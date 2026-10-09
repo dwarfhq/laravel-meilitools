@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Dwarf\MeiliTools\Contracts\Actions\DetailsIndex;
+use Dwarf\MeiliTools\Contracts\Actions\ListsIndexes;
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesScoutIndex;
 use Dwarf\MeiliTools\Exceptions\MeiliToolsException;
 use Dwarf\MeiliTools\Helpers;
@@ -47,8 +48,11 @@ test('with configured settings', function (bool $pretend): void {
             expect($value)->toBe(['old' => $defaults[$key], 'new' => $settings[$key]]);
         }
 
-        $details = resolve(DetailsIndex::class)('testing-books');
-        expect($details)->toMatchArray($pretend ? $defaults : array_replace($defaults, $settings));
+        if ($pretend) {
+            expect(resolve(ListsIndexes::class)())->not->toHaveKey('testing-books');
+        } else {
+            expect(resolve(DetailsIndex::class)('testing-books'))->toMatchArray(array_replace($defaults, $settings));
+        }
 
         // Prefixed index names work as well.
         $changes = resolve(SynchronizesScoutIndex::class)('testing-books', $pretend);

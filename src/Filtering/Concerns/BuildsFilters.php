@@ -95,17 +95,14 @@ trait BuildsFilters
 
     public function whereNested(Closure $callback, string $boolean = 'and', bool $not = false): static
     {
-        $callback($filter = resolve(FilterBuilder::class));
-        if ($filter->toFilter() === '') {
-            return $this;
-        }
+        $callback($builder = resolve(FilterBuilder::class));
 
-        return $this->addFilter(\sprintf('(%s)', $filter->toFilter()), $boolean, $not);
+        return $this->addGroup($builder->toFilter(), $boolean, $not);
     }
 
     public function whereRaw(string $filter, string $boolean = 'and'): static
     {
-        return $this->addFilter(\sprintf('(%s)', $filter), $boolean);
+        return $this->addGroup(trim($filter), $boolean);
     }
 
     public function orWhereRaw(string $filter): static
@@ -434,6 +431,16 @@ trait BuildsFilters
         $this->filters[] = ['boolean' => $boolean, 'filter' => ($not ? 'NOT ' : '') . $filter];
 
         return $this;
+    }
+
+    /**
+     * Add a filter expression wrapped in parentheses, unless it's empty.
+     *
+     * @return $this
+     */
+    protected function addGroup(string $filter, string $boolean, bool $not = false): static
+    {
+        return $filter === '' ? $this : $this->addFilter(\sprintf('(%s)', $filter), $boolean, $not);
     }
 
     /**

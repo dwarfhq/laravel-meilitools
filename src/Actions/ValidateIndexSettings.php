@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Dwarf\MeiliTools\Actions;
 
+use Closure;
 use Dwarf\MeiliTools\Contracts\Actions\ValidatesIndexSettings;
 use Dwarf\MeiliTools\Contracts\Rules\ArrayAssocRule;
 use Illuminate\Contracts\Validation\Validator as ValidatorContract;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Translation\PotentiallyTranslatedString;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
@@ -85,7 +87,7 @@ class ValidateIndexSettings implements ValidatesIndexSettings
             'faceting.sortFacetValuesBy'                => ['sometimes', 'nullable', $assoc],
             'faceting.sortFacetValuesBy.*'              => ['required', Rule::in(['alpha', 'count'])],
             'filterableAttributes'                      => $list,
-            'filterableAttributes.*'                    => $string,
+            'filterableAttributes.*'                    => ['required', $this->validateFilterableAttribute(...)],
             'localizedAttributes'                       => $list,
             'localizedAttributes.*'                     => ['required', $assoc],
             'localizedAttributes.*.attributePatterns'   => ['required', 'list', 'min:1'],
@@ -141,6 +143,42 @@ class ValidateIndexSettings implements ValidatesIndexSettings
             'typoTolerance.disableOnAttributes.*' => $string,
             'typoTolerance.disableOnNumbers'      => ['sometimes', 'nullable', 'boolean:strict'],
         ];
+    }
+
+    /**
+     * Validate a filterable attribute, which is either a string or a granular rule,
+     * e.g. `['attributePatterns' => ['year'], 'features' => ['filter' => ['comparison' => true]]]`.
+     *
+     * @param Closure(string): PotentiallyTranslatedString $fail
+     */
+    protected function validateFilterableAttribute(string $attribute, mixed $value, Closure $fail): void
+    {
+        if (\is_string($value)) {
+            return;
+        }
+
+        if (!\is_array($value)) {
+            $fail('validation.string')->translate();
+
+            return;
+        }
+
+        $assoc = resolve(ArrayAssocRule::class);
+        $rules = [
+            'attributePatterns'          => ['required', 'list', 'min:1'],
+            'attributePatterns.*'        => ['required', 'string'],
+            'features'                   => ['sometimes', $assoc],
+            'features.facetSearch'       => ['sometimes', 'boolean:strict'],
+            'features.filter'            => ['sometimes', $assoc],
+            'features.filter.equality'   => ['sometimes', 'boolean:strict'],
+            'features.filter.comparison' => ['sometimes', 'boolean:strict'],
+        ];
+        $names = array_map(fn (string $key): string => $attribute . '.' . $key, array_keys($rules));
+
+        $validator = Validator::make($value, $rules, [], array_combine(array_keys($rules), $names));
+        foreach ($validator->errors()->all() as $message) {
+            $fail($message);
+        }
     }
 
     /**

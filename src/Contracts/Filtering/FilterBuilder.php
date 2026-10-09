@@ -70,7 +70,7 @@ interface FilterBuilder
     public function whereNested(Closure $callback, string $boolean = 'and', bool $not = false): static;
 
     /**
-     * Add a raw filter expression, which is wrapped in parentheses.
+     * Add a raw filter expression, which is wrapped in parentheses and skipped when empty.
      *
      * @return $this
      */

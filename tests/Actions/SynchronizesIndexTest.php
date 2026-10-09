@@ -315,6 +315,23 @@ test('with partial settings', function (): void {
 });
 
 /**
+ * Test SynchronizesIndex::__invoke() method with granular filterable attributes, which MeiliSearch completes.
+ */
+test('with granular filterable attributes', function (): void {
+    $this->withIndex('testing-synchronizes-index', function (): void {
+        $action = resolve(SynchronizesIndex::class);
+        $settings = ['filterableAttributes' => [
+            'genre',
+            ['attributePatterns' => ['year'], 'features' => ['filter' => ['comparison' => true]]],
+        ]];
+
+        expect($action('testing-synchronizes-index', $settings))->toHaveKey('filterableAttributes')
+            ->and($action('testing-synchronizes-index', $settings))->toBeEmpty()
+        ;
+    });
+});
+
+/**
  * Test SynchronizesIndex::__invoke() method with an unsupported engine version.
  */
 test('with unsupported engine', function (): void {

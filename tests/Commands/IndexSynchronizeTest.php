@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Dwarf\MeiliTools\Contracts\Actions\DetailsIndex;
+use Dwarf\MeiliTools\Contracts\Actions\ListsIndexes;
 use Dwarf\MeiliTools\Exceptions\MeiliToolsException;
 use Dwarf\MeiliTools\Helpers;
 use Dwarf\MeiliTools\Tests\Tools;
@@ -24,8 +25,11 @@ test('with configured settings', function (bool $pretend): void {
             ->assertSuccessful()
         ;
 
-        $details = resolve(DetailsIndex::class)('testing-books');
-        expect($details)->toMatchArray($pretend ? $defaults : array_replace($defaults, $settings));
+        if ($pretend) {
+            expect(resolve(ListsIndexes::class)())->not->toHaveKey('testing-books');
+        } else {
+            expect(resolve(DetailsIndex::class)('testing-books'))->toMatchArray(array_replace($defaults, $settings));
+        }
 
         $this->artisan('meili:index:synchronize')
             ->expectsQuestion('What is the index name?', 'books')
@@ -58,7 +62,7 @@ test('with check', function (): void {
             ->assertFailed()
         ;
 
-        expect(resolve(DetailsIndex::class)('testing-books'))->toMatchArray(Helpers::defaultSettings());
+        expect(resolve(ListsIndexes::class)())->not->toHaveKey('testing-books');
 
         $this->artisan('meili:index:synchronize', ['index' => 'books'])->assertSuccessful();
 
