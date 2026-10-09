@@ -26,6 +26,7 @@ use Dwarf\MeiliTools\Actions\ValidateIndexSettings;
 use Dwarf\MeiliTools\Actions\ViewIndex;
 use Dwarf\MeiliTools\Actions\ViewModel;
 use Dwarf\MeiliTools\Actions\ViewStats;
+use Dwarf\MeiliTools\Console\AboutMeiliSearch;
 use Dwarf\MeiliTools\Console\Commands\IndexCreate;
 use Dwarf\MeiliTools\Console\Commands\IndexDelete;
 use Dwarf\MeiliTools\Console\Commands\IndexDetails;
@@ -76,6 +77,7 @@ use Dwarf\MeiliTools\Filtering\SearchBuilder;
 use Dwarf\MeiliTools\Rules\ArrayAssoc;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Console\AboutCommand;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Scout\Builder as ScoutBuilder;
 use Laravel\Scout\EngineManager;
@@ -189,6 +191,11 @@ class MeiliToolsServiceProvider extends ServiceProvider
             ]);
 
             $this->publishes([__DIR__ . '/../config/meilitools.php' => $this->app->configPath('meilitools.php')]);
+
+            // The about command is part of the framework rather than the components this package requires.
+            if (class_exists(AboutCommand::class)) {
+                AboutCommand::add('Meilisearch', fn (): array => resolve(AboutMeiliSearch::class)());
+            }
         }
     }
 }
