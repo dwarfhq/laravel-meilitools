@@ -89,17 +89,13 @@ test('in production mode', function (): void {
     App::detectEnvironment(fn (): string => 'production');
     config(['meilitools.paths' => []]);
 
-    $this->artisan('meili:models:synchronize')
-        ->expectsConfirmation('Are you sure you want to run this command?', 'no')
+    // Laravel only asks for confirmation interactively outside of the testing environment.
+    $this->artisan('meili:models:synchronize', ['--no-interaction' => true])
+        ->expectsOutputToContain('Command cancelled.')
         ->assertFailed()
     ;
 
     $this->artisan('meili:models:synchronize', ['--force' => true])
-        ->assertSuccessful()
-    ;
-
-    $this->artisan('meili:models:synchronize')
-        ->expectsConfirmation('Are you sure you want to run this command?', 'yes')
         ->assertSuccessful()
     ;
 });

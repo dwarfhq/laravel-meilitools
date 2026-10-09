@@ -6,6 +6,7 @@ namespace Dwarf\MeiliTools\Tests;
 
 use Closure;
 use Dwarf\MeiliTools\MeiliToolsServiceProvider;
+use Laravel\Prompts\Prompt;
 use Laravel\Scout\ScoutServiceProvider;
 use Meilisearch\Client;
 use Orchestra\Testbench\TestCase as BaseTestCase;
@@ -15,6 +16,17 @@ use Orchestra\Testbench\TestCase as BaseTestCase;
  */
 class TestCase extends BaseTestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Prompt fallbacks are static and sticky, so commands from previous tests would otherwise answer prompts.
+        Closure::bind(static function (): void {
+            Prompt::$shouldFallback = false;
+            Prompt::$fallbacks = [];
+        }, null, Prompt::class)();
+    }
+
     protected function getPackageProviders($app): array
     {
         return [
