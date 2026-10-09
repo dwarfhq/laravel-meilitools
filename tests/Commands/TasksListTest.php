@@ -13,9 +13,10 @@ test('tasks', function (): void {
         $client = resolve(Client::class);
         $client->waitForTask($client->createIndex('testing-tasks')['taskUid']);
 
-        $this->artisan('meili:tasks', ['--index' => ['testing-tasks']])
-            ->expectsOutputToContain('indexCreation')
+        // Each expectation matches a separate row, as matched output lines are only used once.
+        $this->artisan('meili:tasks', ['--index' => ['testing-tasks'], '--limit' => 2])
             ->expectsOutputToContain('succeeded')
+            ->expectsOutputToContain('Index `testing-tasks` already exists.')
             ->assertSuccessful()
         ;
 
