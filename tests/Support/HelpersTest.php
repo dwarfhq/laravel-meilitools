@@ -123,3 +123,16 @@ test('engine version', function (): void {
 
     expect(Helpers::engineVersion())->toBeNull();
 });
+
+/**
+ * Test Helpers::formatBytes() method.
+ */
+test('format bytes', function (float|int $bytes, string $expected): void {
+    expect(Helpers::formatBytes($bytes))->toBe($expected);
+})->with([
+    'zero'      => [0, '0 B'],
+    'bytes'     => [512, '512 B'],
+    'kilobytes' => [1536, '1.5 KB'],
+    'megabytes' => [57196544, '54.5 MB'],
+    'terabytes' => [1024 ** 4 * 2, '2 TB'],
+]);
