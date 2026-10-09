@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Dwarf\MeiliTools;
 
 use Dwarf\MeiliTools\Actions\CancelTasks;
+use Dwarf\MeiliTools\Actions\CheckHealth;
 use Dwarf\MeiliTools\Actions\CreateIndex;
 use Dwarf\MeiliTools\Actions\DeleteIndex;
 use Dwarf\MeiliTools\Actions\DetailIndex;
@@ -46,6 +47,7 @@ use Dwarf\MeiliTools\Console\Commands\StatsView;
 use Dwarf\MeiliTools\Console\Commands\TasksCancel;
 use Dwarf\MeiliTools\Console\Commands\TasksList;
 use Dwarf\MeiliTools\Contracts\Actions\CancelsTasks;
+use Dwarf\MeiliTools\Contracts\Actions\ChecksHealth;
 use Dwarf\MeiliTools\Contracts\Actions\CreatesIndex;
 use Dwarf\MeiliTools\Contracts\Actions\DeletesIndex;
 use Dwarf\MeiliTools\Contracts\Actions\DetailsIndex;
@@ -77,14 +79,17 @@ use Dwarf\MeiliTools\Filtering\FilterBuilder;
 use Dwarf\MeiliTools\Filtering\FilterValueFormatter;
 use Dwarf\MeiliTools\Filtering\MeilisearchEngine;
 use Dwarf\MeiliTools\Filtering\SearchBuilder;
+use Dwarf\MeiliTools\Pulse\MeiliToolsCard;
 use Dwarf\MeiliTools\Rules\ArrayAssoc;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Console\AboutCommand;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Pulse\Livewire\Card;
 use Laravel\Scout\Builder as ScoutBuilder;
 use Laravel\Scout\EngineManager;
 use Laravel\Scout\Engines\MeilisearchEngine as ScoutMeilisearchEngine;
+use Livewire\LivewireManager;
 use Meilisearch\Client;
 
 class MeiliToolsServiceProvider extends ServiceProvider
@@ -97,6 +102,7 @@ class MeiliToolsServiceProvider extends ServiceProvider
     public array $bindings = [
         ArrayAssocRule::class           => ArrayAssoc::class,
         CancelsTasks::class             => CancelTasks::class,
+        ChecksHealth::class             => CheckHealth::class,
         CreatesIndex::class             => CreateIndex::class,
         DeletesIndex::class             => DeleteIndex::class,
         DetailsIndex::class             => DetailIndex::class,
@@ -174,6 +180,13 @@ class MeiliToolsServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // The Pulse card is only available when Laravel Pulse is installed.
+        if (class_exists(Card::class)) {
+            $this->callAfterResolving('livewire', function (LivewireManager $livewire): void {
+                $livewire->component('meilitools.pulse', MeiliToolsCard::class);
+            });
+        }
+
         if ($this->app->runningInConsole()) {
             $this->commands([
                 IndexCreate::class,
