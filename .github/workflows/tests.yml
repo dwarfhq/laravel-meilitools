@@ -73,8 +73,12 @@ jobs:
         run: |
           git config --global --add safe.directory /__w/laravel-meilitools/laravel-meilitools
           composer require --dev "orchestra/testbench:^${{ matrix.testbench }}" --no-interaction --no-update
-          # The Pest Rector plugin requires Pest 5, which isn't compatible with Laravel 12 (Testbench 10).
-          if [ "${{ matrix.testbench }}" = "10.0" ]; then composer remove --dev pestphp/pest-plugin-rector --no-interaction --no-update; fi
+          # Laravel 12 (Testbench 10) uses Pest 4, which isn't compatible with the Pest Rector plugin, and whose type
+          # coverage plugin can fail on a race when caching. Type coverage doesn't depend on Laravel, so it's skipped.
+          if [ "${{ matrix.testbench }}" = "10.0" ]; then
+            composer remove --dev pestphp/pest-plugin-rector --no-interaction --no-update
+            composer config scripts.type-coverage "echo Type coverage is checked with Laravel 13"
+          fi
           composer update --${{ matrix.version }} --prefer-dist --no-interaction
 
       # Lowest dependencies are only tested, as advisories for old versions are expected.

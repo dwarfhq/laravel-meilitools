@@ -14,10 +14,12 @@ class ListClasses implements ListsClasses
 {
     public function __invoke(string $path, string $namespace, ?callable $filter = null): array
     {
-        $files = scandir(Str::startsWith($path, '/') ? $path : base_path($path));
-        if ($files === false) {
+        $directory = $this->isAbsolutePath($path) ? $path : base_path($path);
+        if (!is_dir($directory)) {
             return [];
         }
+
+        $files = scandir($directory) ?: [];
 
         $classes = array_map(
             fn (string $file): string => Str::finish($namespace, '\\') . basename($file, '.php'),
@@ -25,5 +27,13 @@ class ListClasses implements ListsClasses
         );
 
         return array_values($filter !== null ? array_filter($classes, $filter) : $classes);
+    }
+
+    /**
+     * Whether the path is absolute, including Windows drive and UNC paths.
+     */
+    protected function isAbsolutePath(string $path): bool
+    {
+        return Str::startsWith($path, ['/', '\\']) || preg_match('#^[A-Za-z]:[/\\\\]#', $path) === 1;
     }
 }
