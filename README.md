@@ -258,6 +258,19 @@ Indexes belonging to models synchronized by `meili:models:synchronize` are skipp
 **Arguments:**
 - `model` : Model class
 
+#### `meili:model:reindex` - Reindex a model into a new MeiliSearch index without downtime
+Imports all searchable models into a temporary index with the model settings, then swaps it with the model index.
+Searches keep using the old index until the swap, and the old index is kept when the import fails.
+Models changed while importing aren't updated in the new index, unless they're imported after the change.
+
+**Arguments:**
+- `model` : Model class
+
+**Options:**
+- `--chunk=` : Number of models to import at a time, defaulting to Scout's `chunk.searchable`
+- `--timeout=300` : Seconds to wait for each MeiliSearch task
+- `--force` : Force the operation to run when in production
+
 #### `meili:model:reset` - Reset settings for a MeiliSearch model index
 **Arguments:**
 - `model` : Model class
@@ -333,6 +346,9 @@ Model commands can take both full class name and base name, with the latter bein
 ```
 $ php artisan meili:model:details App\\Models\\Article
 $ php artisan meili:model:details Article
+
+$ php artisan meili:model:reindex App\\Models\\Article
+$ php artisan meili:model:reindex Article
 
 $ php artisan meili:model:reset App\\Models\\Article
 $ php artisan meili:model:reset Article

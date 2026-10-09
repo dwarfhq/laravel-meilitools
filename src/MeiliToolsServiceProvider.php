@@ -14,6 +14,7 @@ use Dwarf\MeiliTools\Actions\ListClasses;
 use Dwarf\MeiliTools\Actions\ListIndexes;
 use Dwarf\MeiliTools\Actions\ListModels;
 use Dwarf\MeiliTools\Actions\ListTasks;
+use Dwarf\MeiliTools\Actions\ReindexModel;
 use Dwarf\MeiliTools\Actions\ResetIndex;
 use Dwarf\MeiliTools\Actions\ResetModel;
 use Dwarf\MeiliTools\Actions\ResolveModelSettings;
@@ -36,6 +37,7 @@ use Dwarf\MeiliTools\Console\Commands\IndexReset;
 use Dwarf\MeiliTools\Console\Commands\IndexSynchronize;
 use Dwarf\MeiliTools\Console\Commands\IndexView;
 use Dwarf\MeiliTools\Console\Commands\ModelDetails;
+use Dwarf\MeiliTools\Console\Commands\ModelReindex;
 use Dwarf\MeiliTools\Console\Commands\ModelReset;
 use Dwarf\MeiliTools\Console\Commands\ModelsSynchronize;
 use Dwarf\MeiliTools\Console\Commands\ModelSynchronize;
@@ -53,6 +55,7 @@ use Dwarf\MeiliTools\Contracts\Actions\ListsClasses;
 use Dwarf\MeiliTools\Contracts\Actions\ListsIndexes;
 use Dwarf\MeiliTools\Contracts\Actions\ListsModels;
 use Dwarf\MeiliTools\Contracts\Actions\ListsTasks;
+use Dwarf\MeiliTools\Contracts\Actions\ReindexesModel;
 use Dwarf\MeiliTools\Contracts\Actions\ResetsIndex;
 use Dwarf\MeiliTools\Contracts\Actions\ResetsModel;
 use Dwarf\MeiliTools\Contracts\Actions\ResolvesModelSettings;
@@ -105,6 +108,7 @@ class MeiliToolsServiceProvider extends ServiceProvider
         ListsIndexes::class             => ListIndexes::class,
         ListsModels::class              => ListModels::class,
         ListsTasks::class               => ListTasks::class,
+        ReindexesModel::class           => ReindexModel::class,
         ResetsIndex::class              => ResetIndex::class,
         ResetsModel::class              => ResetModel::class,
         ResolvesModelSettings::class    => ResolveModelSettings::class,
@@ -181,6 +185,7 @@ class MeiliToolsServiceProvider extends ServiceProvider
                 IndexesList::class,
                 IndexesSynchronize::class,
                 ModelDetails::class,
+                ModelReindex::class,
                 ModelReset::class,
                 ModelSynchronize::class,
                 ModelView::class,
