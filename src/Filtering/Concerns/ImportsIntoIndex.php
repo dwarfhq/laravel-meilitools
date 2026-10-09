@@ -21,12 +21,7 @@ trait ImportsIntoIndex
 
         // Scout writes to the model's own index, so the client redirects it to the given index while updating.
         $client = $this->meilisearch;
-        $this->meilisearch = new RedirectingClient(
-            $model->indexableAs(),
-            $index,
-            (string) config('scout.meilisearch.host'),
-            \is_string(config('scout.meilisearch.key')) ? config('scout.meilisearch.key') : null,
-        );
+        $this->meilisearch = new RedirectingClient($client, $model->indexableAs(), $index);
 
         try {
             $this->update($models);

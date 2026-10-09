@@ -36,11 +36,13 @@ function fakeHealth(array $report): void
  */
 test('check', function (array $report, string $status, string $summary, string $message): void {
     fakeHealth($report + [
-        'version'        => '1.54.3',
-        'missingIndexes' => [],
-        'outOfSync'      => [],
-        'errors'         => [],
-        'failedTasks'    => [],
+        'version'         => '1.54.3',
+        'error'           => null,
+        'missingIndexes'  => [],
+        'outOfSync'       => [],
+        'errors'          => [],
+        'failedTasks'     => [],
+        'failedTaskCount' => 0,
     ]);
 
     $result = MeiliToolsCheck::new()->failedTasksWithin(30)->checkSettings(false)->run();
@@ -52,7 +54,13 @@ test('check', function (array $report, string $status, string $summary, string $
 })->with([
     'ok'          => [[], 'ok', '1.54.3', ''],
     'unreachable' => [['version' => null], 'failed', 'Unreachable', 'MeiliSearch could not be reached.'],
-    'missing'     => [
+    'error'       => [
+        ['error' => 'The provided API key is invalid.'],
+        'failed',
+        'Failed',
+        'MeiliSearch could not be checked: The provided API key is invalid.',
+    ],
+    'missing' => [
         ['missingIndexes' => ['books', 'authors'], 'outOfSync' => ['movies' => ['rankingRules']]],
         'failed',
         'Failed',
@@ -65,13 +73,13 @@ test('check', function (array $report, string $status, string $summary, string $
         'Indexes failing to synchronize: movies.',
     ],
     'warnings' => [
-        ['outOfSync' => ['movies' => ['rankingRules']], 'failedTasks' => [['uid' => 1], ['uid' => 2]]],
+        ['outOfSync' => ['movies' => ['rankingRules']], 'failedTasks' => [['uid' => 1]], 'failedTaskCount' => 25],
         'warning',
         'Warning',
-        'Indexes with settings out of sync: movies. 2 tasks failed within 30 minutes.',
+        'Indexes with settings out of sync: movies. 25 tasks failed within 30 minutes.',
     ],
     'one failed task' => [
-        ['failedTasks' => [['uid' => 1]]],
+        ['failedTasks' => [['uid' => 1]], 'failedTaskCount' => 1],
         'warning',
         'Warning',
         '1 task failed within 30 minutes.',

@@ -62,7 +62,7 @@ class SynchronizeIndex implements SynchronizesIndex
         $this->engineVersion ??= Helpers::engineVersion();
         Helpers::throwUnlessSupportedEngine($this->engineVersion);
 
-        $details = ($this->detailIndex)($index);
+        $details = $this->details($index, $pretend);
         $defaults = Helpers::defaultSettings();
 
         $changes = [];
@@ -87,6 +87,26 @@ class SynchronizeIndex implements SynchronizesIndex
         }
 
         return $changes;
+    }
+
+    /**
+     * Get the current index settings, which are the defaults for a missing index when pretending.
+     *
+     * @throws ApiException When index is not found and not pretending.
+     *
+     * @return array<string, mixed>
+     */
+    protected function details(string $index, bool $pretend): array
+    {
+        try {
+            return ($this->detailIndex)($index);
+        } catch (ApiException $e) {
+            if ($pretend && $e->errorCode === 'index_not_found') {
+                return Helpers::defaultSettings();
+            }
+
+            throw $e;
+        }
     }
 
     /**

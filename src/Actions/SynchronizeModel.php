@@ -10,6 +10,7 @@ use Dwarf\MeiliTools\Contracts\Actions\ResolvesModelSettings;
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesIndex;
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesModel;
 use Dwarf\MeiliTools\Exceptions\MeiliToolsException;
+use Dwarf\MeiliTools\Helpers;
 use Illuminate\Validation\ValidationException;
 use Meilisearch\Exceptions\CommunicationException;
 
@@ -37,7 +38,7 @@ class SynchronizeModel implements SynchronizesModel
     public function __invoke(string $class, bool $pretend = false): array
     {
         $settings = ($this->resolveSettings)($class);
-        $index = $this->ensureModelIndex($class);
+        $index = $pretend ? Helpers::modelIndexName($class) : $this->ensureModelIndex($class);
 
         return ($this->synchronizeIndex)($index, $settings, $pretend);
     }

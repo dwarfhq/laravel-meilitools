@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Dwarf\MeiliTools\Contracts\Actions\DetailsModel;
+use Dwarf\MeiliTools\Contracts\Actions\ListsIndexes;
 use Dwarf\MeiliTools\Contracts\Actions\ResetsModel;
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesModel;
 use Dwarf\MeiliTools\Helpers;
@@ -66,4 +67,13 @@ test('with pretend', function (): void {
     } finally {
         $this->deleteIndex(resolve(MeiliMovie::class)->searchableAs());
     }
+});
+
+/**
+ * Test ResetsModel::__invoke() method with pretend option and a missing index, which isn't created.
+ */
+test('with pretend and missing index', function (): void {
+    expect(resolve(ResetsModel::class)(MeiliMovie::class, true))->toBeEmpty()
+        ->and(resolve(ListsIndexes::class)())->not->toHaveKey('testing-meili_movies')
+    ;
 });

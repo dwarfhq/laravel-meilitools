@@ -12,6 +12,10 @@
     <x-pulse::scroll :expand="$expand" wire:poll.30s="">
         @if ($health['version'] === null)
             <p class="text-sm font-bold text-red-600 dark:text-red-400">Meilisearch could not be reached.</p>
+        @elseif ($health['error'] !== null)
+            <p class="text-sm font-bold text-red-600 dark:text-red-400">
+                Meilisearch could not be checked: {{ $health['error'] }}
+            </p>
         @else
             <div class="flex flex-col gap-4">
                 @foreach ($health['missingIndexes'] as $index)
@@ -62,7 +66,13 @@
                     <x-pulse::table>
                         <x-pulse::thead>
                             <tr>
-                                <x-pulse::th>Failed task</x-pulse::th>
+                                <x-pulse::th>
+                                    Failed tasks
+                                    @if ($health['failedTaskCount'] > count($health['failedTasks']))
+                                        ({{ count($health['failedTasks']) }} of
+                                        {{ number_format($health['failedTaskCount']) }})
+                                    @endif
+                                </x-pulse::th>
                                 <x-pulse::th>Error</x-pulse::th>
                             </tr>
                         </x-pulse::thead>

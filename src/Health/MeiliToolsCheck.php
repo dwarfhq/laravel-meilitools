@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Dwarf\MeiliTools\Health;
 
 use Dwarf\MeiliTools\Contracts\Actions\ChecksHealth;
+use Illuminate\Support\Str;
 use Spatie\Health\Checks\Check;
 use Spatie\Health\Checks\Result;
 
@@ -48,14 +49,19 @@ class MeiliToolsCheck extends Check
         $report = resolve(ChecksHealth::class)($this->failedTasksWithinMinutes, $this->checkSettings);
         $result = Result::make()->meta([
             'version'        => $report['version'],
+            'error'          => $report['error'],
             'missingIndexes' => $report['missingIndexes'],
             'outOfSync'      => $report['outOfSync'],
             'errors'         => $report['errors'],
-            'failedTasks'    => \count($report['failedTasks']),
+            'failedTasks'    => $report['failedTaskCount'],
         ]);
 
         if ($report['version'] === null) {
             return $result->shortSummary('Unreachable')->failed('MeiliSearch could not be reached.');
+        }
+
+        if ($report['error'] !== null) {
+            return $result->shortSummary('Failed')->failed('MeiliSearch could not be checked: ' . $report['error']);
         }
 
         $problems = array_filter([
@@ -65,10 +71,10 @@ class MeiliToolsCheck extends Check
             ]),
             'warning' => array_filter([
                 $this->describe(array_keys($report['outOfSync']), 'Indexes with settings out of sync: %s'),
-                $report['failedTasks'] === [] ? null : \sprintf(
+                $report['failedTaskCount'] === 0 ? null : \sprintf(
                     '%d %s failed within %d minutes.',
-                    \count($report['failedTasks']),
-                    \count($report['failedTasks']) === 1 ? 'task' : 'tasks',
+                    $report['failedTaskCount'],
+                    Str::plural('task', $report['failedTaskCount']),
                     $this->failedTasksWithinMinutes,
                 ),
             ]),
