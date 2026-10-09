@@ -593,3 +593,33 @@ test('own scout builder', function (): void {
         ;
     });
 });
+
+/**
+ * Test facet distribution and stats being available after searching.
+ */
+test('facets', function (): void {
+    $this->withIndex('testing-movies', function (): void {
+        indexMovies('testing-movies', movieDocuments());
+
+        $builder = Movie::search()->whereNotIn('title', ['Robin'])->facets(['genre', 'rank']);
+
+        expect($builder->facetDistribution())->toBe([])
+            ->and($builder->facetStats())->toBe([])
+        ;
+
+        $builder->keys();
+
+        expect($builder->facetDistribution())
+            ->toEqual(['genre' => ['action' => 2, 'drama' => 1], 'rank' => [3 => 1, 5 => 1]])
+            ->and($builder->facetStats())->toEqual(['rank' => ['min' => 3, 'max' => 5]])
+        ;
+
+        // Each search replaces the facets of the previous one.
+        $raw = $builder->where('genre', 'drama')->raw();
+
+        expect($raw['facetDistribution'])->toEqual(['genre' => ['drama' => 1], 'rank' => []])
+            ->and($builder->facetDistribution())->toEqual($raw['facetDistribution'])
+            ->and($builder->facetStats())->toBe([])
+        ;
+    });
+});

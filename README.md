@@ -164,6 +164,15 @@ Article::search('laravel')
     ->locales(['eng'])                 // Search using specific locales
     ->get();
 ```
+Facets count the matching documents per value of filterable attributes, and are available after searching:
+```php
+$search = Article::search('laravel')->facets(['category', 'views']);
+$articles = $search->paginate();
+
+$search->facetDistribution(); // ['category' => ['news' => 12, 'tutorials' => 4], 'views' => [...]]
+$search->facetStats();        // ['views' => ['min' => 10, 'max' => 5300]]
+```
+
 These options take precedence over the same keys given to Scout's `options()`.
 The filter is combined with any filter Scout sets, e.g. for soft deletes, and with a `filter` given to `options()`,
 and the search parameters are also given to a search callback.
