@@ -59,3 +59,26 @@ test('with pretend', function (): void {
         $this->deleteIndex(resolve(MeiliMovie::class)->searchableAs());
     }
 });
+
+/**
+ * Test `meili:model:synchronize` command with check option.
+ */
+test('with check', function (): void {
+    try {
+        $this->artisan('meili:model:synchronize', ['model' => MeiliMovie::class, '--check' => true])
+            ->expectsOutput('Settings are out of sync')
+            ->assertFailed()
+        ;
+
+        expect(resolve(DetailsModel::class)(MeiliMovie::class))->toMatchArray(Helpers::defaultSettings());
+
+        $this->artisan('meili:model:synchronize', ['model' => MeiliMovie::class])->assertSuccessful();
+
+        $this->artisan('meili:model:synchronize', ['model' => MeiliMovie::class, '--check' => true])
+            ->doesntExpectOutput('Settings are out of sync')
+            ->assertSuccessful()
+        ;
+    } finally {
+        $this->deleteIndex(resolve(MeiliMovie::class)->searchableAs());
+    }
+});

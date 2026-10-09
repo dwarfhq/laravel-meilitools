@@ -84,3 +84,34 @@ test('with model index', function (): void {
         $this->deleteIndex('testing-books');
     }
 });
+
+/**
+ * Test `meili:indexes:synchronize` command with check option.
+ */
+test('with check', function (): void {
+    App::detectEnvironment(fn (): string => 'production');
+    config(['scout.meilisearch.index-settings' => [
+        'authors' => ['sortableAttributes' => ['name']],
+        'books'   => ['sortableAttributes' => ['title']],
+    ]]);
+
+    try {
+        // Checking doesn't change anything, so it runs without confirmation in production.
+        $this->artisan('meili:indexes:synchronize', ['--check' => true, '--no-interaction' => true])
+            ->expectsOutput('Settings are out of sync for 2 indexes')
+            ->assertFailed()
+        ;
+
+        expect(resolve(DetailsIndex::class)('testing-books')['sortableAttributes'])->toBe([]);
+
+        $this->artisan('meili:indexes:synchronize', ['--force' => true])->assertSuccessful();
+
+        $this->artisan('meili:indexes:synchronize', ['--check' => true, '--no-interaction' => true])
+            ->doesntExpectOutputToContain('Settings are out of sync')
+            ->assertSuccessful()
+        ;
+    } finally {
+        $this->deleteIndex('testing-authors');
+        $this->deleteIndex('testing-books');
+    }
+});
