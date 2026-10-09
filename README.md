@@ -223,6 +223,7 @@ The following commands are available:
 
 **Options:**
 - `--pretend` : Only shows what changes would have been done to the index
+- `--check` : Only checks whether the settings are in sync, failing when they are not
 
 #### `meili:index:view` - Get base information about a MeiliSearch index
 **Arguments:**
@@ -240,6 +241,7 @@ Indexes belonging to models synchronized by `meili:models:synchronize` are skipp
 
 **Options:**
 - `--pretend` : Only shows what changes would have been done to the indexes
+- `--check` : Only checks whether the settings are in sync, failing when they are not
 - `--force` : Force the operation to run when in production
 
 #### `meili:model:details` - Get details for a MeiliSearch model index
@@ -259,6 +261,7 @@ Indexes belonging to models synchronized by `meili:models:synchronize` are skipp
 
 **Options:**
 - `--pretend` : Only shows what changes would have been done to the index
+- `--check` : Only checks whether the settings are in sync, failing when they are not
 
 #### `meili:model:view` - Get base information about a MeiliSearch model index
 **Arguments:**
@@ -273,9 +276,17 @@ Exits with a failure code if any model fails to synchronize.
 
 **Options:**
 - `--pretend` : Only shows what changes would have been done to the indexes
+- `--check` : Only checks whether the settings are in sync, failing when they are not
 - `--force` : Force the operation to run when in production
 
 ## Examples
+The `--check` option of the synchronize commands fails when settings are out of sync without changing them,
+e.g. to verify settings in CI or before deploying:
+```
+$ php artisan meili:models:synchronize --check
+$ php artisan meili:indexes:synchronize --check
+```
+
 Model commands can take both full class name and base name, with the latter being completed using the configured paths.
 ```
 $ php artisan meili:model:details App\\Models\\Article

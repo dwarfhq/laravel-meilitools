@@ -127,3 +127,33 @@ test('with scout settings', function (): void {
         $this->deleteIndex(resolve(Movie::class)->searchableAs());
     }
 });
+
+/**
+ * Test `meili:models:synchronize` command with check option.
+ */
+test('with check', function (): void {
+    App::detectEnvironment(fn (): string => 'production');
+    config([
+        'meilitools.paths'                 => [],
+        'scout.meilisearch.index-settings' => [Movie::class => ['sortableAttributes' => ['rating']]],
+    ]);
+
+    try {
+        // Checking doesn't change anything, so it runs without confirmation in production.
+        $this->artisan('meili:models:synchronize', ['--check' => true, '--no-interaction' => true])
+            ->expectsOutput('Settings are out of sync for 1 model')
+            ->assertFailed()
+        ;
+
+        expect(resolve(DetailsModel::class)(Movie::class)['sortableAttributes'])->toBe([]);
+
+        $this->artisan('meili:models:synchronize', ['--force' => true])->assertSuccessful();
+
+        $this->artisan('meili:models:synchronize', ['--check' => true, '--no-interaction' => true])
+            ->doesntExpectOutputToContain('Settings are out of sync')
+            ->assertSuccessful()
+        ;
+    } finally {
+        $this->deleteIndex(resolve(Movie::class)->searchableAs());
+    }
+});

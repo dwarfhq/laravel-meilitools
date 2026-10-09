@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Dwarf\MeiliTools\Console\Commands;
 
+use Dwarf\MeiliTools\Console\Commands\Concerns\ChecksSynchronization;
 use Dwarf\MeiliTools\Contracts\Actions\ListsModels;
 use Dwarf\MeiliTools\Contracts\Actions\SynchronizesScoutIndexes;
 use Dwarf\MeiliTools\Helpers;
@@ -13,6 +14,7 @@ use Throwable;
 
 class IndexesSynchronize extends Command
 {
+    use ChecksSynchronization;
     use ConfirmableTrait;
 
     /**
@@ -22,6 +24,7 @@ class IndexesSynchronize extends Command
      */
     protected $signature = 'meili:indexes:synchronize
                             {--P|pretend : Only shows what changes would have been done to the indexes}
+                            {--check : Only checks whether the settings are in sync, failing when they are not}
                             {--force : Force the operation to run when in production}';
 
     /**
@@ -36,7 +39,7 @@ class IndexesSynchronize extends Command
      */
     public function handle(ListsModels $listModels, SynchronizesScoutIndexes $synchronizeScoutIndexes): int
     {
-        $pretend = (bool) $this->option('pretend');
+        $pretend = $this->pretending();
         if (!$pretend && !$this->confirmToProceed()) {
             return Command::FAILURE;
         }
@@ -57,16 +60,26 @@ class IndexesSynchronize extends Command
         }
 
         $failed = false;
-        $synchronizeScoutIndexes($indexes, function (string $index, array|Throwable $result) use (&$failed): void {
+        $outOfSync = 0;
+        $report = function (string $index, array|Throwable $result) use (&$failed, &$outOfSync): void {
             $this->info('Processed ' . $index);
             if (\is_array($result)) {
+                $outOfSync += $result === [] ? 0 : 1;
                 $this->table(['Setting', 'Old', 'New'], Helpers::convertIndexChangesToTable($result));
             } else {
                 $failed = true;
                 $this->error(\sprintf("Exception '%s' with message '%s'", $result::class, $result->getMessage()));
             }
-        }, $pretend);
+        };
 
-        return $failed ? Command::FAILURE : Command::SUCCESS;
+        $synchronizeScoutIndexes($indexes, $report, $pretend);
+
+        $outOfSync = $this->checking() ? $outOfSync : 0;
+        if ($outOfSync > 0) {
+            $noun = $outOfSync === 1 ? 'index' : 'indexes';
+            $this->error(\sprintf('Settings are out of sync for %d %s', $outOfSync, $noun));
+        }
+
+        return $failed || $outOfSync > 0 ? Command::FAILURE : Command::SUCCESS;
     }
 }
