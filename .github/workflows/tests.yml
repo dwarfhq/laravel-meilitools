@@ -9,13 +9,10 @@ on:
       - "**.json"
       - "**.php"
       - "**.yml"
+  # Runs on every pull request, as the test jobs are required checks for merging.
   pull_request:
     branches:
       - main
-    paths:
-      - "**.json"
-      - "**.php"
-      - "**.yml"
   schedule:
     - cron: "0 1 * * 1" # Run at 01:00 on Mondays.
 
