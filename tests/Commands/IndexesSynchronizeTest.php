@@ -53,8 +53,9 @@ test('with configured settings', function (bool $pretend): void {
 test('in production mode', function (): void {
     App::detectEnvironment(fn (): string => 'production');
 
-    $this->artisan('meili:indexes:synchronize')
-        ->expectsConfirmation('Are you sure you want to run this command?', 'no')
+    // Laravel only asks for confirmation interactively outside of the testing environment.
+    $this->artisan('meili:indexes:synchronize', ['--no-interaction' => true])
+        ->expectsOutputToContain('Command cancelled.')
         ->assertFailed()
     ;
 
