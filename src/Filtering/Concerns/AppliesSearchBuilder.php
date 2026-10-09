@@ -51,11 +51,16 @@ trait AppliesSearchBuilder
      */
     protected function performSearch(Builder $builder, array $searchParams = [])
     {
-        if ($builder instanceof SearchBuilder) {
-            $searchParams = array_merge($builder->searchParameters(), $searchParams);
+        if (!$builder instanceof SearchBuilder) {
+            return parent::performSearch($builder, $searchParams);
         }
 
-        return parent::performSearch($builder, $searchParams);
+        $results = parent::performSearch($builder, array_merge($builder->searchParameters(), $searchParams));
+        if (\is_array($results)) {
+            $builder->rememberResults($results);
+        }
+
+        return $results;
     }
 
     /**

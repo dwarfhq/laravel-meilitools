@@ -28,6 +28,20 @@ class SearchBuilder extends ScoutBuilder implements SearchBuilderContract
      */
     protected array $searchParameters = [];
 
+    /**
+     * Number of matching documents per facet value from the last search.
+     *
+     * @var array<string, array<string, int>>
+     */
+    protected array $facetDistribution = [];
+
+    /**
+     * Lowest and highest numeric facet values from the last search.
+     *
+     * @var array<string, array{min: float|int, max: float|int}>
+     */
+    protected array $facetStats = [];
+
     public function orderByGeo(float $lat, float $lng, string $direction = 'asc'): static
     {
         return $this->orderBy(
@@ -67,6 +81,32 @@ class SearchBuilder extends ScoutBuilder implements SearchBuilderContract
     public function locales(array $locales): static
     {
         return $this->withOption('locales', $locales);
+    }
+
+    public function facets(array $attributes): static
+    {
+        return $this->withOption('facets', $attributes);
+    }
+
+    public function facetDistribution(): array
+    {
+        return $this->facetDistribution;
+    }
+
+    public function facetStats(): array
+    {
+        return $this->facetStats;
+    }
+
+    public function rememberResults(array $results): void
+    {
+        /** @var array<string, array<string, int>> $distribution */
+        $distribution = \is_array($results['facetDistribution'] ?? null) ? $results['facetDistribution'] : [];
+        /** @var array<string, array{min: float|int, max: float|int}> $stats */
+        $stats = \is_array($results['facetStats'] ?? null) ? $results['facetStats'] : [];
+
+        $this->facetDistribution = $distribution;
+        $this->facetStats = $stats;
     }
 
     public function searchParameters(): array

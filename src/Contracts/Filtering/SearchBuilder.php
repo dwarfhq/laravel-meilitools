@@ -69,4 +69,34 @@ interface SearchBuilder extends FilterBuilder
      * @return array<string, mixed>
      */
     public function searchParameters(): array;
+
+    /**
+     * Count the matching documents per value of the given filterable attributes when searching.
+     *
+     * @param list<string> $attributes
+     *
+     * @return $this
+     */
+    public function facets(array $attributes): static;
+
+    /**
+     * Get the number of matching documents per facet value, available after searching.
+     *
+     * @return array<string, array<string, int>>
+     */
+    public function facetDistribution(): array;
+
+    /**
+     * Get the lowest and highest numeric facet values, available after searching.
+     *
+     * @return array<string, array{min: float|int, max: float|int}>
+     */
+    public function facetStats(): array;
+
+    /**
+     * Remember the facets of raw search results, which the engine calls after searching.
+     *
+     * @param array<array-key, mixed> $results
+     */
+    public function rememberResults(array $results): void;
 }
