@@ -17,6 +17,7 @@ The purpose of this package is to ease the configuration of indexes for MeiliSea
     - [Filtering](#filtering)
     - [Commands](#commands)
     - [About](#about)
+    - [Health](#health)
 - [Examples](#examples)
 - [Upgrading](#upgrading)
 - [Development](#development)
@@ -319,6 +320,34 @@ The `about` command includes a Meilisearch section with the Scout driver, host, 
 showing the version as `Unreachable` when Meilisearch can't be reached:
 ```
 $ php artisan about --only=meilisearch
+```
+
+### Health
+The health of Meilisearch can be monitored with [Spatie Laravel Health](https://spatie.be/docs/laravel-health) or
+[Laravel Pulse](https://pulse.laravel.com), which must be installed separately. Both report whether Meilisearch is reachable,
+whether the indexes of models and Scout's configuration exist with their settings in sync, and tasks which failed recently.
+Indexes are only checked, never created or changed.
+
+Register the check with Spatie Laravel Health, which fails when Meilisearch is unreachable, an index is missing or settings
+fail validation, and warns when settings are out of sync or tasks failed:
+```php
+use Dwarf\MeiliTools\Health\MeiliToolsCheck;
+use Spatie\Health\Facades\Health;
+
+Health::checks([
+    MeiliToolsCheck::new()
+        ->failedTasksWithin(60) // Minutes, 60 by default
+        ->checkSettings(),      // Whether to compare settings, enabled by default
+]);
+```
+
+Add the card to the Laravel Pulse dashboard, after publishing it with `php artisan vendor:publish --tag=pulse-dashboard`:
+```blade
+<livewire:meilitools.pulse cols="4" />
+```
+The card is cached for 60 seconds, and shows tasks which failed within the last 60 minutes, which can both be changed:
+```blade
+<livewire:meilitools.pulse cols="4" :ttl="120" :failed-tasks-within-minutes="30" />
 ```
 
 ## Examples

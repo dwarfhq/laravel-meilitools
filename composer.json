@@ -34,14 +34,18 @@
         "larastan/larastan": "^3.13",
         "laravel/boost": "^2.10.3",
         "laravel/pint": "^1.32.1",
+        "laravel/pulse": "^1.8.1",
         "orchestra/testbench": "^10.0 || ^11.0",
         "pestphp/pest": "^4.7.8 || ^5.3.0",
         "pestphp/pest-plugin-rector": "^5.0.5",
         "pestphp/pest-plugin-type-coverage": "^4.0.4 || ^5.0.2",
-        "rector/rector": "^2.7"
+        "rector/rector": "^2.7",
+        "spatie/laravel-health": "^1.40.2"
     },
     "suggest": {
-        "brick/varexporter": "Improves readability of console output for index details"
+        "brick/varexporter": "Improves readability of console output for index details",
+        "laravel/pulse": "Required for the MeiliSearch Pulse card",
+        "spatie/laravel-health": "Required for the MeiliSearch health check"
     },
     "autoload": {
         "psr-4": {

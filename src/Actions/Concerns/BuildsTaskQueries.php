@@ -14,8 +14,14 @@ trait BuildsTaskQueries
      *
      * @template TQuery of CancelTasksQuery|TasksQuery
      *
-     * @param TQuery                                                                                           $query
-     * @param array{statuses?: list<string>, types?: list<string>, indexUids?: list<string>, uids?: list<int>} $filters
+     * @param TQuery $query
+     * @param array{
+     *     statuses?: list<string>,
+     *     types?: list<string>,
+     *     indexUids?: list<string>,
+     *     uids?: list<int>,
+     *     afterFinishedAt?: \DateTimeInterface,
+     * } $filters
      *
      * @return TQuery
      */
@@ -32,6 +38,9 @@ trait BuildsTaskQueries
         }
         if (($filters['uids'] ?? []) !== []) {
             $query->setUids($filters['uids']);
+        }
+        if (isset($filters['afterFinishedAt'])) {
+            $query->setAfterFinishedAt($filters['afterFinishedAt']);
         }
 
         return $query;

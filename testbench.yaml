@@ -1,0 +1,3 @@
+providers:
+  - Laravel\Scout\ScoutServiceProvider
+  - Dwarf\MeiliTools\MeiliToolsServiceProvider

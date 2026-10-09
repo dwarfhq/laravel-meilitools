@@ -12,7 +12,12 @@ interface ListsTasks
     /**
      * Get the most recent tasks matching the filters.
      *
-     * @param array{statuses?: list<string>, types?: list<string>, indexUids?: list<string>} $filters
+     * @param array{
+     *     statuses?: list<string>,
+     *     types?: list<string>,
+     *     indexUids?: list<string>,
+     *     afterFinishedAt?: \DateTimeInterface,
+     * } $filters
      *
      * @return list<array<string, mixed>>
      */

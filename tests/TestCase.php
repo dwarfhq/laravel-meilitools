@@ -7,7 +7,9 @@ namespace Dwarf\MeiliTools\Tests;
 use Closure;
 use Dwarf\MeiliTools\MeiliToolsServiceProvider;
 use Laravel\Prompts\Prompt;
+use Laravel\Pulse\PulseServiceProvider;
 use Laravel\Scout\ScoutServiceProvider;
+use Livewire\LivewireServiceProvider;
 use Meilisearch\Client;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 
@@ -32,6 +34,8 @@ class TestCase extends BaseTestCase
         return [
             MeiliToolsServiceProvider::class,
             ScoutServiceProvider::class,
+            LivewireServiceProvider::class,
+            PulseServiceProvider::class,
         ];
     }
 
@@ -41,6 +45,9 @@ class TestCase extends BaseTestCase
         $namespace = 'Dwarf\\MeiliTools\\Tests\\Models';
         $app['config']->set('meilitools.paths', [$path => $namespace]);
         $app['config']->set('scout.driver', 'meilisearch');
+        // Pulse is only used for its card, so nothing is recorded, and its data is cached in memory.
+        $app['config']->set('pulse.enabled', false);
+        $app['config']->set('cache.default', 'array');
     }
 
     /**
