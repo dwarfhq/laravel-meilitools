@@ -1,13 +1,8 @@
 name: Linting
 
+# Fixes are committed to pull requests, as main only accepts changes through pull requests.
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-      - "**.json"
-      - "**.php"
   pull_request:
     branches:
       - main
