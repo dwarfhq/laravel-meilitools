@@ -182,6 +182,18 @@ class Helpers
     }
 
     /**
+     * Format a number of bytes, e.g. `1.5 MB`.
+     */
+    public static function formatBytes(float|int $bytes, int $precision = 1): string
+    {
+        $units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
+        $power = $bytes > 0 ? min((int) floor(log($bytes, 1024)), \count($units) - 1) : 0;
+        $value = round($bytes / 1024 ** $power, $power === 0 ? 0 : $precision);
+
+        return \sprintf('%s %s', $value, $units[$power]);
+    }
+
+    /**
      * Convert index data to table array.
      *
      * @param array<array-key, mixed> $data

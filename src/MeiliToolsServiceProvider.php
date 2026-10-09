@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Dwarf\MeiliTools;
 
+use Dwarf\MeiliTools\Actions\CancelTasks;
 use Dwarf\MeiliTools\Actions\CreateIndex;
 use Dwarf\MeiliTools\Actions\DeleteIndex;
 use Dwarf\MeiliTools\Actions\DetailIndex;
@@ -12,6 +13,7 @@ use Dwarf\MeiliTools\Actions\EnsureIndexExists;
 use Dwarf\MeiliTools\Actions\ListClasses;
 use Dwarf\MeiliTools\Actions\ListIndexes;
 use Dwarf\MeiliTools\Actions\ListModels;
+use Dwarf\MeiliTools\Actions\ListTasks;
 use Dwarf\MeiliTools\Actions\ResetIndex;
 use Dwarf\MeiliTools\Actions\ResetModel;
 use Dwarf\MeiliTools\Actions\ResolveModelSettings;
@@ -23,6 +25,7 @@ use Dwarf\MeiliTools\Actions\SynchronizeScoutIndexes;
 use Dwarf\MeiliTools\Actions\ValidateIndexSettings;
 use Dwarf\MeiliTools\Actions\ViewIndex;
 use Dwarf\MeiliTools\Actions\ViewModel;
+use Dwarf\MeiliTools\Actions\ViewStats;
 use Dwarf\MeiliTools\Console\Commands\IndexCreate;
 use Dwarf\MeiliTools\Console\Commands\IndexDelete;
 use Dwarf\MeiliTools\Console\Commands\IndexDetails;
@@ -36,6 +39,10 @@ use Dwarf\MeiliTools\Console\Commands\ModelReset;
 use Dwarf\MeiliTools\Console\Commands\ModelsSynchronize;
 use Dwarf\MeiliTools\Console\Commands\ModelSynchronize;
 use Dwarf\MeiliTools\Console\Commands\ModelView;
+use Dwarf\MeiliTools\Console\Commands\StatsView;
+use Dwarf\MeiliTools\Console\Commands\TasksCancel;
+use Dwarf\MeiliTools\Console\Commands\TasksList;
+use Dwarf\MeiliTools\Contracts\Actions\CancelsTasks;
 use Dwarf\MeiliTools\Contracts\Actions\CreatesIndex;
 use Dwarf\MeiliTools\Contracts\Actions\DeletesIndex;
 use Dwarf\MeiliTools\Contracts\Actions\DetailsIndex;
@@ -44,6 +51,7 @@ use Dwarf\MeiliTools\Contracts\Actions\EnsuresIndexExists;
 use Dwarf\MeiliTools\Contracts\Actions\ListsClasses;
 use Dwarf\MeiliTools\Contracts\Actions\ListsIndexes;
 use Dwarf\MeiliTools\Contracts\Actions\ListsModels;
+use Dwarf\MeiliTools\Contracts\Actions\ListsTasks;
 use Dwarf\MeiliTools\Contracts\Actions\ResetsIndex;
 use Dwarf\MeiliTools\Contracts\Actions\ResetsModel;
 use Dwarf\MeiliTools\Contracts\Actions\ResolvesModelSettings;
@@ -55,6 +63,7 @@ use Dwarf\MeiliTools\Contracts\Actions\SynchronizesScoutIndexes;
 use Dwarf\MeiliTools\Contracts\Actions\ValidatesIndexSettings;
 use Dwarf\MeiliTools\Contracts\Actions\ViewsIndex;
 use Dwarf\MeiliTools\Contracts\Actions\ViewsModel;
+use Dwarf\MeiliTools\Contracts\Actions\ViewsStats;
 use Dwarf\MeiliTools\Contracts\Filtering\FilterBuilder as FilterBuilderContract;
 use Dwarf\MeiliTools\Contracts\Filtering\FormatsFilterValues;
 use Dwarf\MeiliTools\Contracts\Filtering\SearchBuilder as SearchBuilderContract;
@@ -82,6 +91,7 @@ class MeiliToolsServiceProvider extends ServiceProvider
      */
     public array $bindings = [
         ArrayAssocRule::class           => ArrayAssoc::class,
+        CancelsTasks::class             => CancelTasks::class,
         CreatesIndex::class             => CreateIndex::class,
         DeletesIndex::class             => DeleteIndex::class,
         DetailsIndex::class             => DetailIndex::class,
@@ -92,6 +102,7 @@ class MeiliToolsServiceProvider extends ServiceProvider
         ListsClasses::class             => ListClasses::class,
         ListsIndexes::class             => ListIndexes::class,
         ListsModels::class              => ListModels::class,
+        ListsTasks::class               => ListTasks::class,
         ResetsIndex::class              => ResetIndex::class,
         ResetsModel::class              => ResetModel::class,
         ResolvesModelSettings::class    => ResolveModelSettings::class,
@@ -104,6 +115,7 @@ class MeiliToolsServiceProvider extends ServiceProvider
         ValidatesIndexSettings::class   => ValidateIndexSettings::class,
         ViewsIndex::class               => ViewIndex::class,
         ViewsModel::class               => ViewModel::class,
+        ViewsStats::class               => ViewStats::class,
     ];
 
     /**
@@ -171,6 +183,9 @@ class MeiliToolsServiceProvider extends ServiceProvider
                 ModelSynchronize::class,
                 ModelView::class,
                 ModelsSynchronize::class,
+                StatsView::class,
+                TasksCancel::class,
+                TasksList::class,
             ]);
 
             $this->publishes([__DIR__ . '/../config/meilitools.php' => $this->app->configPath('meilitools.php')]);

@@ -275,6 +275,31 @@ Exits with a failure code if any model fails to synchronize.
 - `--pretend` : Only shows what changes would have been done to the indexes
 - `--force` : Force the operation to run when in production
 
+#### `meili:stats` - Get the stats of MeiliSearch or a MeiliSearch index
+Shows the database size and the documents of each index, or the stats of a single index, including how many documents contain each field.
+
+**Arguments:**
+- `index` : Index name, showing the stats of all indexes when omitted
+
+#### `meili:tasks` - List the most recent MeiliSearch tasks
+Shows the status, duration and any error of each task, e.g. to find out why documents weren't indexed.
+
+**Options:**
+- `--status=*` : Only list tasks with the status, e.g. `failed`
+- `--type=*` : Only list tasks of the type, e.g. `documentAdditionOrUpdate`
+- `--index=*` : Only list tasks of the index
+- `--limit=20` : Maximum number of tasks to list
+
+#### `meili:tasks:cancel` - Cancel enqueued and processing MeiliSearch tasks
+At least one filter is required.
+
+**Options:**
+- `--status=*` : Only cancel tasks with the status, `enqueued` or `processing`
+- `--type=*` : Only cancel tasks of the type, e.g. `documentAdditionOrUpdate`
+- `--index=*` : Only cancel tasks of the index
+- `--uid=*` : Only cancel the task with the uid
+- `--force` : Force the operation to run
+
 ## Examples
 Model commands can take both full class name and base name, with the latter being completed using the configured paths.
 ```
@@ -289,6 +314,11 @@ $ php artisan meili:model:synchronize Article
 
 $ php artisan meili:model:view App\\Models\\Article
 $ php artisan meili:model:view Article
+```
+
+Recent failed tasks, e.g. documents which couldn't be indexed, can be listed with:
+```
+$ php artisan meili:tasks --status=failed
 ```
 
 ## Upgrading
