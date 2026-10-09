@@ -432,6 +432,7 @@ $ php artisan meili:tasks --status=failed
 - List settings are validated as lists, and booleans and integers are validated strictly, e.g. `'1'` is no longer accepted as `true`.
 - `ArrayAssocRule` now extends `ValidationRule` instead of the deprecated `Rule` contract.
 - Models without `MeiliSettings` can be synchronized using settings from Scout's configuration, instead of throwing an exception.
+- Pretending to synchronize or reset no longer creates missing indexes, comparing them with the default settings instead.
 - Searching models using MeiliSearch returns the package's search builder, and Scout's `meilisearch` engine is replaced to apply it.
   Scout's `where` now only accepts the `=`, `!=`, `<>`, `>`, `>=`, `<` and `<=` operators, throwing on others,
   and `null` values are left out of `whereIn` and `whereNotIn`, as they never matched.
