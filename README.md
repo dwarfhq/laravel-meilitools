@@ -22,6 +22,7 @@ The purpose of this package is to ease the configuration of indexes for MeiliSea
 - [Examples](#examples)
 - [Upgrading](#upgrading)
 - [Development](#development)
+- [Career](#career)
 - [License](#license)
 
 ## Compatibility
@@ -49,8 +50,14 @@ php artisan vendor:publish --provider="Dwarf\MeiliTools\MeiliToolsServiceProvide
 Change configuration through `config/meilitools.php`, which contains the paths scanned for models when synchronizing all models,
 and the API key signing [tenant tokens](#tenant-tokens).
 
+Scout must use the `meilisearch` driver, configured with `SCOUT_DRIVER`, `MEILISEARCH_HOST` and `MEILISEARCH_KEY`
+as described in [Scout's documentation](https://laravel.com/docs/scout#meilisearch).
+
 ## Usage
-This package provides commands and helpers to ease the use of configuring MeiliSearch indexes.
+This package provides commands, actions and a search builder for configuring and searching MeiliSearch indexes.
+
+Each command uses an action bound to a contract in `Dwarf\MeiliTools\Contracts\Actions`, which can be called directly,
+e.g. `resolve(SynchronizesModel::class)(Article::class)`, or replaced by binding your own implementation.
 
 All settings are validated before being sent to MeiliSearch, and only actual changes are applied.
 The following settings are supported:
@@ -104,7 +111,7 @@ class Article extends Model implements MeiliSettings
      */
     public function meiliSettings(): array
     {
-        // When using soft deletes '__soft_deleted' will automatically be added to filterable attributes.
+        // With Scout's `soft_delete` enabled, '__soft_deleted' is automatically added to filterable attributes.
         return ['filterableAttributes' => ['status']];
     }
 }
@@ -156,7 +163,7 @@ The following filter methods are available, each with `orWhere` variants, and mo
 | `whereGeoRadius($lat, $lng, $distance, DistanceUnit::Meters)` | `_geoRadius(lat, lng, meters)`, with the distance converted to meters from the `Enums\Filtering\DistanceUnit` cases `Meters`, `Kilometers`, `Miles` or `Feet` |
 | `whereGeoBoundingBox([$lat, $lng], [$lat, $lng])` | `_geoBoundingBox([lat, lng], [lat, lng])`, with the top right and bottom left corners |
 | `whereGeoPolygon([[$lat, $lng], ...])` | `_geoPolygon([lat, lng], ...)`, requiring `_geojson` to be filterable |
-| `whereRaw('rank = 3 OR genre = drama')` | Raw filter expression in parentheses |
+| `whereRaw('rank = 3 OR genre = drama')` | Raw filter expression in parentheses, skipped when empty |
 
 The builder also adds the following search options:
 ```php
@@ -232,7 +239,8 @@ A list of indexes allows every document in them, e.g. `['*']` for all indexes.
 The API key and its uid can also be given as `apiKey` and `apiKeyUid`.
 
 ### Commands
-The following commands are available:
+The following commands are available. Index and model arguments are asked for when omitted, except by `meili:stats`,
+and `--pretend` and `--stats` can be shortened to `-P` and `-S`.
 
 #### `meili:index:create` - Create a MeiliSearch index
 **Arguments:**
@@ -369,8 +377,8 @@ The health of Meilisearch can be monitored with [Spatie Laravel Health](https://
 whether the indexes of models and Scout's configuration exist with their settings in sync, and tasks which failed recently.
 Indexes are only checked, never created or changed.
 
-Register the check with Spatie Laravel Health, which fails when Meilisearch is unreachable, an index is missing or settings
-fail validation, and warns when settings are out of sync or tasks failed:
+Register the check with Spatie Laravel Health, which fails when Meilisearch is unreachable, its indexes or tasks can't be
+listed, an index is missing or settings fail validation, and warns when settings are out of sync or tasks failed:
 ```php
 use Dwarf\MeiliTools\Health\MeiliToolsCheck;
 use Spatie\Health\Facades\Health;
@@ -432,6 +440,7 @@ $ php artisan meili:tasks --status=failed
 - List settings are validated as lists, and booleans and integers are validated strictly, e.g. `'1'` is no longer accepted as `true`.
 - `ArrayAssocRule` now extends `ValidationRule` instead of the deprecated `Rule` contract.
 - Models without `MeiliSettings` can be synchronized using settings from Scout's configuration, instead of throwing an exception.
+- Pretending to synchronize or reset no longer creates missing indexes, comparing them with the default settings instead.
 - Searching models using MeiliSearch returns the package's search builder, and Scout's `meilisearch` engine is replaced to apply it.
   Scout's `where` now only accepts the `=`, `!=`, `<>`, `>`, `>=`, `<` and `<=` operators, throwing on others,
   and `null` values are left out of `whereIn` and `whereNotIn`, as they never matched.
